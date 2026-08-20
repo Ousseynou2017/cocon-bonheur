@@ -378,6 +378,25 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
   z-index: 0;
 }
 
+/* Sous 900px le soleil restait masque : la seule chose qui franchissait un bord
+   etait alors la photo de facade, et elle s'arrete PILE au bord au lieu de le
+   depasser. Le soleil revient, petit, a droite du bouton d'appel — la seule
+   zone libre du premier ecran (mesure : 150px a 390px de large). */
+@media (max-width: 899px) {
+  /* `bottom: 96px` le posait DERRIERE la photo de facade : present dans le DOM,
+     compte comme visible par un detecteur, invisible a l'oeil. Il remonte a
+     droite du titre, la seule zone reellement libre du premier ecran — le
+     badge s'arrete a 225px et la 1re ligne du titre a 250px de large. */
+  .hero__mark-soleil {
+    display: block;
+    width: 110px;
+    /* -40px laissait 7px d'encre sur « Un cocon » : on sort davantage. */
+    right: -56px;
+    top: 20px;
+    bottom: auto;
+  }
+}
+
 /* ---------- Photo de façade, plein bord (M7) ---------- */
 
 .hero__photo {
@@ -512,6 +531,51 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
 }
 .cycle__desc { color: var(--c-text); font-size: var(--fs-note); }
 
+/* ---------- Ce qu'on y apprend — deux colonnes réglées ---------- */
+
+/* Deux colonnes, parce que le panneau de la façade en a deux et que la moitié
+   droite de cette section était vide sous les cycles. Même vocabulaire que
+   `.services` (libellé capitales, filet 2px, rangées filetées) : c'est une
+   variante, pas un nouveau motif. Aucun chiffre romain ici — les romaines
+   restent la signature des deux listes de M6, les diluer les affaiblirait. */
+.appris {
+  position: relative;
+  z-index: 2;
+  margin-top: clamp(56px, 7vw, 96px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(28px, 4vw, 64px);
+}
+.appris__label {
+  font-size: var(--fs-fine);
+  letter-spacing: var(--ls-caps, .08em);
+  text-transform: uppercase;
+  color: var(--c-heading);
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--c-purple);
+}
+.appris__list { list-style: none; margin: 0; padding: 0; }
+.appris__row {
+  padding-block: clamp(11px, 1.4vw, 15px);
+  border-bottom: var(--hairline);
+  font-size: var(--fs-note);
+  color: var(--c-heading);
+  font-weight: var(--w-medium);
+}
+/* La précision entre parenthèses du panneau devient une seconde ligne : en
+   ligne elle rallongeait la rangée jusqu'à casser sur trois lignes en mobile. */
+.appris__note {
+  display: block;
+  margin-top: 3px;
+  font-size: var(--fs-fine);
+  font-weight: var(--w-regular);
+  color: var(--c-text);
+}
+
+@media (max-width: 639px) {
+  .appris { grid-template-columns: 1fr; gap: 34px; }
+}
+
 /* ---------- M6 — la liste réglée, sous les cycles ---------- */
 
 .services {
@@ -598,6 +662,18 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
   color: var(--c-yellow-pale);
   z-index: 0;
 }
+
+/* Idem en mobile : sans `display: block`, `.mark--bleed` reste masquee et la
+   section devient une pile de rectangles (echec M7 releve au round 3). */
+@media (max-width: 899px) {
+  .cycles__mark-soleil {
+    display: block;
+    width: 96px;
+    right: -38px;
+    bottom: -30px;
+  }
+}
+
 
 
 /* ═══ 03-vie — La vie de l'école + témoignages ═══ */
@@ -801,7 +877,29 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
 /* Sous 900px le titre occupe toute la largeur : la marque le barrait en plein
    milieu. Elle descend alors en bas de section, ou elle deborde sans gener. */
 @media (max-width: 899px) {
-  .temoins__mark-cocon { top: auto; bottom: -34px; width: 96px; }
+  /* `display: block` est INDISPENSABLE : `.mark--bleed` est masquee en bloc
+     sous 900px par tokens.css. Sans lui, tout ce repositionnement etait du
+     code mort — la marque restait invisible et M7 tombait en mobile. */
+  .temoins__mark-cocon { display: block; top: auto; bottom: -34px; width: 96px; }
+}
+
+/* Le soleil de la vie de l'ecole revient aussi en mobile, mais sous le dernier
+   bloc de texte et sortant par la gauche : `overflow-x: clip` le coupe net. */
+@media (max-width: 899px) {
+  .vie__mark-soleil {
+    display: block;
+    width: 88px;
+    /* En bas de section il n'y a PAS de place : a -30px il mordait la derniere
+       legende, a -68px le titre de la section suivante. Mesure a 6 largeurs.
+       En haut a droite, en revanche, le titre « La vie de l'ecole » est court
+       et laisse la bande libre — et le soleil franchit toujours un bord (M7). */
+    left: auto;
+    /* Encore 20px d'encre sur le chapeau a 390 et 320px : on sort davantage
+       et on remonte au niveau du titre, qui est la ligne la plus courte. */
+    right: -54px;
+    bottom: auto;
+    top: 12px;
+  }
 }
 
 
@@ -898,8 +996,60 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
   color: var(--c-yellow-pale);
   display: none;
 }
-/* Sous 1000px la marge manque : la fleche mordrait le bord de l'ecran. */
+/* Sous 1000px la marge manque a GAUCHE du numero : la fleche mordrait le bord.
+   Elle ne disparait plus pour autant (la section n'avait alors aucune marque,
+   echec M5 au round 3) : elle passe AU-DESSUS du numero, ou la place existe. */
 @media (min-width: 1000px) { .contact__fil { display: block; } }
+/* Tentative abandonnee : un fil au-dessus du numero. Mesure a 320-900px, il
+   mordait a la fois le paragraphe des tarifs et le numero lui-meme — la
+   section centree ne laisse aucune marge laterale. La marque de cette section
+   en mobile est desormais le soulignement de « enfant », ANCRE au mot donc
+   valide a toutes les largeurs (M5). */
+
+/* Le soleil franchit le bord droit de la section contact (M7). Pale, derriere
+   le contenu (z-index 0 contre 2), donc jamais sur l'encre du numero. */
+.contact__soleil {
+  width: clamp(92px, 12vw, 180px); height: auto; aspect-ratio: 1;
+  /* A 480px il mordait la ligne « Ouakam, Dakar » de 13x7px : on sort
+     davantage par la droite et on descend le point d'ancrage. */
+  right: clamp(-72px, -7vw, -46px);
+  bottom: clamp(-58px, -3.2vw, -34px);
+  color: var(--c-yellow-pale);
+  opacity: .5;
+  z-index: 0;
+}
+
+/* Soulignement ancre au dernier mot du titre : meme motif que le heros
+   (« pour »), les cycles (« quatre ») et la vie de l'ecole (« l'ecole »). */
+.contact__title-mark { position: relative; display: inline-block; }
+.contact__trait {
+  position: absolute;
+  left: 0; bottom: -.20em;
+  width: 104%; height: .20em;
+  color: var(--c-yellow-pale);
+}
+
+/* Le fil du pied designe le numero principal. Ancre a sa rangee (M5). */
+.footer__row--tel { position: relative; }
+.footer__fil {
+  width: 46px; height: auto; aspect-ratio: 100/60;
+  left: -54px;
+  top: 2px;
+  color: var(--c-yellow-pale);
+  opacity: .75;
+}
+/* Sous 1000px la colonne part du bord gauche : le fil sortirait de l'ecran.
+   Il passe au-dessus du numero, pointe vers le bas. */
+@media (max-width: 999px) {
+  /* Au-dessus, il percutait le titre « Nous joindre » a toutes les largeurs.
+     A droite du numero, la colonne pleine largeur laisse la place — mais colle
+     au numero, sinon il ne DESIGNE plus rien (M5) et se lit comme un gribouilli
+     perdu. Le miroir retourne la pointe vers le numero, qui est a sa gauche. */
+  .footer__fil {
+    left: 150px; right: auto; top: 0;
+    transform: scaleX(-1);
+  }
+}
 
 /* ---------- Pied de page ---------- */
 

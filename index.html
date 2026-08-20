@@ -218,6 +218,33 @@
       </li>
     </ul>
 
+    <!-- CE QU'ON Y APPREND — transcrit MOT POUR MOT du panneau « Activités »
+         peint sur la façade de l'école (visible sur la photo du héros). C'est
+         le seul contenu qui distingue cette école des autres crèches de Ouakam,
+         et il n'existait nulle part dans le texte de la page : un parent qui
+         lisait le site n'apprenait pas que l'arabe, l'anglais et le chinois y
+         sont enseignés. À FAIRE CONFIRMER PAR LA CLIENTE avant mise en avant. -->
+    <div class="appris enter">
+      <div class="appris__col">
+        <p class="appris__label">Langues</p>
+        <ul class="appris__list">
+          <li class="appris__row">Français <span class="appris__note">programme français au préscolaire</span></li>
+          <li class="appris__row">Arabe</li>
+          <li class="appris__row">Anglais</li>
+          <li class="appris__row">Chinois</li>
+        </ul>
+      </div>
+      <div class="appris__col">
+        <p class="appris__label">Éveil</p>
+        <ul class="appris__list">
+          <li class="appris__row">Initiation au jardinage</li>
+          <li class="appris__row">Initiation à l'informatique</li>
+          <li class="appris__row">Sorties pédagogiques</li>
+          <li class="appris__row">Contes traditionnels et modernes</li>
+        </ul>
+      </div>
+    </div>
+
     <!-- « Services assurés » vient APRÈS les cycles : on répond d'abord à la
          question du parent (quel âge, quels horaires), puis à ce qui l'entoure. -->
     <div class="services enter">
@@ -429,9 +456,13 @@
 </section>
 <section id="contact" class="section section--contact on-purple">
   <div class="wrap contact__wrap">
+    <!-- M7 : cette section etait la seule boite parfaitement close, a toutes
+         les largeurs. Le soleil franchit le bord droit ; `overflow-x: clip`
+         de `.section` le coupe net, comme celui des cycles. -->
+    <svg class="mark mark--pale mark--l8 contact__soleil" aria-hidden="true"><use href="#m-soleil"/></svg>
 
     <div class="contact__intro enter">
-      <h2 class="contact__title">Parlons de votre enfant</h2>
+      <h2 class="contact__title">Parlons de votre <span class="contact__title-mark">enfant<svg class="mark mark--pale mark--r3 contact__trait" aria-hidden="true"><use href="#m-trait"/></svg></span></h2>
       <p class="contact__note">Les tarifs sont donnés par téléphone ou lors de la visite.</p>
     </div>
 
@@ -474,8 +505,13 @@
 
     <div class="footer__col">
       <h3 class="footer__heading">Nous joindre</h3>
-      <ul class="footer__list">
-        <li><a class="footer__link" href="tel:+221778845353">+221 77 884 53 53</a></li>
+      <ul class="footer__list footer__list--joindre">
+        <!-- M5 : le pied de page etait la seule section sans marque. Un fil
+             plutot qu'un ornement — il DESIGNE le numero principal, seule vraie
+             cible du pied. Ancre a la rangee, il la suit quand la colonne
+             se recompose. Le cocon avait ete retire ici : il percutait le « A »
+             du logotype geant. -->
+        <li class="footer__row--tel"><svg class="mark mark--r6 footer__fil" aria-hidden="true"><use href="#m-fil"/></svg><a class="footer__link" href="tel:+221778845353">+221 77 884 53 53</a></li>
         <li><a class="footer__link" href="tel:+221773937467">+221 77 393 74 67</a></li>
         <li><a class="footer__link" href="tel:+221338656575">+221 33 865 65 75</a></li>
         <li><a class="footer__link" href="mailto:contact@aucocondubonheur.com">contact@aucocondubonheur.com</a></li>
