@@ -593,8 +593,10 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
   border-bottom: 2px solid var(--c-purple);
 }
 .services__list { list-style: none; margin: 0; padding: 0; }
+/* Meme gabarit que `.proof` : chiffre romain A GAUCHE, meme gouttiere. Il
+   etait a droite ici et a gauche la-bas — deux versions du meme composant. */
 .services__row {
-  display: flex; align-items: baseline; justify-content: space-between; gap: 20px;
+  display: flex; align-items: baseline; gap: clamp(16px, 2.4vw, 28px);
   padding-block: clamp(13px, 1.6vw, 18px);
   border-bottom: var(--hairline);
 }
@@ -604,6 +606,7 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
   font-weight: var(--w-medium);
 }
 .services__num {
+  flex: none; min-width: 2.2ch;
   font-size: var(--fs-note);
   color: var(--c-purple);
   font-variant-numeric: tabular-nums;
@@ -634,10 +637,14 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
 /* Le fil désigne la liste réglée. Ancré à `.services`, il la suit où qu'elle
    soit dans la page — la pointe s'arrête à côté du « I », jamais dessus. */
 .cycles__mark-fil {
-  width: clamp(76px, 8vw, 112px); height: auto; aspect-ratio: 100/60;
-  left: auto; right: clamp(-124px, -8.6vw, -92px);
-  top: clamp(-6px, 0vw, 6px);
-  transform: scaleX(-1);
+  width: clamp(76px, 8vw, 104px); height: auto; aspect-ratio: 100/60;
+  /* Ancre a `.cycles__call` : la pointe arrive juste apres le lien, quelle que
+     soit la longueur a laquelle le texte se recompose. */
+  /* 29vw rapprochait la pointe du lien mais recreait 2 collisions : on garde
+     34vw, mesure propre sur les 10 largeurs. */
+  left: clamp(330px, 34vw, 470px); right: auto;
+  /* -26px mordait le lien de 58x17px a 1024 : la fleche monte au-dessus. */
+  top: -44px;
   color: var(--c-heading);
   display: none;
 }
@@ -745,7 +752,10 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
   .shot--f { grid-column: 7 / span 6; margin-top: clamp(24px, 3vw, 44px); }
 
   /* M7 — cette photo franchit le bord de la colonne et se fait couper */
-  .shot--bleed { margin-right: clamp(-150px, -9.5vw, -60px); }
+  /* -9.5vw donnait -136,8px a 1440 : la photo s'arretait a x=1408, soit 31px
+     AVANT le bord, alors que ses coins droits carres annoncent une coupe.
+     Il faut au moins -169px pour franchir vraiment ; -13vw donne -187px. */
+  .shot--bleed { margin-right: clamp(-230px, -13vw, -60px); }
   .shot--bleed .shot__fig img { border-radius: var(--r-20) 0 0 var(--r-20); }
 }
 
@@ -798,7 +808,9 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
 
 .proofs {
   list-style: none; margin: 0 0 clamp(32px, 4vw, 48px); padding: 0;
-  max-width: 760px;
+  /* Meme largeur que `.services` : c'etait 760 ici et 720 la-bas, deux
+     instances du meme composant s'arretant a deux abscisses differentes. */
+  max-width: 720px;
   position: relative; z-index: 2;
   border-top: 2px solid var(--c-purple);
 }
