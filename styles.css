@@ -917,7 +917,7 @@ html.js { scroll-behavior: auto; }
    reste de la page. Zero requete : le sprite est deja en ligne dans le HTML. */
 .services__num {
   flex: none;
-  width: 15px; height: 15px;
+  width: 17px; height: 17px;
   margin-top: .28em;          /* aligne sur la 1re ligne, pas sur la boite */
   color: var(--c-purple);
 }
