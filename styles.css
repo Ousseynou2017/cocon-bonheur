@@ -910,11 +910,16 @@ html.js { scroll-behavior: auto; }
   color: var(--c-heading);
   font-weight: var(--w-medium);
 }
+/* Les chiffres romains (I, II, III, IV) ont ete remplaces par la « graine »,
+   l'une des marques dessinees du site : elle etait dans le sprite et ne servait
+   nulle part. Un numero d'ordre n'apportait rien — ces listes ne sont pas des
+   etapes — et la numerotation romaine jurait avec le trace a main levee du
+   reste de la page. Zero requete : le sprite est deja en ligne dans le HTML. */
 .services__num {
-  flex: none; min-width: 2.2ch;
-  font-size: var(--fs-note);
+  flex: none;
+  width: 15px; height: 15px;
+  margin-top: .28em;          /* aligne sur la 1re ligne, pas sur la boite */
   color: var(--c-purple);
-  font-variant-numeric: tabular-nums;
 }
 
 /* ---------- Rappel d'appel — sobre, ce n'est pas LE bouton (M3) ---------- */
@@ -1125,10 +1130,10 @@ html.js { scroll-behavior: auto; }
   border-bottom: var(--hairline);
 }
 .proof__num {
-  flex: none; min-width: 2.2ch;
-  font-size: var(--fs-note);
+  flex: none;
+  width: 17px; height: 17px;   /* un peu plus grande : le titre l'est aussi */
+  margin-top: .3em;
   color: var(--c-purple);
-  font-variant-numeric: tabular-nums;
 }
 .proof__body { display: block; }
 .proof__title {
