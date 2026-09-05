@@ -20,7 +20,11 @@
   --hairline: 1px solid rgb(94 73 102 / .15);
 
   /* --- Typographie : l'échelle porte la hiérarchie, pas la graisse (M1) --- */
-  --fs-hero:    clamp(3.4rem, 7.2vw, 6.5rem);   /* 54 → 104px */
+  /* Plafond baisse de 6,5rem a 5,6rem : « Un cocon pour bien grandir. » passait
+     sur DEUX lignes des 1440px avec l'ancien 104px, ce que le titre court ne
+     faisait pas. Mesure : la ligne fait 1104px de large disponible, elle tient
+     jusqu'a ~92px de corps. 89,6px laisse une marge. */
+  --fs-hero:    clamp(3.4rem, 7.2vw, 5.6rem);   /* 54 → 89,6px */
   --fs-section: clamp(1.9rem, 3.4vw, 2.5rem);   /* 30 → 40px  */
   --fs-card:    clamp(1.25rem, 1.9vw, 1.5rem);  /* 20 → 24px  */
   --fs-body:    clamp(1.0625rem, 1.5vw, 1.25rem); /* 17 → 20px */
@@ -53,6 +57,25 @@
   --m-micro: 150ms;
   --m-state: 300ms;
   --m-enter: 1000ms;
+  /* Ouverture de page : le rideau tient 1,9s puis se retire en 600ms.
+     Total 2,5s, dans la fourchette 2-3s demandee par la cliente. */
+  --m-veil: 2500ms;
+  --m-veil-out: 1900ms;   /* instant ou le rideau commence a se retirer */
+  --m-boot: 900ms;        /* duree d'entree d'un element du heros */
+  /* Revelation au defilement : une DUREE, pas une distance de scroll. C'est
+     tout l'objet du passage au JS — voir app.js. 1100ms se lit comme un
+     glissement ; en dessous de ~700ms ca redevient un « pop ». */
+  --m-reveal: 1100ms;
+  /* Expo-out : demarre franc, se pose tres longuement. C'est cette longue fin
+     de course qui donne la sensation « premium », pas la duree seule. */
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+
+  /* --- En-tete : deux echelles, pleine en haut de page puis compacte --- */
+  --header-logo:     clamp(180px, 18vw, 262px);
+  --header-pad:      14px;
+  --header-cta-fs:   clamp(1.05rem, 1.5vw, 1.375rem);
+  --header-cta-pad:  16px 30px;
+  --header-cta-icon: 24px;
   --ease-ui: cubic-bezier(.4, 0, .2, 1);
   /* Ressort : dépasse la cible d'environ 11% avant de se poser */
   --ease-spring: linear(
@@ -72,7 +95,20 @@
    Sans ça le masquage échoue en silence. */
 [hidden] { display: none !important; }
 
-html { -webkit-text-size-adjust: 100%; }
+/* Defilement fluide sur les liens du menu. `scroll-padding-top` est
+   indispensable : sans lui l'ancre se cale en haut de fenetre, donc DERRIERE
+   l'en-tete collant, et le titre vise est invisible. La valeur suit la hauteur
+   reelle de l'en-tete (~122px desktop, ~150px en deux rangees sous 900px). */
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: 138px;
+}
+@media (max-width: 899px) { html { scroll-padding-top: 162px; } }
+/* Sous 420px le bouton d'appel descend sur sa propre rangee : l'en-tete monte
+   a ~187px et l'ancre repassait dessous. Mesure, pas estimation. */
+@media (max-width: 420px) { html { scroll-padding-top: 196px; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
 body {
   margin: 0;
@@ -143,6 +179,21 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
    defilement repeignait la bande. Mesure : pire frame 47,5ms -> voir plus bas. */
 .site-header { will-change: transform; }
 
+/* En haut de page l'en-tete est plein : le logo fait 125px de haut, l'en-tete
+   153px. Colle tel quel pendant toute la lecture, il mangerait 17% d'un ecran
+   de 900px. Des 60px de defilement il se compacte a ~93px — le logo reste le
+   premier point d'accroche a l'arrivee, sans peser ensuite.
+   Pilote par app.js (classe `is-compact`) ; sans JS l'en-tete reste plein,
+   ce qui est le cas correct par defaut. */
+.site-header.is-compact {
+  --header-logo:     clamp(120px, 11vw, 158px);
+  --header-pad:      9px;
+  --header-cta-fs:   var(--fs-note);
+  --header-cta-pad:  11px 20px;
+  --header-cta-icon: 19px;
+}
+.site-header__inner { transition: padding-block var(--m-state) var(--ease-ui); }
+
 /* ============================================================
    Marques du Cocon — pose (M5)
    Rotation 3–12°, hors grille, décoratives donc aria-hidden.
@@ -210,8 +261,10 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
   }
 }
 
+/* 28px -> 44px : sur une course courte le bloc « apparait » d'un coup au lieu
+   de glisser. C'est la difference que la cliente decrivait comme « trop rapide ». */
 @keyframes enter-rise {
-  from { opacity: 0; transform: translateY(28px); }
+  from { opacity: 0; transform: translateY(44px); }
   to   { opacity: 1; transform: none; }
 }
 @keyframes enter-pop {
@@ -223,6 +276,143 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
   from { opacity: 0; stroke-dashoffset: var(--dash, 400); }
   to   { opacity: 1; stroke-dashoffset: 0; }
 }
+
+/* ============================================================
+   Rideau d'ouverture — CSS pur, zero JS
+   Le rideau tient 1,9s, puis se retire en 600ms. Il finit sur
+   `visibility: hidden` : passe ce point il n'intercepte plus rien.
+   Aucun script ne l'enleve — s'il en fallait un, une erreur JS laisserait
+   la page murée derriere un ecran creme. Ici le pire cas est une animation
+   qui ne part pas, et la page est deja lisible dessous.
+   ============================================================ */
+
+.boot-veil {
+  position: fixed; inset: 0; z-index: 100;
+  display: grid; place-items: center;
+  background: var(--c-cream);
+  animation: veil-lift var(--m-veil) var(--ease-ui) forwards;
+}
+.boot-veil__inner { display: grid; justify-items: center; }
+
+.boot-veil__logo {
+  width: clamp(170px, 30vw, 230px); height: auto;
+  animation: veil-logo 1100ms var(--ease-spring) both;
+}
+
+/* Une barre qui se remplit, pas un sablier qui tourne : elle dit combien de
+   temps il reste. Le violet de marque, jamais le jaune — celui-ci n'habille
+   que l'appel telephonique (M3). */
+.boot-veil__rail {
+  width: clamp(130px, 22vw, 180px); height: 3px;
+  margin-top: clamp(22px, 3vw, 30px);
+  background: rgb(94 73 102 / .14);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+.boot-veil__fill {
+  display: block; height: 100%; width: 100%;
+  background: var(--c-purple);
+  border-radius: var(--r-pill);
+  transform-origin: left center;
+  animation: veil-fill var(--m-veil-out) var(--ease-ui) both;
+}
+
+@keyframes veil-lift {
+  0%, 76%  { opacity: 1; visibility: visible; }
+  100%     { opacity: 0; visibility: hidden; }
+}
+@keyframes veil-logo {
+  from { opacity: 0; transform: translateY(16px) scale(.93); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes veil-fill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* ------------------------------------------------------------
+   Entree du heros, pilotee par le TEMPS et non par le scroll
+   Les entrees `.enter` sont pilotees par `view()` : en haut de page le heros
+   est deja entierement visible, donc elles sont figees sur leur etat final et
+   ne jouent jamais. Il faut une animation temporelle pour que le premier ecran
+   se compose apres le rideau.
+   Le depart est cale 250ms AVANT la fin du rideau : le contenu glisse deja
+   quand le voile s'efface, au lieu de demarrer sur une page morte.
+   ------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: no-preference) {
+  .boot {
+    animation: enter-rise var(--m-boot) var(--ease-spring) both;
+    animation-delay: calc(var(--m-veil-out) - 250ms + var(--i, 0) * 120ms);
+  }
+  .boot--pop {
+    animation-name: enter-pop;
+  }
+  /* Le decalage passe par une classe, jamais par un style en ligne. */
+  .boot--i1 { --i: 1; }
+  .boot--i2 { --i: 2; }
+  .boot--i3 { --i: 3; }
+  .boot--i4 { --i: 4; }
+}
+
+/* ------------------------------------------------------------
+   Photo qui se pose au defilement (M4)
+   Elle arrive legerement agrandie et revient a l'echelle 1. Sur `transform`
+   uniquement : aucun recalcul de mise en page, donc aucune frame perdue.
+   La figure decoupe, sinon le debordement creerait un scroll horizontal.
+   ------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .glide {
+      animation: glide-settle linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 55%;
+      will-change: transform;
+    }
+  }
+}
+@keyframes glide-settle {
+  from { transform: scale(1.07); }
+  to   { transform: scale(1); }
+}
+
+/* ============================================================
+   Revelations au defilement — version JS (app.js)
+   Sans JS : les regles `animation-timeline: view()` plus haut s'appliquent,
+   le contenu reste visible en toutes circonstances.
+   Avec JS : la classe `js` est posee sur <html> et les entrees basculent sur
+   une TRANSITION. La difference est le point que la cliente ne cessait de
+   signaler : une animation liee a `view()` avance a la vitesse du doigt, donc
+   un defilement rapide la traverse en deux frames et le mouvement n'existe
+   plus. Une transition dure --m-reveal quoi qu'il arrive.
+   ============================================================ */
+
+html.js .enter,
+html.js .enter--pop,
+html.js .enter--draw {
+  animation: none;
+  animation-timeline: auto;
+  opacity: 0;
+  transform: translateY(52px);
+  transition: opacity   var(--m-reveal) var(--ease-out) var(--d, 0ms),
+              transform var(--m-reveal) var(--ease-out) var(--d, 0ms);
+  will-change: transform, opacity;
+}
+html.js .enter--pop  { transform: scale(.9) rotate(-3deg); }
+html.js .enter--draw { transform: translateY(24px); }
+
+html.js .enter.is-in,
+html.js .enter--pop.is-in,
+html.js .enter--draw.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Le JS pilote lui-meme le defilement vers les ancres : il connait la hauteur
+   REELLE de l'en-tete a l'instant du clic, ce qu'un `scroll-padding` fige ne
+   peut pas faire (l'en-tete se compacte pendant le trajet). */
+html.js { scroll-behavior: auto; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -247,25 +437,52 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
   border-bottom: var(--hairline);
 }
 .site-header__inner {
-  display: flex; align-items: center; gap: clamp(16px, 3vw, 40px);
-  padding-block: 14px;
+  display: flex; align-items: center; gap: clamp(14px, 1.9vw, 28px);
+  padding-block: var(--header-pad);
 }
 .site-header__brand {
   flex: none; display: flex; align-items: center;
   min-height: 44px;              /* cible tactile : le logo seul tombait a 40,06px */
   border-radius: var(--r-8);
 }
-.site-header__logo { width: 131px; height: auto; }
+/* Le logo est le premier point d'accroche : il remplit la hauteur de l'en-tete
+   sans en toucher les bords (14px d'air en haut et en bas). 262px affiches,
+   soit 125px de haut — et 524w en source pour un ecran 2x, exactement la plus
+   grande variante disponible : aucun agrandissement, aucun flou.
+   La transition sert a l'en-tete compact (voir plus bas). */
+.site-header__logo {
+  width: var(--header-logo); height: auto;
+  transition: width var(--m-state) var(--ease-ui);
+}
 
-.site-nav { display: flex; gap: clamp(14px, 2.4vw, 32px); margin-inline: auto; }
+.site-nav { display: flex; gap: clamp(8px, 1.4vw, 20px); margin-inline: auto; }
 .site-nav__link {
   text-decoration: none;
   color: var(--c-heading);
   font-size: var(--fs-note);
-  padding: 8px 10px; border-radius: var(--r-8);
+  /* Le logo et le bouton d'appel ayant grossi, la navigation est le seul
+     element compressible de la rangee : ses liens se coupaient en deux lignes
+     (« La vie de / l'ecole »). Un lien de menu ne se coupe jamais. */
+  white-space: nowrap;
+  padding: 8px 9px; border-radius: var(--r-8);
   transition: background-color var(--m-micro) var(--ease-ui);
 }
 .site-nav__link:hover { background: var(--c-cream-deep); color: var(--c-heading); }
+
+/* Le bouton d'appel de l'en-tete suit le logo : demande cliente, « de meme
+   pour le numero a droite en jaune ». Il se compacte avec lui au defilement. */
+.site-header .btn-call {
+  font-size: var(--header-cta-fs);
+  padding: var(--header-cta-pad);
+  transition: background-color var(--m-micro) var(--ease-ui),
+              transform var(--m-micro) var(--ease-ui),
+              font-size var(--m-state) var(--ease-ui),
+              padding var(--m-state) var(--ease-ui);
+}
+.site-header .btn-call__icon {
+  width: var(--header-cta-icon); height: var(--header-cta-icon);
+  transition: width var(--m-state) var(--ease-ui), height var(--m-state) var(--ease-ui);
+}
 
 /* ---------- Le bouton d'appel — seul objet #FFD400 (M3) ---------- */
 
@@ -280,6 +497,7 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
   padding: 12px 22px;
   border-radius: var(--r-pill);
   white-space: nowrap;          /* le numero ne se coupe jamais */
+  line-height: var(--lh-title);
   --focus-ring: var(--c-purple-deep);
   transition: background-color var(--m-micro) var(--ease-ui),
               transform var(--m-micro) var(--ease-ui);
@@ -307,15 +525,23 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
    et coupait le numero en deux lignes — sur l'unique action de la page. */
 .hero__copy { max-width: none; }
 
+/* Le bandeau ne porte plus l'autorisation — elle est deja au pied de page —
+   mais l'ADRESSE, avec une epingle a la place de la marque « cocon ».
+   Le cadrage (fond creme profond, filet, pilule) est celui dessine pour
+   l'autorisation : on garde la forme, on change le contenu. */
 .hero__badge {
   display: inline-flex; align-items: center; gap: 10px;
-  font-size: var(--fs-fine);
+  font-size: var(--fs-note);
   color: var(--c-heading);
   background: var(--c-cream-deep);
   border: var(--hairline);
   border-radius: var(--r-pill);
-  padding: 7px 16px 7px 12px;
+  padding: 9px 20px 9px 16px;
   margin-bottom: clamp(20px, 3vw, 30px);
+}
+.hero__badge-icon {
+  width: 19px; height: 19px; flex: none;
+  color: var(--c-purple);
 }
 .mark--inline { width: 16px; height: 16px; flex: none; color: var(--c-purple); }
 
@@ -342,16 +568,28 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
   font-size: var(--fs-body);
 }
 
-.hero__copy .btn-call--lg { margin-top: clamp(26px, 3.4vw, 38px); }
+/* Le decalage porte sur le conteneur, pas sur le bouton : c'est lui qui sert
+   desormais de repere a la fleche. */
+.hero__cta {
+  position: relative; display: inline-block;
+  margin-top: clamp(26px, 3.4vw, 38px);
+}
 
 /* ---------- Marques (M5) ---------- */
 
 /* Le fil désigne le gros bouton d'appel SANS le traverser : miroir horizontal
    (scaleX) pour que la pointe revienne vers la gauche, posé à droite du bouton. */
+/* ANCREE AU BOUTON, plus au fond de section. Les anciennes coordonnees
+   (`left`/`top` en clamp sur la largeur de fenetre) etaient calees sur une
+   hauteur de heros donnee : des qu'une ligne s'ajoutait — ici l'adresse — la
+   fleche retombait sur le sous-titre a 1280px et sur le titre a 1024px.
+   Accrochee au bouton, elle le suit a toutes les largeurs. Meme principe que
+   l'eclat, accroche au dernier mot du titre. */
 .hero__mark-fil {
   width: clamp(90px, 9.5vw, 136px); height: auto; aspect-ratio: 100/60;
-  left: clamp(290px, 36vw, 521px);
-  top: clamp(210px, 26.8vw, 386px);
+  left: calc(100% + clamp(14px, 2vw, 34px));
+  top: 50%;
+  translate: 0 -50%;            /* propriete separee : ne heurte pas `transform` */
   transform: scaleX(-1);
   color: var(--c-purple);
   display: none;
@@ -372,8 +610,11 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
 /* Le soleil déborde par la droite (M7) */
 .hero__mark-soleil {
   width: clamp(150px, 20vw, 290px); height: auto; aspect-ratio: 1;
-  right: clamp(-90px, -6vw, -40px);
-  top: clamp(16px, 2.2vw, 32px);   /* positif : il mordait sur l'en-tete */
+  /* Le titre a gagne un mot (« bien ») et s'etend plus a droite : il venait
+     recouvrir le soleil. Celui-ci remonte de ~26px et sort un peu plus par la
+     droite. Il reste sous l'en-tete en z-index, donc il ne mord pas dessus. */
+  right: clamp(-110px, -7.4vw, -48px);
+  top: clamp(2px, 0.5vw, 8px);
   color: var(--c-yellow-pale);
   z-index: 0;
 }
@@ -397,12 +638,32 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
   }
 }
 
+/* Sous ~460px, la premiere ligne du titre s'etend jusqu'a x=362 (mesure a
+   390px) et passait DANS le soleil, qui commencait a x=329. Le soleil ne peut
+   pas simplement remonter — a 124px de haut il faudrait `top: -39px`, donc
+   derriere l'en-tete collant. Il rapetisse donc et se cale au-dessus du titre :
+   il occupe alors y 6→82, et le titre commence a 85. */
+@media (max-width: 460px) {
+  /* 76px laissaient 1,9px de recouvrement : la rotation de -8deg agrandit la
+     boite englobante de ~13% (76 -> 86px). C'est cette boite qu'il faut faire
+     tenir, pas la largeur ecrite. A 70px elle mesure 79px et s'arrete a y=79,5
+     pour un titre qui commence a 85. */
+  .hero__mark-soleil { width: 70px; right: -22px; top: 5px; }
+}
+
 /* ---------- Photo de façade, plein bord (M7) ---------- */
 
 .hero__photo {
   margin: clamp(44px, 6vw, 76px) 0 0;
   padding: 0;
   position: relative; z-index: 2;
+}
+/* Le conteneur decoupe : la photo arrive a l'echelle 1,07 et se pose. Sans ce
+   `clip` elle deborderait et creerait un scroll horizontal. */
+.hero__photo-clip {
+  display: block;
+  overflow: clip;
+  border-radius: var(--r-20) var(--r-20) 0 0;
 }
 .hero__photo img {
   background: var(--c-cream-deep);
@@ -426,11 +687,25 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
 @media (max-width: 899px) {
   .site-header__inner { flex-wrap: wrap; row-gap: 10px; }
   .site-header__brand { order: 1; }
-  .btn-call { order: 2; margin-left: auto; padding: 11px 16px; font-size: var(--fs-fine); }
+  .btn-call { order: 2; margin-left: auto; }
   .site-nav { order: 3; width: 100%; margin-inline: 0; justify-content: space-between; }
   .site-nav__link { min-height: 44px; display: flex; align-items: center; }
   .btn-call { min-height: 44px; }
-  .site-header__logo { width: 104px; }
+  /* Le bouton passe par les MEMES tokens que le desktop, sinon la regle
+     `.site-header .btn-call` (0,1,1) l'emporterait sur `.btn-call` (0,1,0)
+     et le bouton resterait a sa taille desktop sur telephone. */
+  .site-header {
+    --header-logo:     150px;
+    --header-cta-fs:   var(--fs-fine);
+    --header-cta-pad:  11px 16px;
+    --header-cta-icon: 18px;
+  }
+  .site-header.is-compact {
+    --header-logo:     116px;
+    --header-cta-fs:   var(--fs-fine);
+    --header-cta-pad:  10px 14px;
+    --header-cta-icon: 17px;
+  }
 }
 /* Sous 900px le titre remplit la largeur : l'eclat venait coller la derniere
    lettre, exactement le defaut deja corrige en desktop. Le soulignement sous
@@ -442,13 +717,30 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
 @media (max-width: 480px) {
   /* L'autorisation est deja repetee en pied de page : sur petit ecran elle
      faisait passer le bandeau sur 3 lignes pour rien. */
-  .hero__badge-auth { display: none; }
+  /* L'adresse passe sur deux lignes : l'epingle se cale sur la PREMIERE,
+     pas au milieu du bloc. */
+  .hero__badge { align-items: flex-start; font-size: var(--fs-fine); }
+  .hero__badge-icon { margin-top: 2px; }
   .btn-call--lg { padding: 16px 24px; }
 }
 @media (max-width: 420px) {
-  .site-header__logo { width: 84px; }
+  .site-header {
+    --header-logo:    112px;
+    --header-cta-pad: 11px 14px;
+  }
+  /* A 360px il fallait 112 + 16 + 219 = 347px pour 320px disponibles : le
+     bouton descendait sur sa propre rangee et l'en-tete montait a 190px, soit
+     26% d'un ecran de 740px. « Appeler le » disparait, l'icone telephone porte
+     le sens, et le lien garde son intitule complet en `aria-label` pour les
+     lecteurs d'ecran. Il reste 112 + 16 + ~146 = 274px : le bouton remonte a
+     cote du logo. Le gros bouton du heros, lui, garde son texte entier. */
+
+  .site-header.is-compact {
+    --header-logo:    94px;
+    --header-cta-fs:  var(--fs-fine);
+    --header-cta-pad: 10px 12px;
+  }
   .site-nav__link { font-size: var(--fs-fine); padding-inline: 6px; }
-  .btn-call { font-size: var(--fs-fine); padding: 11px 14px; }
 }
 
 
@@ -498,27 +790,40 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
 
 .cycle { transition: transform var(--m-state) var(--ease-ui); }
 
-/* ---------- Emplacement photo — assumé, pas déguisé ---------- */
+/* ---------- Le médaillon de cycle ---------- */
 
-.cycle__ph {
-  aspect-ratio: 3 / 2;
-  border: 1px dashed rgb(94 73 102 / .3);
-  border-radius: var(--r-20);
-  background: var(--c-cream);
-  display: grid; place-content: center; justify-items: center; gap: 12px;
-  padding: 16px;
-  text-align: center;
-}
-.cycle__ph-glyph { width: 40px; height: 40px; color: var(--c-purple); opacity: .35; }
-.cycle__ph-label {
-  font-size: var(--fs-fine);
-  letter-spacing: var(--ls-caps, .08em);
-  text-transform: uppercase;
-  color: var(--c-heading);
-  opacity: .8;
+/* La photo est RONDE et PETITE, et c'est un choix dicte par la source : les
+   quatre images sont decoupees dans la video promotionnelle (848x480), seul
+   materiau dont la cliente dispose encore. Les diametres exploitables vont de
+   276 a 360px. Affiches a 150px, ils restent nets meme sur un ecran 2x ;
+   etires sur une carte de 588px de large ils seraient mous.
+   Le rond n'est donc pas un ornement : c'est ce qui permet de montrer une
+   vraie photo de classe sans montrer ses defauts. */
+
+.cycle {
+  display: grid;
+  /* Largeur FIGEE, pas `auto` : en `auto` la grille comprimait le medaillon a
+     142px pour donner de la place au texte, et une image ronde qui retrecit de
+     8px se voit tout de suite a cote des trois autres.
+     minmax(0,1fr) sur la 2e colonne : sinon elle ne descend jamais sous la
+     largeur de son contenu. */
+  grid-template-columns: var(--medaillon) minmax(0, 1fr);
+  gap: clamp(16px, 2vw, 26px);
+  align-items: start;
+  transition: transform var(--m-state) var(--ease-ui);
 }
 
-.cycle__body { padding-top: clamp(12px, 1.4vw, 18px); max-width: 46ch; }
+.cycle { --medaillon: 150px; }
+
+.cycle__photo {
+  width: var(--medaillon); height: var(--medaillon);
+  border-radius: 50%;   /* pas de token : aucun autre element du site n'est rond */
+  object-fit: cover;
+  border: var(--hairline);
+  background: var(--c-cream-deep);   /* tient la place avant le chargement */
+}
+
+.cycle__body { max-width: 46ch; padding-top: 4px; }
 .cycle__name {
   font-size: var(--fs-card);
   line-height: var(--lh-card);
@@ -1066,12 +1371,23 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
 /* ---------- Pied de page ---------- */
 
 .site-footer {
-  background: var(--c-purple-deep);
+  /* La bande d'appel est en --c-purple (#873897), le pied en --c-purple-deep
+     (#5A2166) : bord a bord, la marche se lisait comme un defaut d'alignement.
+     Les deux couleurs restent celles du systeme — seule la jonction change :
+     le pied part du violet de la bande et descend vers le violet profond sur
+     160px. `background-color` reste pose dessous : si le degrade n'etait pas
+     rendu, le fond resterait plein, jamais transparent. */
+  background-color: var(--c-purple-deep);
+  background-image: linear-gradient(to bottom, var(--c-purple) 0, var(--c-purple-deep) 160px);
   color: var(--c-cream);
   position: relative;
   overflow-x: clip;
-  padding-top: clamp(48px, 6vw, 76px);
-  padding-bottom: clamp(96px, 10.5vw, 150px);  /* place pour le logotype coupé */
+  padding-top: clamp(44px, 5.2vw, 68px);
+  /* Le logotype geant est retire : ce padding n'a plus a lui reserver de place.
+     Il debordait de 34px SOUS le fond violet (`overflow-x: clip` ne clippe pas
+     la verticale), ce qui laissait 69px de creme tout en bas — mesure a
+     1600x900. C'etait le « violet pas colle a la page ». */
+  padding-bottom: clamp(40px, 4.6vw, 60px);
 }
 
 .footer__wrap {
@@ -1117,24 +1433,33 @@ h1, h2, h3, h4 { font-family: var(--font-display); }
    logotype geant en desktop, et le libelle « NOUS JOINDRE » en mobile. Le
    logotype coupe porte deja M7, la fleche de la bande d'appel porte deja M5. */
 
-/* ---------- M7 — le logotype géant, coupé par le bas ---------- */
+/* Le logotype geant du pied de page a ete RETIRE (demande cliente : « c'est
+   ecrit le nom de l'ecole en gros, pas la peine »). Il portait M7 pour cette
+   section ; le nom reste ecrit en clair dans `.footer__name`. */
 
-.site-footer__wordmark {
-  position: absolute;
-  left: 50%; transform: translateX(-50%);
-  bottom: clamp(-34px, -3.4vw, -14px);
-  width: max-content;
-  /* Rapport mesure largeur/corps du texte : 11,0. Pour tenir dans la fenetre
-     avec une marge, il faut donc au plus (100vw - 48px) / 11 ~= 8,2vw.
-     A 9,4vw il depassait de 49px et coupait le « A » et le « r ». */
-  font-size: clamp(1.75rem, 8.2vw, 7.5rem);
-  line-height: .82;
-  font-weight: var(--w-medium);
-  white-space: nowrap;
-  color: var(--c-purple);
-  opacity: .42;                /* décoratif : ne doit jamais concurrencer le numéro */
-  pointer-events: none;
-  z-index: 0;
+/* Le libelle « Appeler le » s'escamote jusqu'a 479px, pas seulement 420px :
+   mesure a 430px, logo 150 + gap 16 + bouton 229 = 395px pour 390 disponibles,
+   le bouton descendait d'une rangee et l'en-tete passait a 209px.
+   Avec le libelle court : 150 + 16 + 144 = 310px. L'icone telephone porte le
+   sens et le lien garde son intitule complet en `aria-label`.
+   Le gros bouton du heros, lui, garde toujours son texte entier. */
+@media (max-width: 479px) {
+  .site-header .btn-call__label { display: none; }
+}
+
+/* Sous 640px, 150px de medaillon ne laissaient que ~180px au texte : les
+   descriptions passaient sur six lignes. Le medaillon retrecit. */
+@media (max-width: 639px) {
+  .cycle { --medaillon: 112px; gap: 16px; }
+}
+/* Sous 480px, cote a cote il ne restait que 187px au texte — quatre lignes pour
+   une description de deux. On empile : le texte reprend toute la largeur. */
+@media (max-width: 479px) {
+  .cycle {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    --medaillon: 104px;
+  }
 }
 
 /* ---------- Cibles tactiles au doigt ---------- */

@@ -26,6 +26,20 @@
 </head>
 <body>
 
+<!-- Rideau d'ouverture. Purement decoratif, donc aria-hidden : un lecteur
+     d'ecran lit la page tout de suite, il n'attend pas la fin de l'animation.
+     Zero JS : c'est une animation CSS avec `forwards`, qui se termine sur
+     `visibility: hidden` — apres quoi le rideau ne peut plus rien intercepter.
+     Si le CSS ne charge pas, le rideau n'existe pas et la page reste lisible. -->
+<div class="boot-veil" aria-hidden="true">
+  <div class="boot-veil__inner">
+    <img class="boot-veil__logo" src="images/logo-cocon-262.webp"
+         srcset="images/logo-cocon-262.webp 262w, images/logo-cocon-524.webp 524w"
+         sizes="220px" width="262" height="125" alt="" fetchpriority="high">
+    <div class="boot-veil__rail"><span class="boot-veil__fill"></span></div>
+  </div>
+</div>
+
 <!-- ============================================================
      LES MARQUES DU COCON — vocabulaire graphique propriétaire
      À coller juste après <body>. Sprite inline : aucune requête
@@ -102,7 +116,7 @@
     <a class="site-header__brand" href="#top">
       <img class="site-header__logo" src="images/logo-cocon-262.webp"
            srcset="images/logo-cocon-262.webp 262w, images/logo-cocon-524.webp 524w"
-           sizes="131px" width="262" height="125" alt="Au Cocon Du Bonheur">
+           sizes="262px" width="262" height="125" alt="Au Cocon Du Bonheur">
     </a>
 
     <nav class="site-nav" aria-label="Navigation principale">
@@ -111,11 +125,11 @@
       <a class="site-nav__link" href="#contact">Nous trouver</a>
     </nav>
 
-    <a class="btn-call" href="tel:+221778845353">
+    <a class="btn-call" href="tel:+221778845353" aria-label="Appeler le 77 884 53 53">
       <svg class="btn-call__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         <path d="M6.6 10.8c1.4 2.8 3.7 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.7 21 3 13.3 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.3 1L6.6 10.8Z" fill="currentColor" stroke="none"/>
       </svg>
-      Appeler le 77 884 53 53
+      <span class="btn-call__label">Appeler le </span>77 884 53 53
     </a>
   </div>
 </header>
@@ -123,35 +137,42 @@
 <main>
 
 <section class="hero" id="top">
-  <svg class="mark mark--r6 hero__mark-fil" aria-hidden="true"><use href="#m-fil"/></svg>
   <svg class="mark mark--bleed mark--l8 hero__mark-soleil" aria-hidden="true"><use href="#m-soleil"/></svg>
 
   <div class="hero__inner wrap">
-    <div class="hero__copy enter">
-      <p class="hero__badge">
-        <svg class="mark--inline" aria-hidden="true"><use href="#m-cocon"/></svg>
-        École ouverte en 2016<span class="hero__badge-auth"> · autorisation 604 IA/DK/BEP</span>
+    <div class="hero__copy">
+      <p class="hero__badge boot">
+        <svg class="hero__badge-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z" fill="currentColor"/>
+        </svg>
+        Cité El Hadj Malick Sy, Ouakam, Dakar
       </p>
 
-      <h1 class="hero__title">Un cocon <span class="hero__title-mark">pour<svg class="mark mark--muted mark--r3 hero__trait" aria-hidden="true"><use href="#m-trait"/></svg></span> <span class="hero__title-end">grandir.<svg class="mark mark--r9 hero__mark-eclat" aria-hidden="true"><use href="#m-eclat"/></svg></span></h1>
+      <h1 class="hero__title boot boot--i1">Un cocon <span class="hero__title-mark">pour<svg class="mark mark--muted mark--r3 hero__trait" aria-hidden="true"><use href="#m-trait"/></svg></span> bien <span class="hero__title-end">grandir.</span></h1>
 
-      <p class="hero__subtitle">Crèche, garderie, préscolaire et élémentaire à Ouakam, Dakar. Dès 3 mois.</p>
+      <p class="hero__subtitle boot boot--i2">Crèche, garderie, préscolaire et élémentaire à Ouakam, Dakar. Dès 3 mois.</p>
 
-      <a class="btn-call btn-call--lg enter enter--pop enter--d1" href="tel:+221778845353">
+      <span class="hero__cta">
+      <a class="btn-call btn-call--lg boot boot--pop boot--i3" href="tel:+221778845353">
         <svg class="btn-call__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path d="M6.6 10.8c1.4 2.8 3.7 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.7 21 3 13.3 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.3 1L6.6 10.8Z" fill="currentColor" stroke="none"/>
         </svg>
         Appeler le 77 884 53 53
       </a>
+      <svg class="mark mark--r6 hero__mark-fil" aria-hidden="true"><use href="#m-fil"/></svg>
+      </span>
     </div>
   </div>
 
   <figure class="hero__photo">
+    <span class="hero__photo-clip">
     <img src="images/facade-hero-1168.webp"
          srcset="images/facade-hero-360.webp 360w, images/facade-hero-480.webp 480w, images/facade-hero-750.webp 750w, images/facade-hero-960.webp 960w, images/facade-hero-1168.webp 1168w"
          sizes="100vw" width="1168" height="859"
          alt="La façade de l'école Au Cocon Du Bonheur, à Ouakam"
+         class="glide"
          fetchpriority="high">
+    </span>
   </figure>
 </section>
 
@@ -162,18 +183,20 @@
     <h2 class="cycles__title enter">Nos <span class="cycles__title-mark">quatre<svg class="mark mark--muted mark--r3 cycles__trait" aria-hidden="true"><use href="#m-trait"/></svg></span> cycles</h2>
     <p class="cycles__lead">De la crèche à l'élémentaire, sur un seul site à Ouakam.</p>
 
-    <!-- PHOTOS DE CLASSE À VENIR — les quatre visuels générés ont été retirés à
-         la demande de la cliente. Les emplacements restent dessinés, en attente
-         des vraies photos prises dans les salles. Ne jamais y remettre une image
-         générée : le reste de la page repose sur des photos authentiques. -->
+    <!-- Les quatre médaillons sont découpés dans la vidéo promotionnelle de
+         l'école (video-promotionel.mp4, 848x480). La cliente n'a plus les
+         rushes d'origine ; c'est donc la meilleure source disponible.
+         Ils sont AFFICHÉS PETIT (150px) parce que la source est petite : à
+         300px de côté ils seraient flous. Ne pas les agrandir.
+         Autorisation parentale : confirmée par la cliente. -->
     <ul class="cycle-list">
       <svg class="mark mark--bleed mark--pale mark--l8 cycles__mark-cocon" aria-hidden="true"><use href="#m-cocon"/></svg>
 
       <li class="cycle enter enter--pop enter--d1">
-        <div class="cycle__ph">
-          <svg class="cycle__ph-glyph" aria-hidden="true"><use href="#m-cocon"/></svg>
-          <p class="cycle__ph-label">Photo de la salle à venir</p>
-        </div>
+        <img class="cycle__photo" src="images/cycle-creche-150.webp"
+             srcset="images/cycle-creche-150.webp 150w, images/cycle-creche-300.webp 300w"
+             sizes="(max-width: 639px) 104px, 150px" width="150" height="150" loading="lazy" decoding="async"
+             alt="Des tout-petits assis sur le tapis d'éveil de la crèche">
         <div class="cycle__body">
           <h3 class="cycle__name">Crèche</h3>
           <p class="cycle__meta">Dès 3 mois · 7h30 – 17h30</p>
@@ -182,10 +205,10 @@
       </li>
 
       <li class="cycle enter enter--pop enter--d2">
-        <div class="cycle__ph">
-          <svg class="cycle__ph-glyph" aria-hidden="true"><use href="#m-cocon"/></svg>
-          <p class="cycle__ph-label">Photo de la salle à venir</p>
-        </div>
+        <img class="cycle__photo" src="images/cycle-garderie-150.webp"
+             srcset="images/cycle-garderie-150.webp 150w, images/cycle-garderie-300.webp 300w"
+             sizes="(max-width: 639px) 104px, 150px" width="150" height="150" loading="lazy" decoding="async"
+             alt="Le groupe de la garderie rassemblé autour de son encadrante">
         <div class="cycle__body">
           <h3 class="cycle__name">Garderie</h3>
           <p class="cycle__meta">2 – 3 ans · 7h30 – 16h30</p>
@@ -194,10 +217,10 @@
       </li>
 
       <li class="cycle enter enter--pop enter--d1">
-        <div class="cycle__ph">
-          <svg class="cycle__ph-glyph" aria-hidden="true"><use href="#m-cocon"/></svg>
-          <p class="cycle__ph-label">Photo de la salle à venir</p>
-        </div>
+        <img class="cycle__photo" src="images/cycle-prescolaire-150.webp"
+             srcset="images/cycle-prescolaire-150.webp 150w, images/cycle-prescolaire-300.webp 300w"
+             sizes="(max-width: 639px) 104px, 150px" width="150" height="150" loading="lazy" decoding="async"
+             alt="Des enfants du préscolaire au travail autour des tables">
         <div class="cycle__body">
           <h3 class="cycle__name">Préscolaire</h3>
           <p class="cycle__meta">3 – 5 ans · 7h30 – 16h30</p>
@@ -206,10 +229,10 @@
       </li>
 
       <li class="cycle enter enter--pop enter--d2">
-        <div class="cycle__ph">
-          <svg class="cycle__ph-glyph" aria-hidden="true"><use href="#m-cocon"/></svg>
-          <p class="cycle__ph-label">Photo de la salle à venir</p>
-        </div>
+        <img class="cycle__photo" src="images/cycle-elementaire-150.webp"
+             srcset="images/cycle-elementaire-150.webp 150w, images/cycle-elementaire-300.webp 300w"
+             sizes="(max-width: 639px) 104px, 150px" width="150" height="150" loading="lazy" decoding="async"
+             alt="Des élèves de l'élémentaire en train d'écrire à leur table">
         <div class="cycle__body">
           <h3 class="cycle__name">Élémentaire</h3>
           <p class="cycle__meta">6 – 11 ans · 7h30 – 16h30</p>
@@ -487,11 +510,9 @@
 </main>
 
 <footer class="site-footer on-purple">
-  <div class="site-footer__wordmark" aria-hidden="true">Au Cocon Du Bonheur</div>
-
   <div class="wrap footer__wrap">
 
-    <div class="footer__brand">
+    <div class="footer__brand enter">
       <img class="footer__logo"
            src="images/logo-creme-248.webp"
            srcset="images/logo-creme-248.webp 248w, images/logo-creme-496.webp 496w"
@@ -506,7 +527,7 @@
       </p>
     </div>
 
-    <div class="footer__col">
+    <div class="footer__col enter">
       <h3 class="footer__heading">Nous joindre</h3>
       <ul class="footer__list footer__list--joindre">
         <!-- M5 : le pied de page etait la seule section sans marque. Un fil
@@ -521,7 +542,7 @@
       </ul>
     </div>
 
-    <div class="footer__col">
+    <div class="footer__col enter">
       <h3 class="footer__heading">Nous suivre</h3>
       <ul class="footer__list">
         <li><a class="footer__link" href="https://www.facebook.com/aucocondubonheur" target="_blank" rel="noopener">Facebook</a></li>
@@ -529,7 +550,7 @@
       </ul>
     </div>
 
-    <div class="footer__col">
+    <div class="footer__col enter">
       <h3 class="footer__heading">Autorisation</h3>
       <p class="footer__legal">604 IA/DK/BEP — arrêté n°07486 du 27/10/2016</p>
       <p class="footer__legal">École ouverte en 2016</p>
@@ -538,5 +559,6 @@
   </div>
 </footer>
 
+<script defer src="app.js"></script>
 </body>
 </html>

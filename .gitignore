@@ -1,0 +1,7 @@
+# Fichiers de travail deposes dans le dossier livrable.
+# `site/` EST le depot publie sur GitHub Pages : tout ce qui y traine part en
+# ligne au premier `git add .`, et reste dans l'historique pour toujours.
+# contact.jpg = planche-contact de la video (6,1 Mo), fichier de travail.
+contact.jpg
+*.contact.jpg
+planche-*.jpg
