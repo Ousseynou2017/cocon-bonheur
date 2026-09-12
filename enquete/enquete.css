@@ -1,0 +1,511 @@
+/* ============================================================
+   Au Cocon Du Bonheur — enquête de satisfaction des parents
+   ------------------------------------------------------------
+   Cette feuille N'AJOUTE QUE le formulaire. Toutes les couleurs,
+   l'échelle typographique, les rayons et l'anneau de focus viennent
+   de ../styles.css, qui fait autorité.
+
+   Trois règles du design system qui contraignent tout ce fichier :
+   - #FFD400 est RÉSERVÉ à l'appel téléphonique (M3). Le bouton
+     d'envoi est donc violet, jamais jaune.
+   - Graisse plafonnée à 500. Aucun 600, aucun 700.
+   - Aucune ombre portée. Les plans se séparent au filet.
+
+   Deux contraintes mobiles, mesurées et non estimées :
+   - Tout champ saisissable est à 16px au moins. En dessous, iOS
+     zoome de lui-même au focus et la page sort de l'écran.
+   - Toute cible tactile fait 44px au moins dans les deux sens.
+   ============================================================ */
+
+/* Le formulaire est long : une largeur de lecture, pas la largeur du site.
+   Au-delà de ~62ch l'œil perd la ligne entre deux questions. */
+.eq-wrap {
+  max-width: 760px;
+}
+
+/* ---------- Introduction ---------- */
+
+.eq-intro {
+  position: relative;
+  margin-bottom: clamp(2rem, 5vw, 3rem);
+}
+/* La marque déborde à droite du titre. Elle est absolue (règle .mark), donc
+   elle a besoin d'une taille explicite et d'un parent positionné. */
+.eq-intro__cocon {
+  width: 74px; height: 74px;
+  top: -18px; right: -6px;
+  color: var(--c-yellow-pale);
+}
+/* Sous 900px le contenu remplit la fenêtre : la marque tomberait sur le titre. */
+@media (max-width: 899px) {
+  .eq-intro__cocon { display: none; }
+}
+
+.eq-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-section);
+  font-weight: var(--w-medium);
+  line-height: var(--lh-title);
+  color: var(--c-heading);
+}
+.eq-lead {
+  margin-top: 14px;
+  font-size: var(--fs-body);
+  max-width: 56ch;
+}
+.eq-note {
+  margin-top: 10px;
+  font-size: var(--fs-note);
+  color: var(--c-heading);
+  max-width: 56ch;
+}
+
+/* ---------- Blocs ----------
+   Chaque bloc est une carte blanche sur le fond crème. Séparation au filet,
+   jamais à l'ombre. */
+
+.eq-block {
+  border: var(--hairline);
+  border-radius: var(--r-16);
+  background: var(--c-white);
+  padding: clamp(18px, 3vw, 28px);
+  margin: 0 0 clamp(16px, 2.5vw, 22px);
+  /* Un <fieldset> a des marges et un padding d'origine très bavards. */
+  min-inline-size: 0;
+}
+/* Le titre de carte N'EST PAS un <legend> : le <legend> natif se place a
+   cheval sur la bordure du <fieldset>, qu'il decoupe, et le sortir de ce
+   placement avec `float` decale tous les enfants flex/grid a cote de lui
+   (mesure : contenu a 351px du bord gauche sur une fenetre de 390px).
+   C'est un <h2> ordinaire, rattache au <fieldset> par aria-labelledby :
+   meme annonce au lecteur d'ecran, aucun placement special. */
+.eq-block__legend {
+  font-family: var(--font-display);
+  font-size: var(--fs-card);
+  font-weight: var(--w-medium);
+  line-height: var(--lh-card);
+  color: var(--c-heading);
+  padding: 0;
+  margin-bottom: 4px;
+}
+.eq-block__hint {
+  font-size: var(--fs-fine);
+  color: var(--c-heading);
+  margin-bottom: 18px;
+}
+
+/* ---------- Champs texte et liste ---------- */
+
+.eq-field { margin-top: 18px; }
+.eq-field:first-of-type { margin-top: 14px; }
+
+.eq-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: var(--fs-note);
+  font-weight: var(--w-medium);
+  color: var(--c-heading);
+}
+.eq-req { color: var(--c-purple); }
+.eq-opt {
+  font-weight: var(--w-regular);
+  color: var(--c-heading);
+  opacity: .8;
+}
+
+/* 1rem = 16px : le plancher iOS. Les trois contrôles le partagent. */
+.eq-input,
+.eq-select,
+.eq-textarea {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: var(--w-regular);
+  line-height: var(--lh-body);
+  color: var(--c-text);
+  background: var(--c-white);
+  border: 1px solid rgb(94 73 102 / .3);
+  border-radius: var(--r-12);
+  padding: 13px 14px;
+  min-height: 48px;
+  transition: border-color var(--m-micro) var(--ease-ui),
+              background-color var(--m-micro) var(--ease-ui);
+}
+.eq-textarea {
+  resize: vertical;
+  min-height: 108px;
+}
+.eq-input:hover,
+.eq-select:hover,
+.eq-textarea:hover { border-color: var(--c-purple); }
+
+.eq-input:focus-visible,
+.eq-select:focus-visible,
+.eq-textarea:focus-visible {
+  outline: 3px solid var(--c-purple-deep);
+  outline-offset: 2px;
+  border-color: var(--c-purple-deep);
+}
+
+.eq-input::placeholder,
+.eq-textarea::placeholder {
+  color: var(--c-heading);
+  opacity: .55;
+}
+
+/* La flèche par défaut d'un <select> varie d'un navigateur à l'autre.
+   Le chevron est un SVG en fond : aucune requête, un seul rendu partout. */
+.eq-select {
+  appearance: none;
+  padding-right: 44px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235E4966' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 20px 20px;
+}
+
+/* ---------- Les quatre notes ----------
+   L'<input> reste dans le flux et focusable : on ne le met jamais en
+   display:none, sinon il sort de la navigation clavier. */
+
+.eq-rate {
+  border: 0;
+  padding: 0;
+  margin: 0 0 22px;
+  min-inline-size: 0;
+}
+.eq-rate:last-of-type { margin-bottom: 0; }
+
+.eq-rate__legend {
+  padding: 0;
+  margin-bottom: 12px;
+  font-size: var(--fs-note);
+  font-weight: var(--w-medium);
+  color: var(--c-heading);
+}
+
+.eq-rate__scale {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.eq-rate__end {
+  font-size: var(--fs-fine);
+  color: var(--c-heading);
+  opacity: .85;
+  flex: none;
+}
+.eq-rate__opts {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+
+.eq-rate__opt {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+/* Masqué à l'œil, présent pour le clavier et le lecteur d'écran. */
+.eq-rate__opt input {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* 44px : la cible tactile minimale. C'est un plancher, pas une cible. */
+.eq-rate__box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px; height: 46px;
+  border: 1px solid rgb(94 73 102 / .3);
+  border-radius: var(--r-12);
+  background: var(--c-white);
+  color: var(--c-heading);
+  font-size: 1.0625rem;
+  font-weight: var(--w-medium);
+  line-height: 1;
+  transition: background-color var(--m-micro) var(--ease-ui),
+              border-color var(--m-micro) var(--ease-ui),
+              color var(--m-micro) var(--ease-ui);
+}
+.eq-rate__opt:hover .eq-rate__box {
+  border-color: var(--c-purple);
+  background: var(--c-cream);
+}
+.eq-rate__opt input:checked + .eq-rate__box {
+  background: var(--c-purple);
+  border-color: var(--c-purple);
+  color: var(--c-white);
+}
+.eq-rate__opt input:active + .eq-rate__box { transform: scale(.96); }
+
+/* L'anneau se dessine à l'extérieur, donc sur le fond de la carte : il doit
+   contraster avec le BLANC, pas avec le carré. */
+.eq-rate__opt input:focus-visible + .eq-rate__box {
+  outline: 3px solid var(--c-purple-deep);
+  outline-offset: 3px;
+}
+
+/* Sous 620px, « Pas satisfait » et « Très satisfait » ne tiennent plus sur la
+   même ligne que les cinq carrés : ils passent DESSOUS, aux deux extrémités.
+   Mesuré à 390px : 5×46 + 4×8 = 262px pour 318px disponibles. */
+@media (max-width: 619px) {
+  .eq-rate__scale {
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    gap: 8px 10px;
+  }
+  .eq-rate__opts {
+    grid-column: 1 / -1;
+    order: -1;
+    justify-content: space-between;
+    width: 100%;
+  }
+  .eq-rate__end--hi { text-align: right; }
+}
+
+/* ---------- Oui / Non ---------- */
+
+.eq-yn {
+  border: 0; padding: 0; margin: 0;
+  min-inline-size: 0;
+}
+.eq-yn__legend {
+  padding: 0;
+  margin-bottom: 12px;
+  font-size: var(--fs-note);
+  font-weight: var(--w-medium);
+  color: var(--c-heading);
+}
+.eq-yn__opts { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.eq-yn__opt { position: relative; display: block; cursor: pointer; }
+.eq-yn__opt input {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  margin: 0; opacity: 0; cursor: pointer;
+}
+.eq-yn__box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 104px;
+  min-height: 48px;
+  padding: 12px 26px;
+  border: 1px solid rgb(94 73 102 / .3);
+  border-radius: var(--r-pill);
+  background: var(--c-white);
+  color: var(--c-heading);
+  font-size: var(--fs-note);
+  font-weight: var(--w-medium);
+  line-height: 1;
+  transition: background-color var(--m-micro) var(--ease-ui),
+              border-color var(--m-micro) var(--ease-ui),
+              color var(--m-micro) var(--ease-ui);
+}
+.eq-yn__opt:hover .eq-yn__box {
+  border-color: var(--c-purple);
+  background: var(--c-cream);
+}
+.eq-yn__opt input:checked + .eq-yn__box {
+  background: var(--c-purple);
+  border-color: var(--c-purple);
+  color: var(--c-white);
+}
+.eq-yn__opt input:focus-visible + .eq-yn__box {
+  outline: 3px solid var(--c-purple-deep);
+  outline-offset: 3px;
+}
+
+/* ---------- Nom et prénom du parent ---------- */
+
+.eq-duo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+/* Sous 560px les deux champs s'empilent : à 390px une colonne ferait 151px,
+   soit moins que le prénom le plus court affiché en entier. */
+@media (max-width: 559px) {
+  .eq-duo { grid-template-columns: minmax(0, 1fr); }
+}
+.eq-duo .eq-field:first-of-type { margin-top: 0; }
+.eq-duo .eq-field { margin-top: 0; }
+
+.eq-anon {
+  margin-top: 14px;
+  font-size: var(--fs-fine);
+  color: var(--c-heading);
+  background: var(--c-cream);
+  border-radius: var(--r-12);
+  padding: 12px 14px;
+}
+
+/* ---------- Piège à robot ----------
+   Ni display:none ni visibility:hidden : certains robots les détectent et
+   sautent le champ. Hors écran, il est rempli par les robots qui remplissent
+   tout, et invisible pour tout le monde. */
+.eq-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+
+/* ---------- Erreurs ---------- */
+
+.eq-error {
+  margin-top: 8px;
+  font-size: var(--fs-fine);
+  color: var(--c-purple-deep);
+  font-weight: var(--w-medium);
+}
+.eq-error::before {
+  content: "— ";
+}
+
+/* Le champ fautif se signale au filet, pas à la couleur seule : un daltonien
+   doit voir la différence. Le trait passe à 2px et le message s'affiche. */
+.eq-input.is-bad,
+.eq-select.is-bad,
+.eq-textarea.is-bad {
+  border-width: 2px;
+  border-color: var(--c-purple-deep);
+  background: #FCF7FD;
+}
+.eq-rate.is-bad .eq-rate__box,
+.eq-yn.is-bad .eq-yn__box {
+  border-color: var(--c-purple-deep);
+}
+
+/* Bande d'erreur générale, en tête de formulaire. */
+.eq-alert {
+  border: 2px solid var(--c-purple-deep);
+  border-radius: var(--r-12);
+  background: var(--c-white);
+  color: var(--c-purple-deep);
+  font-size: var(--fs-note);
+  font-weight: var(--w-medium);
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+.eq-alert:focus-visible {
+  outline: 3px solid var(--c-purple-deep);
+  outline-offset: 3px;
+}
+
+/* ---------- Envoi ---------- */
+
+.eq-submit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: clamp(20px, 3vw, 28px);
+}
+
+/* Violet, pas jaune : le jaune n'habille que l'appel téléphonique (M3). */
+.eq-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 14px 38px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--c-purple);
+  color: var(--c-white);
+  font-family: var(--font-body);
+  font-size: var(--fs-note);
+  font-weight: var(--w-medium);
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color var(--m-micro) var(--ease-ui),
+              transform var(--m-micro) var(--ease-ui);
+}
+.eq-btn:hover { background: var(--c-purple-deep); transform: translateY(-1px); }
+.eq-btn:active { transform: translateY(0); }
+.eq-btn[disabled] {
+  background: var(--c-heading);
+  opacity: .6;
+  cursor: progress;
+  transform: none;
+}
+/* À 390px le bouton prend toute la largeur : plus facile à viser au pouce. */
+@media (max-width: 559px) {
+  .eq-btn { width: 100%; }
+}
+
+.eq-submit__note {
+  font-size: var(--fs-fine);
+  color: var(--c-heading);
+  text-align: center;
+}
+
+/* ---------- Écran de confirmation ---------- */
+
+.eq-done {
+  position: relative;
+  border: var(--hairline);
+  border-radius: var(--r-20);
+  background: var(--c-white);
+  padding: clamp(32px, 6vw, 56px) clamp(20px, 4vw, 48px);
+  text-align: center;
+  margin-block: clamp(1rem, 3vw, 2rem);
+}
+/* La coche n'est pas une marque flottante ici : elle est le sujet. */
+.eq-done__coche {
+  position: static;
+  display: block;
+  width: 56px; height: 56px;
+  margin: 0 auto 20px;
+  color: var(--c-purple);
+}
+.eq-done__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-section);
+  font-weight: var(--w-medium);
+  line-height: var(--lh-title);
+  color: var(--c-heading);
+}
+.eq-done__text {
+  margin-top: 14px;
+  margin-inline: auto;
+  max-width: 46ch;
+  font-size: var(--fs-body);
+}
+.eq-done__text--fine {
+  font-size: var(--fs-note);
+  color: var(--c-heading);
+}
+.eq-done__actions {
+  margin-top: clamp(22px, 4vw, 32px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+}
+/* Le site n'a pas de bouton secondaire sur fond clair : .btn--whatsapp est
+   crème, donc invisible ici. Celui-ci est son équivalent sur fond blanc. */
+.btn--ghost {
+  background: transparent;
+  color: var(--c-purple-deep);
+  border: 1px solid var(--c-purple);
+}
+.btn--ghost:hover { background: var(--c-cream); }
+
+/* ---------- Mouvement réduit ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .eq-input, .eq-select, .eq-textarea,
+  .eq-rate__box, .eq-yn__box, .eq-btn {
+    transition: none;
+  }
+  .eq-btn:hover, .eq-btn:active { transform: none; }
+}

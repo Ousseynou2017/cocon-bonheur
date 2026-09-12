@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Enquête de satisfaction — Au Cocon Du Bonheur</title>
+  <meta name="description" content="Votre avis sur l'école Au Cocon Du Bonheur à Ouakam, Dakar. Cinq minutes, anonyme si vous le souhaitez.">
+
+  <!-- Page de formulaire : elle n'a rien à faire dans un résultat de recherche
+       et rien à gagner à être partagée. Pas d'Open Graph, pas d'indexation. -->
+  <meta name="robots" content="noindex, nofollow">
+
+  <link rel="icon" href="../favicon.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Le design system du site fait autorité : couleurs, échelle typographique,
+       rayons, anneau de focus. La feuille ci-dessous n'ajoute QUE le formulaire. -->
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="enquete.css">
+</head>
+<body class="page-enquete">
+
+<!-- Les deux seules marques utilisées ici. Le sprite complet vit dans
+     index.html ; le dupliquer entier coûterait 4 Ko pour rien. -->
+<svg width="0" height="0" aria-hidden="true" focusable="false"
+     style="position:absolute;width:0;height:0;overflow:hidden">
+  <defs>
+    <symbol id="m-cocon" viewBox="0 0 100 100" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" vector-effect="non-scaling-stroke">
+      <path d="M72 12A44 44 0 1 0 72 88"/>
+      <path d="M66 26A30 30 0 1 0 66 74"/>
+      <path d="M60 40A16 16 0 1 0 60 60"/>
+    </symbol>
+    <symbol id="m-fil" viewBox="0 0 100 60" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+            vector-effect="non-scaling-stroke">
+      <path d="M3 14C26 3 58 10 82 40"/>
+      <path d="M82 40 64 33M82 40 75 21"/>
+    </symbol>
+    <symbol id="m-coche" viewBox="0 0 100 100" fill="none" stroke="currentColor"
+            stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 53 38 77 86 22"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="site-header">
+  <div class="site-header__inner wrap">
+    <a class="site-header__brand" href="/">
+      <img class="site-header__logo" src="../images/logo-cocon-262.webp"
+           srcset="../images/logo-cocon-262.webp 262w, ../images/logo-cocon-524.webp 524w"
+           sizes="262px" width="262" height="125" alt="Au Cocon Du Bonheur">
+    </a>
+
+    <nav class="site-nav" aria-label="Navigation principale">
+      <a class="site-nav__link" href="/#cycles">Cycles</a>
+      <a class="site-nav__link" href="/#activites">La vie de l'école</a>
+      <a class="site-nav__link" href="/#contact">Nous trouver</a>
+    </nav>
+
+    <a class="btn-call" href="tel:+221778845353" aria-label="Appeler le 77 884 53 53">
+      <svg class="btn-call__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M6.6 10.8c1.4 2.8 3.7 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.7 21 3 13.3 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.3 1L6.6 10.8Z" fill="currentColor" stroke="none"/>
+      </svg>
+      <span class="btn-call__label">Appeler le </span>77 884 53 53
+    </a>
+  </div>
+</header>
+
+<main class="section section--cream">
+  <div class="wrap eq-wrap">
+
+    <!-- ---------- Introduction ---------- -->
+    <div class="eq-intro" id="eq-intro">
+      <svg class="mark mark--r8 eq-intro__cocon" aria-hidden="true"><use href="#m-cocon"/></svg>
+      <h1 class="eq-title">Votre avis compte</h1>
+      <p class="eq-lead">
+        Vous confiez votre enfant à l'école chaque matin. Dites-nous ce qui vous
+        convient et ce qui peut être amélioré&nbsp;: cinq minutes suffisent.
+      </p>
+      <p class="eq-note">
+        Vos réponses ne sont lues que par la direction de l'école.
+        Vous pouvez répondre sans donner votre nom.
+      </p>
+    </div>
+
+    <!-- ---------- Le formulaire ---------- -->
+    <form class="eq-form" id="eq-form" novalidate>
+
+      <!-- Bande d'erreur générale : vide et masquée au départ. Elle reçoit le
+           focus quand l'envoi échoue, pour que le lecteur d'écran l'annonce. -->
+      <div class="eq-alert" id="eq-alert" role="alert" tabindex="-1" hidden></div>
+
+      <!-- ===== 1. L'enfant ===== -->
+      <fieldset class="eq-block" aria-labelledby="t-votre-enfant">
+        <h2 class="eq-block__legend" id="t-votre-enfant">Votre enfant</h2>
+
+        <div class="eq-field">
+          <label class="eq-label" for="enfant_prenom">
+            Prénom de l'enfant <span class="eq-req" aria-hidden="true">*</span>
+          </label>
+          <input class="eq-input" type="text" id="enfant_prenom" name="enfant_prenom"
+                 maxlength="60" autocomplete="off" required
+                 aria-describedby="err-enfant_prenom">
+          <p class="eq-error" id="err-enfant_prenom" hidden></p>
+        </div>
+
+        <div class="eq-field">
+          <label class="eq-label" for="classe">
+            Classe <span class="eq-req" aria-hidden="true">*</span>
+          </label>
+          <select class="eq-select" id="classe" name="classe" required
+                  aria-describedby="err-classe">
+            <option value="">Choisissez la classe</option>
+            <option value="Crèche">Crèche</option>
+            <option value="Toute petite section">Toute petite section</option>
+            <option value="Petite section">Petite section</option>
+            <option value="Moyenne section">Moyenne section</option>
+            <option value="Grande section">Grande section</option>
+            <option value="CI">CI</option>
+            <option value="CP">CP</option>
+            <option value="CE1">CE1</option>
+            <option value="CE2">CE2</option>
+            <option value="CM1">CM1</option>
+            <option value="CM2">CM2</option>
+          </select>
+          <p class="eq-error" id="err-classe" hidden></p>
+        </div>
+      </fieldset>
+
+      <!-- ===== 2. Les quatre notes =====
+           Radios natifs : ils marchent au clavier, au lecteur d'écran, et sans
+           JavaScript. Le carré coloré est le <label>, l'<input> est masqué
+           visuellement mais reste focusable (pas de display:none). -->
+      <fieldset class="eq-block" aria-labelledby="t-votre-satisfaction">
+        <h2 class="eq-block__legend" id="t-votre-satisfaction">Votre satisfaction</h2>
+        <p class="eq-block__hint">1 = pas satisfait, 5 = très satisfait.</p>
+
+        <!-- Pédagogie -->
+        <fieldset class="eq-rate" role="radiogroup" aria-labelledby="t-note_pedagogie" aria-describedby="err-note_pedagogie">
+          <p class="eq-rate__legend" id="t-note_pedagogie">
+            Pédagogie <span class="eq-req" aria-hidden="true">*</span>
+          </p>
+          <div class="eq-rate__scale">
+            <span class="eq-rate__end">Pas satisfait</span>
+            <div class="eq-rate__opts">
+              <label class="eq-rate__opt"><input type="radio" name="note_pedagogie" value="1" required><span class="eq-rate__box">1</span></label>
+              <label class="eq-rate__opt"><input type="radio" name="note_pedagogie" value="2"><span class="eq-rate__box">2</span></label>
+              <label class="eq-rate__opt"><input type="radio" name="note_pedagogie" value="3"><span class="eq-rate__box">3</span></label>
+              <label class="eq-rate__opt"><input type="radio" name="note_pedagogie" value="4"><span class="eq-rate__box">4</span></label>
+              <label class="eq-rate__opt"><input type="radio" name="note_pedagogie" value="5"><span class="eq-rate__box">5</span></label>
+            </div>
+            <span class="eq-rate__end eq-rate__end--hi">Très satisfait</span>
+          </div>
+          <p class="eq-error" id="err-note_pedagogie" hidden></p>
+        </fieldset>
+
+        <!-- Communication -->
+        <fieldset class="eq-rate" role="radiogroup" aria-labelledby="t-note_communication" aria-describedby="err-note_communication">
+          <p class="eq-rate__legend" id="t-note_communication">
+            Communication avec les parents <span class="eq-req" aria-hidden="true">*</span>
+          </p>
+          <div class="eq-rate__scale">
+            <span class="eq-rate__end">Pas satisfait</span>
+            <div class="eq-rate__opts">
+              <label class="eq-rate__opt"><input type="radio" name="note_communication" value="1" required><span class="eq-rate__box">1</span></label>
+              <label class="eq-rate__opt"><input type="radio" name="note_communication" value="2"><span class="eq-rate__box">2</span></label>
+              <label class="eq-rate__opt"><input type="radio" name="note_communication" value="3"><span class="eq-rate__box">3</span></label>
+              <label class="eq-rate__opt"><input type="radio" name="note_communication" value="4"><span class="eq-rate__box">4</span></label>
+              <label class="eq-rate__opt"><input type="radio" name="note_communication" value="5"><span class="eq-rate__box">5</span></label>
+            </div>
+            <span class="eq-rate__end eq-rate__end--hi">Très satisfait</span>
+          </div>
+          <p class="eq-error" id="err-note_communication" hidden></p>
+        </fieldset>
+
+        <!-- Encadrement -->
+        <fieldset class="eq-rate" role="radiogroup" aria-labelledby="t-note_encadrement" aria-describedby="err-note_encadrement">
+          <p class="eq-rate__legend" id="t-note_encadrement">
+            Encadrement des enfants <span class="eq-req" aria-hidden="true">*</span>
+          </p>
+          <div class="eq-rate__scale">
+            <span class="eq-rate__end">Pas satisfait</span>
+            <div class="eq-rate__opts">
+              <label class="eq-rate__opt"><input type="radio" name="note_encadrement" value="1" required><span class="eq-rate__box">1</span></label>
+              <label class="eq-rate__opt"><input type="radio" name="note_encadrement" value="2"><span class="eq-rate__box">2</span></label>
+              <label class="eq-rate__opt"><input type="radio" name="note_encadrement" value="3"><span class="eq-rate__box">3</span></label>
+              <label class="eq-rate__opt"><input type="radio" name="note_encadrement" value="4"><span class="eq-rate__box">4</span></label>
+              <label class="eq-rate__opt"><input type="radio" name="note_encadrement" value="5"><span class="eq-rate__box">5</span></label>
+            </div>
+            <span class="eq-rate__end eq-rate__end--hi">Très satisfait</span>
+          </div>
+          <p class="eq-error" id="err-note_encadrement" hidden></p>
+        </fieldset>
+
+        <!-- Locaux -->
+        <fieldset class="eq-rate" role="radiogroup" aria-labelledby="t-note_locaux" aria-describedby="err-note_locaux">
+          <p class="eq-rate__legend" id="t-note_locaux">
+            Locaux et matériel <span class="eq-req" aria-hidden="true">*</span>
+          </p>
+          <div class="eq-rate__scale">
+            <span class="eq-rate__end">Pas satisfait</span>
+            <div class="eq-rate__opts">
+              <label class="eq-rate__opt"><input type="radio" name="note_locaux" value="1" required><span class="eq-rate__box">1</span></label>
+              <label class="eq-rate__opt"><input type="radio" name="note_locaux" value="2"><span class="eq-rate__box">2</span></label>
+              <label class="eq-rate__opt"><input type="radio" name="note_locaux" value="3"><span class="eq-rate__box">3</span></label>
+              <label class="eq-rate__opt"><input type="radio" name="note_locaux" value="4"><span class="eq-rate__box">4</span></label>
+              <label class="eq-rate__opt"><input type="radio" name="note_locaux" value="5"><span class="eq-rate__box">5</span></label>
+            </div>
+            <span class="eq-rate__end eq-rate__end--hi">Très satisfait</span>
+          </div>
+          <p class="eq-error" id="err-note_locaux" hidden></p>
+        </fieldset>
+      </fieldset>
+
+      <!-- ===== 3. Recommandation ===== -->
+      <fieldset class="eq-block" aria-labelledby="t-recommandation">
+        <h2 class="eq-block__legend" id="t-recommandation">Recommandation</h2>
+
+        <fieldset class="eq-yn" role="radiogroup" aria-labelledby="t-recommande" aria-describedby="err-recommande">
+          <p class="eq-yn__legend" id="t-recommande">
+            Recommanderiez-vous l'école à un autre parent&nbsp;?
+            <span class="eq-req" aria-hidden="true">*</span>
+          </p>
+          <div class="eq-yn__opts">
+            <label class="eq-yn__opt"><input type="radio" name="recommande" value="oui" required><span class="eq-yn__box">Oui</span></label>
+            <label class="eq-yn__opt"><input type="radio" name="recommande" value="non"><span class="eq-yn__box">Non</span></label>
+          </div>
+          <p class="eq-error" id="err-recommande" hidden></p>
+        </fieldset>
+      </fieldset>
+
+      <!-- ===== 4. Texte libre ===== -->
+      <fieldset class="eq-block" aria-labelledby="t-vos-remarques">
+        <h2 class="eq-block__legend" id="t-vos-remarques">Vos remarques</h2>
+
+        <div class="eq-field">
+          <label class="eq-label" for="points_forts">
+            Ce qui vous plaît le plus <span class="eq-opt">(facultatif)</span>
+          </label>
+          <textarea class="eq-textarea" id="points_forts" name="points_forts"
+                    rows="4" maxlength="2000"
+                    placeholder="Par exemple : l'accueil du matin, le suivi de mon enfant…"></textarea>
+        </div>
+
+        <div class="eq-field">
+          <label class="eq-label" for="suggestions">
+            Ce qui pourrait être amélioré <span class="eq-opt">(facultatif)</span>
+          </label>
+          <textarea class="eq-textarea" id="suggestions" name="suggestions"
+                    rows="4" maxlength="2000"
+                    placeholder="Dites-le simplement, tout est lu."></textarea>
+        </div>
+      </fieldset>
+
+      <!-- ===== 5. Le parent — EN DERNIER, et facultatif ===== -->
+      <fieldset class="eq-block eq-block--last" aria-labelledby="t-vous">
+        <h2 class="eq-block__legend" id="t-vous">Vous</h2>
+
+        <div class="eq-duo">
+          <div class="eq-field">
+            <label class="eq-label" for="parent_prenom">
+              Votre prénom <span class="eq-opt">(facultatif)</span>
+            </label>
+            <input class="eq-input" type="text" id="parent_prenom" name="parent_prenom"
+                   maxlength="60" autocomplete="given-name">
+          </div>
+
+          <div class="eq-field">
+            <label class="eq-label" for="parent_nom">
+              Votre nom <span class="eq-opt">(facultatif)</span>
+            </label>
+            <input class="eq-input" type="text" id="parent_nom" name="parent_nom"
+                   maxlength="60" autocomplete="family-name">
+          </div>
+        </div>
+
+        <p class="eq-anon">
+          Laissez ces champs vides si vous préférez répondre anonymement.
+        </p>
+      </fieldset>
+
+      <!-- Piège à robot. Un humain ne le voit pas et ne peut pas le remplir :
+           il est hors écran, hors tabulation, et hors autocomplétion.
+           Rempli = la réponse est rejetée côté serveur. -->
+      <div class="eq-hp" aria-hidden="true">
+        <label for="eq_site">Ne remplissez pas ce champ</label>
+        <input type="text" id="eq_site" name="site_web" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="eq-submit">
+        <button class="eq-btn" type="submit" id="eq-send">
+          <span class="eq-btn__label">Envoyer mes réponses</span>
+        </button>
+        <p class="eq-submit__note">Les champs marqués d'une étoile sont obligatoires.</p>
+      </div>
+    </form>
+
+    <!-- ---------- Écran de confirmation ----------
+         Pas une alert() : un vrai écran, qui reste à l'écran, et qui ne
+         renvoie nulle part tout seul. -->
+    <div class="eq-done" id="eq-done" role="status" tabindex="-1" hidden>
+      <svg class="eq-done__coche" aria-hidden="true"><use href="#m-coche"/></svg>
+      <h2 class="eq-done__title">Merci pour votre réponse</h2>
+      <p class="eq-done__text">
+        Elle est bien enregistrée. La direction de l'école lit toutes les
+        réponses&nbsp;: la vôtre comptera dans ce qui sera décidé cette année.
+      </p>
+      <p class="eq-done__text eq-done__text--fine">
+        Vous pouvez fermer cette page.
+      </p>
+      <div class="eq-done__actions">
+        <a class="btn btn--ghost" href="/">Retour au site de l'école</a>
+        <a class="btn btn--call" href="tel:+221778845353">
+          <span>Appeler l'école</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="site-footer on-purple">
+  <div class="wrap footer__wrap">
+
+    <div class="footer__brand">
+      <img class="footer__logo"
+           src="../images/logo-creme-248.webp"
+           srcset="../images/logo-creme-248.webp 248w, ../images/logo-creme-496.webp 496w"
+           sizes="124px"
+           width="248" height="72"
+           alt="Au Cocon Du Bonheur"
+           loading="lazy">
+      <p class="footer__name">Au Cocon Du Bonheur</p>
+      <p class="footer__address">
+        Cité El Hadj Malick Sy, Ouakam, Dakar<br>
+        Repère&nbsp;: Pharmacie Yaye Antoinette, près du Monument de la Renaissance
+      </p>
+    </div>
+
+    <div class="footer__col">
+      <h3 class="footer__heading">Nous joindre</h3>
+      <ul class="footer__list footer__list--joindre">
+        <li class="footer__row--tel"><svg class="mark mark--r6 footer__fil" aria-hidden="true"><use href="#m-fil"/></svg><a class="footer__link" href="tel:+221778845353">+221 77 884 53 53</a></li>
+        <li><a class="footer__link" href="tel:+221773937467">+221 77 393 74 67</a></li>
+        <li><a class="footer__link" href="tel:+221338656575">+221 33 865 65 75</a></li>
+      </ul>
+    </div>
+
+    <div class="footer__col">
+      <h3 class="footer__heading">Nous suivre</h3>
+      <ul class="footer__list">
+        <li><a class="footer__link" href="https://www.facebook.com/aucocondubonheur" target="_blank" rel="noopener">Facebook</a></li>
+        <li><a class="footer__link" href="https://www.instagram.com/au_cocon_du_bonheur/" target="_blank" rel="noopener">Instagram</a></li>
+      </ul>
+    </div>
+
+    <div class="footer__col">
+      <h3 class="footer__heading">Autorisation</h3>
+      <p class="footer__legal">604 IA/DK/BEP — arrêté n°07486 du 27/10/2016</p>
+      <p class="footer__legal">École ouverte en 2016</p>
+    </div>
+
+  </div>
+</footer>
+
+<script defer src="enquete.js"></script>
+</body>
+</html>
