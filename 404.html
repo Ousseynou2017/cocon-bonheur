@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- ============================================================
+     Au Cocon Du Bonheur — ancienne adresse.
+
+     Le site a demenage sur https://au-cocon-du-bonheur.vercel.app/
+     Cette page est tout ce que sert encore GitHub Pages.
+
+     Pourquoi elle existe : l'ancienne adresse a pu etre collee sur
+     Facebook, dans un groupe WhatsApp de parents ou sur un flyer
+     imprime. Impossible de toutes les rattraper. Sans cette page,
+     chacun de ces liens tomberait sur un 404 definitif.
+
+     Aucun JavaScript : un navigateur d'entree de gamme, un mode
+     economie de donnees ou un blocage de scripts n'empechent pas
+     la redirection de fonctionner.
+
+     Trois filets, du plus rapide au plus sur :
+       1. <meta http-equiv="refresh"> — part immediatement
+       2. <link rel="canonical">      — dit aux moteurs ou est le site
+       3. le gros lien au milieu      — si les deux premiers echouent,
+                                        le parent a un bouton a toucher
+     ============================================================ -->
+
+<meta http-equiv="refresh" content="0; url=https://au-cocon-du-bonheur.vercel.app/">
+<link rel="canonical" href="https://au-cocon-du-bonheur.vercel.app/">
+<meta name="robots" content="noindex, follow">
+
+<title>Au Cocon Du Bonheur — nouvelle adresse</title>
+
+<style>
+  /* Les couleurs de la marque, recopiees telles quelles : cette page
+     est seule sur sa branche, elle ne peut pas charger styles.css. */
+  :root {
+    --cream:  #FDF6E6;
+    --purple: #873897;
+    --deep:   #5A2166;
+    --text:   #331F3A;
+    --head:   #5E4966;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: var(--cream);
+    color: var(--text);
+    font-family: Poppins, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
+    text-align: center;
+  }
+  main { max-width: 34rem; }
+  h1 {
+    margin: 0 0 14px;
+    font-size: clamp(1.6rem, 5vw, 2.1rem);
+    font-weight: 500;          /* plafond du design system : jamais plus */
+    line-height: 1.2;
+    color: var(--head);
+  }
+  p { margin: 0 0 12px; }
+  .fine { font-size: 15px; color: var(--head); }
+
+  /* Cible tactile large : c'est le secours, il doit etre facile a toucher. */
+  .go {
+    display: inline-block;
+    margin: 22px 0 8px;
+    padding: 15px 32px;
+    min-height: 48px;
+    background: var(--purple);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 9999px;
+  }
+  .go:hover, .go:focus-visible { background: var(--deep); }
+  .go:focus-visible { outline: 3px solid var(--deep); outline-offset: 3px; }
+
+  /* Le numero reste joignable meme si le parent ne veut pas cliquer. */
+  .tel { color: var(--deep); font-weight: 500; text-decoration: none; }
+  .tel:focus-visible { outline: 3px solid var(--deep); outline-offset: 3px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Le site a changé d'adresse</h1>
+
+  <p>Vous allez être redirigé automatiquement.</p>
+
+  <p><a class="go" href="https://au-cocon-du-bonheur.vercel.app/">Ouvrir le site de l'école</a></p>
+
+  <p class="fine">
+    Si rien ne se passe, touchez le bouton ci-dessus.<br>
+    Nouvelle adresse&nbsp;: au-cocon-du-bonheur.vercel.app
+  </p>
+
+  <p class="fine">
+    Vous pouvez aussi appeler l'école au
+    <a class="tel" href="tel:+221778845353">77&nbsp;884&nbsp;53&nbsp;53</a>.
+  </p>
+</main>
+</body>
+</html>
