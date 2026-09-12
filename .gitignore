@@ -5,3 +5,5 @@
 contact.jpg
 *.contact.jpg
 planche-*.jpg
+.vercel
+.env*
