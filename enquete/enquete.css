@@ -1,13 +1,13 @@
 /* ============================================================
    Au Cocon Du Bonheur — enquête de satisfaction des parents
    ------------------------------------------------------------
-   Cette feuille N'AJOUTE QUE le formulaire. Toutes les couleurs,
-   l'échelle typographique, les rayons et l'anneau de focus viennent
-   de ../styles.css, qui fait autorité.
+   Cette feuille N'AJOUTE QUE le formulaire. Couleurs, échelle
+   typographique, rayons et anneau de focus viennent de
+   ../styles.css, qui fait autorité.
 
    Trois règles du design system qui contraignent tout ce fichier :
-   - #FFD400 est RÉSERVÉ à l'appel téléphonique (M3). Le bouton
-     d'envoi est donc violet, jamais jaune.
+   - #FFD400 est RÉSERVÉ à l'appel téléphonique (M3). Les boutons
+     du parcours sont violets, jamais jaunes.
    - Graisse plafonnée à 500. Aucun 600, aucun 700.
    - Aucune ombre portée. Les plans se séparent au filet.
 
@@ -15,28 +15,34 @@
    - Tout champ saisissable est à 16px au moins. En dessous, iOS
      zoome de lui-même au focus et la page sort de l'écran.
    - Toute cible tactile fait 44px au moins dans les deux sens.
+
+   ------------------------------------------------------------
+   LES DEUX MODES
+   ------------------------------------------------------------
+   Sans JavaScript : les neuf questions s'empilent, le parent
+   remplit tout et envoie. C'est le mode par défaut de ce fichier.
+
+   Avec JavaScript : le script pose `eq-js` sur <html>, et une
+   seule question reste à l'écran. TOUT ce qui relève des étapes
+   est donc écrit sous `.eq-js` — jamais ailleurs. Une règle
+   d'étape écrite hors de ce préfixe casserait le mode sans JS.
    ============================================================ */
 
-/* Le formulaire est long : une largeur de lecture, pas la largeur du site.
-   Au-delà de ~62ch l'œil perd la ligne entre deux questions. */
 .eq-wrap {
-  max-width: 760px;
+  max-width: 680px;
 }
 
 /* ---------- Introduction ---------- */
 
 .eq-intro {
   position: relative;
-  margin-bottom: clamp(2rem, 5vw, 3rem);
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
 }
-/* La marque déborde à droite du titre. Elle est absolue (règle .mark), donc
-   elle a besoin d'une taille explicite et d'un parent positionné. */
 .eq-intro__cocon {
   width: 74px; height: 74px;
   top: -18px; right: -6px;
   color: var(--c-yellow-pale);
 }
-/* Sous 900px le contenu remplit la fenêtre : la marque tomberait sur le titre. */
 @media (max-width: 899px) {
   .eq-intro__cocon { display: none; }
 }
@@ -60,44 +66,45 @@
   max-width: 56ch;
 }
 
-/* ---------- Blocs ----------
-   Chaque bloc est une carte blanche sur le fond crème. Séparation au filet,
-   jamais à l'ombre. */
+/* ============================================================
+   Une question — la carte
+   ============================================================ */
 
-.eq-block {
+.eq-q {
   border: var(--hairline);
   border-radius: var(--r-16);
   background: var(--c-white);
-  padding: clamp(18px, 3vw, 28px);
+  padding: clamp(20px, 4vw, 30px);
   margin: 0 0 clamp(16px, 2.5vw, 22px);
-  /* Un <fieldset> a des marges et un padding d'origine très bavards. */
-  min-inline-size: 0;
 }
-/* Le titre de carte N'EST PAS un <legend> : le <legend> natif se place a
-   cheval sur la bordure du <fieldset>, qu'il decoupe, et le sortir de ce
-   placement avec `float` decale tous les enfants flex/grid a cote de lui
-   (mesure : contenu a 351px du bord gauche sur une fenetre de 390px).
-   C'est un <h2> ordinaire, rattache au <fieldset> par aria-labelledby :
-   meme annonce au lecteur d'ecran, aucun placement special. */
-.eq-block__legend {
+
+.eq-q__titre {
   font-family: var(--font-display);
   font-size: var(--fs-card);
   font-weight: var(--w-medium);
   line-height: var(--lh-card);
   color: var(--c-heading);
-  padding: 0;
-  margin-bottom: 4px;
 }
-.eq-block__hint {
+/* Le titre reçoit le focus au changement d'étape, pour que le lecteur
+   d'écran annonce la question. L'anneau du navigateur n'a rien à faire
+   sur un titre qu'on n'a pas cliqué. */
+.eq-q__titre:focus { outline: none; }
+.eq-q__titre:focus-visible {
+  outline: 3px solid var(--c-purple-deep);
+  outline-offset: 4px;
+  border-radius: var(--r-8);
+}
+
+.eq-q__aide {
+  margin-top: 8px;
+  margin-bottom: 20px;
   font-size: var(--fs-fine);
   color: var(--c-heading);
-  margin-bottom: 18px;
 }
 
 /* ---------- Champs texte et liste ---------- */
 
 .eq-field { margin-top: 18px; }
-.eq-field:first-of-type { margin-top: 14px; }
 
 .eq-label {
   display: block;
@@ -128,13 +135,10 @@
   border-radius: var(--r-12);
   padding: 13px 14px;
   min-height: 48px;
-  transition: border-color var(--m-micro) var(--ease-ui),
-              background-color var(--m-micro) var(--ease-ui);
+  transition: border-color var(--m-micro) var(--ease-ui);
 }
-.eq-textarea {
-  resize: vertical;
-  min-height: 108px;
-}
+.eq-textarea { resize: vertical; min-height: 104px; }
+
 .eq-input:hover,
 .eq-select:hover,
 .eq-textarea:hover { border-color: var(--c-purple); }
@@ -148,10 +152,7 @@
 }
 
 .eq-input::placeholder,
-.eq-textarea::placeholder {
-  color: var(--c-heading);
-  opacity: .55;
-}
+.eq-textarea::placeholder { color: var(--c-heading); opacity: .55; }
 
 /* La flèche par défaut d'un <select> varie d'un navigateur à l'autre.
    Le chevron est un SVG en fond : aucune requête, un seul rendu partout. */
@@ -164,63 +165,44 @@
   background-size: 20px 20px;
 }
 
-/* ---------- Les quatre notes ----------
-   L'<input> reste dans le flux et focusable : on ne le met jamais en
-   display:none, sinon il sort de la navigation clavier. */
-
-.eq-rate {
-  border: 0;
-  padding: 0;
-  margin: 0 0 22px;
-  min-inline-size: 0;
-}
-.eq-rate:last-of-type { margin-bottom: 0; }
+/* ---------- L'échelle 1 à 5 ----------
+   L'<input> reste dans le flux et focusable : jamais display:none,
+   sinon il sort de la navigation clavier. */
 
 .eq-rate__legend {
-  padding: 0;
   margin-bottom: 12px;
   font-size: var(--fs-note);
   font-weight: var(--w-medium);
   color: var(--c-heading);
 }
-
-.eq-rate__scale {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+/* Sur l'écran « recommanderiez-vous », la question est déjà le titre :
+   répéter « Votre réponse » au-dessus des boutons serait du bruit. On la
+   garde pour le lecteur d'écran, on la retire de l'œil. */
+.eq-sr-visuel {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap; border: 0;
 }
+
+.eq-rate__scale { display: flex; align-items: center; gap: 14px; }
 .eq-rate__end {
   font-size: var(--fs-fine);
   color: var(--c-heading);
   opacity: .85;
   flex: none;
 }
-.eq-rate__opts {
-  display: flex;
-  gap: 8px;
-  flex: none;
-}
+.eq-rate__opts { display: flex; gap: 8px; flex: none; }
 
-.eq-rate__opt {
-  position: relative;
-  display: block;
-  cursor: pointer;
-}
-/* Masqué à l'œil, présent pour le clavier et le lecteur d'écran. */
+.eq-rate__opt { position: relative; display: block; cursor: pointer; }
 .eq-rate__opt input {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   width: 100%; height: 100%;
-  margin: 0;
-  opacity: 0;
-  cursor: pointer;
+  margin: 0; opacity: 0; cursor: pointer;
 }
 
-/* 44px : la cible tactile minimale. C'est un plancher, pas une cible. */
+/* 46px : au-dessus du plancher tactile de 44px. */
 .eq-rate__box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   width: 46px; height: 46px;
   border: 1px solid rgb(94 73 102 / .3);
   border-radius: var(--r-12);
@@ -242,18 +224,15 @@
   border-color: var(--c-purple);
   color: var(--c-white);
 }
-.eq-rate__opt input:active + .eq-rate__box { transform: scale(.96); }
-
-/* L'anneau se dessine à l'extérieur, donc sur le fond de la carte : il doit
-   contraster avec le BLANC, pas avec le carré. */
+/* L'anneau se dessine à l'extérieur, donc sur le fond de la carte : il
+   doit contraster avec le BLANC, pas avec le carré. */
 .eq-rate__opt input:focus-visible + .eq-rate__box {
   outline: 3px solid var(--c-purple-deep);
   outline-offset: 3px;
 }
 
-/* Sous 620px, « Pas satisfait » et « Très satisfait » ne tiennent plus sur la
-   même ligne que les cinq carrés : ils passent DESSOUS, aux deux extrémités.
-   Mesuré à 390px : 5×46 + 4×8 = 262px pour 318px disponibles. */
+/* Sous 620px, les libellés d'extrémité passent SOUS la rangée.
+   Mesuré à 390px : 5×46 + 4×8 = 262px pour ~300px disponibles. */
 @media (max-width: 619px) {
   .eq-rate__scale {
     display: grid;
@@ -272,32 +251,17 @@
 
 /* ---------- Oui / Non ---------- */
 
-.eq-yn {
-  border: 0; padding: 0; margin: 0;
-  min-inline-size: 0;
-}
-.eq-yn__legend {
-  padding: 0;
-  margin-bottom: 12px;
-  font-size: var(--fs-note);
-  font-weight: var(--w-medium);
-  color: var(--c-heading);
-}
-.eq-yn__opts { display: flex; gap: 10px; flex-wrap: wrap; }
-
-.eq-yn__opt { position: relative; display: block; cursor: pointer; }
+.eq-yn__opts { display: flex; gap: 12px; flex-wrap: wrap; }
+.eq-yn__opt { position: relative; display: block; cursor: pointer; flex: 1 1 auto; }
 .eq-yn__opt input {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   margin: 0; opacity: 0; cursor: pointer;
 }
 .eq-yn__box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 104px;
-  min-height: 48px;
-  padding: 12px 26px;
+  display: flex; align-items: center; justify-content: center;
+  min-width: 120px; min-height: 52px;
+  padding: 14px 26px;
   border: 1px solid rgb(94 73 102 / .3);
   border-radius: var(--r-pill);
   background: var(--c-white);
@@ -323,19 +287,30 @@
   outline-offset: 3px;
 }
 
-/* ---------- Nom et prénom du parent ---------- */
+/* ---------- Le parent, en fin de dernière question ---------- */
 
+.eq-parent {
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: var(--hairline);
+}
+.eq-parent__titre {
+  font-family: var(--font-display);
+  font-size: var(--fs-note);
+  font-weight: var(--w-medium);
+  color: var(--c-heading);
+  margin-bottom: 4px;
+}
 .eq-duo {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 16px;
 }
-/* Sous 560px les deux champs s'empilent : à 390px une colonne ferait 151px,
-   soit moins que le prénom le plus court affiché en entier. */
+/* Sous 560px les deux champs s'empilent : à 390px une colonne ferait
+   moins que le plus court des prénoms affiché en entier. */
 @media (max-width: 559px) {
   .eq-duo { grid-template-columns: minmax(0, 1fr); }
 }
-.eq-duo .eq-field:first-of-type { margin-top: 0; }
 .eq-duo .eq-field { margin-top: 0; }
 
 .eq-anon {
@@ -348,8 +323,8 @@
 }
 
 /* ---------- Piège à robot ----------
-   Ni display:none ni visibility:hidden : certains robots les détectent et
-   sautent le champ. Hors écran, il est rempli par les robots qui remplissent
+   Ni display:none ni visibility:hidden : certains robots les détectent
+   et sautent le champ. Hors écran, il est rempli par ceux qui remplissent
    tout, et invisible pour tout le monde. */
 .eq-hp {
   position: absolute;
@@ -361,17 +336,15 @@
 /* ---------- Erreurs ---------- */
 
 .eq-error {
-  margin-top: 8px;
+  margin-top: 12px;
   font-size: var(--fs-fine);
   color: var(--c-purple-deep);
   font-weight: var(--w-medium);
 }
-.eq-error::before {
-  content: "— ";
-}
+.eq-error::before { content: "— "; }
 
-/* Le champ fautif se signale au filet, pas à la couleur seule : un daltonien
-   doit voir la différence. Le trait passe à 2px et le message s'affiche. */
+/* Le champ fautif se signale au filet, pas à la couleur seule : un
+   daltonien doit voir la différence. */
 .eq-input.is-bad,
 .eq-select.is-bad,
 .eq-textarea.is-bad {
@@ -379,12 +352,9 @@
   border-color: var(--c-purple-deep);
   background: #FCF7FD;
 }
-.eq-rate.is-bad .eq-rate__box,
-.eq-yn.is-bad .eq-yn__box {
-  border-color: var(--c-purple-deep);
-}
+[role="radiogroup"].is-bad .eq-rate__box,
+[role="radiogroup"].is-bad .eq-yn__box { border-color: var(--c-purple-deep); }
 
-/* Bande d'erreur générale, en tête de formulaire. */
 .eq-alert {
   border: 2px solid var(--c-purple-deep);
   border-radius: var(--r-12);
@@ -395,10 +365,7 @@
   padding: 14px 16px;
   margin-bottom: 18px;
 }
-.eq-alert:focus-visible {
-  outline: 3px solid var(--c-purple-deep);
-  outline-offset: 3px;
-}
+.eq-alert:focus-visible { outline: 3px solid var(--c-purple-deep); outline-offset: 3px; }
 
 /* ---------- Envoi ---------- */
 
@@ -412,9 +379,7 @@
 
 /* Violet, pas jaune : le jaune n'habille que l'appel téléphonique (M3). */
 .eq-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-flex; align-items: center; justify-content: center;
   min-height: 52px;
   padding: 14px 38px;
   border: 0;
@@ -437,16 +402,161 @@
   cursor: progress;
   transform: none;
 }
-/* À 390px le bouton prend toute la largeur : plus facile à viser au pouce. */
-@media (max-width: 559px) {
-  .eq-btn { width: 100%; }
-}
+@media (max-width: 559px) { .eq-btn { width: 100%; } }
 
 .eq-submit__note {
   font-size: var(--fs-fine);
   color: var(--c-heading);
   text-align: center;
 }
+
+/* ============================================================
+   MODE ÉTAPES — tout ce qui suit ne s'applique QUE si le script
+   a chargé et posé `eq-js` sur <html>.
+   ============================================================ */
+
+/* Sans le script, la barre de progression, la navigation et le
+   récapitulatif n'existent pas dans le document : rien à masquer. */
+
+.eq-prog { margin-bottom: 20px; }
+.eq-prog__rail {
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--c-cream-deep);
+  overflow: hidden;
+}
+.eq-prog__fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: var(--r-pill);
+  background: var(--c-purple);
+  /* La barre est le seul élément qui s'anime en largeur : c'est une
+     jauge, pas un objet qui se déplace. */
+  transition: width var(--m-state) var(--ease-out);
+}
+.eq-prog__texte {
+  margin-top: 10px;
+  font-size: var(--fs-fine);
+  font-weight: var(--w-medium);
+  color: var(--c-heading);
+}
+
+/* ---------- Le glissement ----------
+   transform et opacity uniquement. Aucun flou, aucune animation de
+   hauteur ou de largeur : ce sont les deux seules propriétés qui ne
+   déclenchent pas de recalcul de mise en page. */
+
+@keyframes eq-entre-droite {
+  from { transform: translateX(30px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes eq-entre-gauche {
+  from { transform: translateX(-30px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+
+.eq-js .eq-q--entre-droite { animation: eq-entre-droite var(--m-state) var(--ease-out) both; }
+.eq-js .eq-q--entre-gauche { animation: eq-entre-gauche var(--m-state) var(--ease-out) both; }
+
+/* En mode étape, la carte est seule à l'écran : la marge du bas
+   reviendrait à décoller la navigation sans raison. */
+.eq-js .eq-q { margin-bottom: 0; }
+
+/* Sur les trois écrans de saisie, le clavier du téléphone mange environ
+   400px des 844px. Chaque pixel gagné ici rapproche le bouton Suivant de
+   la ligne de flottaison. Une zone de texte reste redimensionnable par le
+   parent s'il écrit long. */
+.eq-js .eq-textarea { min-height: 84px; }
+.eq-js .eq-q__aide { margin-bottom: 16px; }
+.eq-js .eq-parent { margin-top: 20px; padding-top: 18px; }
+
+/* ---------- Navigation ---------- */
+
+.eq-nav {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+/* Le bouton Suivant reste DANS LE FLUX, jamais en position fixe en bas
+   d'écran : sur iOS le clavier ne redimensionne pas la fenêtre, et un
+   bouton fixé se retrouve dessous, inatteignable. */
+.eq-nav__btn {
+  min-height: 52px;
+  padding: 14px 28px;
+  border-radius: var(--r-pill);
+  font-family: var(--font-body);
+  font-size: var(--fs-note);
+  font-weight: var(--w-medium);
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color var(--m-micro) var(--ease-ui),
+              transform var(--m-micro) var(--ease-ui);
+}
+.eq-nav__suivant {
+  flex: 1 1 auto;
+  border: 0;
+  background: var(--c-purple);
+  color: var(--c-white);
+}
+.eq-nav__suivant:hover { background: var(--c-purple-deep); transform: translateY(-1px); }
+.eq-nav__suivant:active { transform: translateY(0); }
+
+.eq-nav__retour {
+  flex: 0 0 auto;
+  border: 1px solid var(--c-purple);
+  background: transparent;
+  color: var(--c-purple-deep);
+}
+.eq-nav__retour:hover { background: var(--c-cream-deep); }
+
+/* ---------- Récapitulatif ---------- */
+
+.eq-recap__liste { margin: 0; }
+
+.eq-recap__ligne {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 4px 14px;
+  padding: 14px 0;
+  border-bottom: var(--hairline);
+}
+.eq-recap__ligne:last-child { border-bottom: 0; }
+
+.eq-recap__cle {
+  grid-column: 1;
+  font-size: var(--fs-fine);
+  color: var(--c-heading);
+}
+.eq-recap__val {
+  grid-column: 1;
+  margin: 0;
+  font-size: var(--fs-note);
+  color: var(--c-text);
+  /* Une réponse longue ne doit pas pousser le bouton hors de la carte. */
+  overflow-wrap: anywhere;
+}
+.eq-recap__val--vide { color: var(--c-heading); font-style: italic; }
+
+/* 44px de haut : c'est une cible tactile, pas un lien de bas de page. */
+.eq-recap__corriger {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid var(--c-purple);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--c-purple-deep);
+  font-family: var(--font-body);
+  font-size: var(--fs-fine);
+  font-weight: var(--w-medium);
+  cursor: pointer;
+  transition: background-color var(--m-micro) var(--ease-ui);
+}
+.eq-recap__corriger:hover { background: var(--c-cream); }
 
 /* ---------- Écran de confirmation ---------- */
 
@@ -459,7 +569,6 @@
   text-align: center;
   margin-block: clamp(1rem, 3vw, 2rem);
 }
-/* La coche n'est pas une marque flottante ici : elle est le sujet. */
 .eq-done__coche {
   position: static;
   display: block;
@@ -480,16 +589,10 @@
   max-width: 46ch;
   font-size: var(--fs-body);
 }
-.eq-done__text--fine {
-  font-size: var(--fs-note);
-  color: var(--c-heading);
-}
+.eq-done__text--fine { font-size: var(--fs-note); color: var(--c-heading); }
 .eq-done__actions {
   margin-top: clamp(22px, 4vw, 32px);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  justify-content: center;
+  display: flex; flex-wrap: wrap; gap: 14px; justify-content: center;
 }
 /* Le site n'a pas de bouton secondaire sur fond clair : .btn--whatsapp est
    crème, donc invisible ici. Celui-ci est son équivalent sur fond blanc. */
@@ -500,12 +603,14 @@
 }
 .btn--ghost:hover { background: var(--c-cream); }
 
-/* ---------- Mouvement réduit ---------- */
+/* ---------- Mouvement réduit ----------
+   Le parcours reste identique, seul le déplacement disparaît. */
 
 @media (prefers-reduced-motion: reduce) {
+  .eq-js .eq-q--entre-droite,
+  .eq-js .eq-q--entre-gauche { animation: none; }
+  .eq-prog__fill { transition: none; }
   .eq-input, .eq-select, .eq-textarea,
-  .eq-rate__box, .eq-yn__box, .eq-btn {
-    transition: none;
-  }
-  .eq-btn:hover, .eq-btn:active { transform: none; }
+  .eq-rate__box, .eq-yn__box, .eq-btn, .eq-nav__btn { transition: none; }
+  .eq-btn:hover, .eq-nav__suivant:hover { transform: none; }
 }

@@ -89,62 +89,78 @@
       </p>
     </div>
 
-    <!-- ---------- Le formulaire ---------- -->
+    <!-- ---------- Le formulaire ----------
+         IMPORTANT — lire avant de modifier.
+
+         Ce formulaire est livré ENTIER et CLASSIQUE : les neuf questions se
+         suivent dans un seul <form method="post">. Sans JavaScript, un parent
+         voit tout, remplit tout, et envoie : le formulaire fonctionne.
+
+         Le decoupage en etapes (une question par ecran) est applique PAR
+         enquete.js au chargement. C'est un enrichissement, jamais une
+         condition de fonctionnement.
+
+         Ne jamais deplacer un champ hors de ce <form>, et ne jamais poser
+         `hidden` sur une section dans le HTML : ce serait rendre une question
+         invisible aux parents dont le script ne charge pas.
+         ---------- -->
     <form class="eq-form" id="eq-form" method="post" action="/api/enquete" novalidate>
 
-      <!-- Bande d'erreur générale : vide et masquée au départ. Elle reçoit le
-           focus quand l'envoi échoue, pour que le lecteur d'écran l'annonce. -->
+      <!-- Bande d'erreur generale : vide et masquee au depart. Elle recoit le
+           focus quand l'envoi echoue, pour que le lecteur d'ecran l'annonce. -->
       <div class="eq-alert" id="eq-alert" role="alert" tabindex="-1" hidden></div>
 
-      <!-- ===== 1. L'enfant ===== -->
-      <fieldset class="eq-block" aria-labelledby="t-votre-enfant">
-        <h2 class="eq-block__legend" id="t-votre-enfant">Votre enfant</h2>
+      <!-- ===== 1. Prenom de l'enfant ===== -->
+      <section class="eq-q" data-cle="enfant_prenom" data-type="texte" data-requis="1">
+        <h2 class="eq-q__titre">Quel est le prénom de votre enfant&nbsp;?</h2>
+        <p class="eq-q__aide">Il nous sert seulement à relier votre avis à une classe.</p>
 
-        <div class="eq-field">
-          <label class="eq-label" for="enfant_prenom">
-            Prénom de l'enfant <span class="eq-req" aria-hidden="true">*</span>
-          </label>
-          <input class="eq-input" type="text" id="enfant_prenom" name="enfant_prenom"
-                 maxlength="60" autocomplete="off" required
-                 aria-describedby="err-enfant_prenom">
-          <p class="eq-error" id="err-enfant_prenom" hidden></p>
-        </div>
+        <label class="eq-label" for="enfant_prenom">
+          Prénom de l'enfant <span class="eq-req" aria-hidden="true">*</span>
+        </label>
+        <input class="eq-input" type="text" id="enfant_prenom" name="enfant_prenom"
+               maxlength="60" autocomplete="off" enterkeyhint="next" required
+               aria-describedby="err-enfant_prenom">
+        <p class="eq-error" id="err-enfant_prenom" hidden></p>
+      </section>
 
-        <div class="eq-field">
-          <label class="eq-label" for="classe">
-            Classe <span class="eq-req" aria-hidden="true">*</span>
-          </label>
-          <select class="eq-select" id="classe" name="classe" required
-                  aria-describedby="err-classe">
-            <option value="">Choisissez la classe</option>
-            <option value="Crèche">Crèche</option>
-            <option value="Toute petite section">Toute petite section</option>
-            <option value="Petite section">Petite section</option>
-            <option value="Moyenne section">Moyenne section</option>
-            <option value="Grande section">Grande section</option>
-            <option value="CI">CI</option>
-            <option value="CP">CP</option>
-            <option value="CE1">CE1</option>
-            <option value="CE2">CE2</option>
-            <option value="CM1">CM1</option>
-            <option value="CM2">CM2</option>
-          </select>
-          <p class="eq-error" id="err-classe" hidden></p>
-        </div>
-      </fieldset>
+      <!-- ===== 2. Classe ===== -->
+      <section class="eq-q" data-cle="classe" data-type="liste" data-requis="1">
+        <h2 class="eq-q__titre">Dans quelle classe est votre enfant&nbsp;?</h2>
+        <p class="eq-q__aide">De la crèche au CM2.</p>
 
-      <!-- ===== 2. Les quatre notes =====
-           Radios natifs : ils marchent au clavier, au lecteur d'écran, et sans
-           JavaScript. Le carré coloré est le <label>, l'<input> est masqué
-           visuellement mais reste focusable (pas de display:none). -->
-      <fieldset class="eq-block" aria-labelledby="t-votre-satisfaction">
-        <h2 class="eq-block__legend" id="t-votre-satisfaction">Votre satisfaction</h2>
-        <p class="eq-block__hint">1 = pas satisfait, 5 = très satisfait.</p>
+        <label class="eq-label" for="classe">
+          Classe <span class="eq-req" aria-hidden="true">*</span>
+        </label>
+        <select class="eq-select" id="classe" name="classe" required
+                aria-describedby="err-classe">
+          <option value="">Choisissez la classe</option>
+          <option value="Crèche">Crèche</option>
+          <option value="Toute petite section">Toute petite section</option>
+          <option value="Petite section">Petite section</option>
+          <option value="Moyenne section">Moyenne section</option>
+          <option value="Grande section">Grande section</option>
+          <option value="CI">CI</option>
+          <option value="CP">CP</option>
+          <option value="CE1">CE1</option>
+          <option value="CE2">CE2</option>
+          <option value="CM1">CM1</option>
+          <option value="CM2">CM2</option>
+        </select>
+        <p class="eq-error" id="err-classe" hidden></p>
+      </section>
 
-        <!-- Pédagogie -->
-        <fieldset class="eq-rate" role="radiogroup" aria-labelledby="t-note_pedagogie" aria-describedby="err-note_pedagogie">
+      <!-- ===== 3 a 6. Les quatre notes =====
+           data-auto : un choix unique n'a pas besoin d'un bouton en plus.
+           Le script avance tout seul apres 250 ms. Sans script, ce sont
+           quatre groupes de boutons radio ordinaires. -->
+      <section class="eq-q" data-cle="note_pedagogie" data-type="note" data-requis="1" data-auto="1">
+        <h2 class="eq-q__titre">La pédagogie</h2>
+        <p class="eq-q__aide">Ce que votre enfant apprend, et comment on le lui apprend.</p>
+
+        <div role="radiogroup" aria-labelledby="t-note_pedagogie" aria-describedby="err-note_pedagogie">
           <p class="eq-rate__legend" id="t-note_pedagogie">
-            Pédagogie <span class="eq-req" aria-hidden="true">*</span>
+            Votre satisfaction <span class="eq-req" aria-hidden="true">*</span>
           </p>
           <div class="eq-rate__scale">
             <span class="eq-rate__end">Pas satisfait</span>
@@ -157,13 +173,17 @@
             </div>
             <span class="eq-rate__end eq-rate__end--hi">Très satisfait</span>
           </div>
-          <p class="eq-error" id="err-note_pedagogie" hidden></p>
-        </fieldset>
+        </div>
+        <p class="eq-error" id="err-note_pedagogie" hidden></p>
+      </section>
 
-        <!-- Communication -->
-        <fieldset class="eq-rate" role="radiogroup" aria-labelledby="t-note_communication" aria-describedby="err-note_communication">
+      <section class="eq-q" data-cle="note_communication" data-type="note" data-requis="1" data-auto="1">
+        <h2 class="eq-q__titre">La communication avec les parents</h2>
+        <p class="eq-q__aide">Les informations, les rendez-vous, les réponses à vos questions.</p>
+
+        <div role="radiogroup" aria-labelledby="t-note_communication" aria-describedby="err-note_communication">
           <p class="eq-rate__legend" id="t-note_communication">
-            Communication avec les parents <span class="eq-req" aria-hidden="true">*</span>
+            Votre satisfaction <span class="eq-req" aria-hidden="true">*</span>
           </p>
           <div class="eq-rate__scale">
             <span class="eq-rate__end">Pas satisfait</span>
@@ -176,13 +196,17 @@
             </div>
             <span class="eq-rate__end eq-rate__end--hi">Très satisfait</span>
           </div>
-          <p class="eq-error" id="err-note_communication" hidden></p>
-        </fieldset>
+        </div>
+        <p class="eq-error" id="err-note_communication" hidden></p>
+      </section>
 
-        <!-- Encadrement -->
-        <fieldset class="eq-rate" role="radiogroup" aria-labelledby="t-note_encadrement" aria-describedby="err-note_encadrement">
+      <section class="eq-q" data-cle="note_encadrement" data-type="note" data-requis="1" data-auto="1">
+        <h2 class="eq-q__titre">L'encadrement des enfants</h2>
+        <p class="eq-q__aide">L'attention portée à votre enfant au long de la journée.</p>
+
+        <div role="radiogroup" aria-labelledby="t-note_encadrement" aria-describedby="err-note_encadrement">
           <p class="eq-rate__legend" id="t-note_encadrement">
-            Encadrement des enfants <span class="eq-req" aria-hidden="true">*</span>
+            Votre satisfaction <span class="eq-req" aria-hidden="true">*</span>
           </p>
           <div class="eq-rate__scale">
             <span class="eq-rate__end">Pas satisfait</span>
@@ -195,13 +219,17 @@
             </div>
             <span class="eq-rate__end eq-rate__end--hi">Très satisfait</span>
           </div>
-          <p class="eq-error" id="err-note_encadrement" hidden></p>
-        </fieldset>
+        </div>
+        <p class="eq-error" id="err-note_encadrement" hidden></p>
+      </section>
 
-        <!-- Locaux -->
-        <fieldset class="eq-rate" role="radiogroup" aria-labelledby="t-note_locaux" aria-describedby="err-note_locaux">
+      <section class="eq-q" data-cle="note_locaux" data-type="note" data-requis="1" data-auto="1">
+        <h2 class="eq-q__titre">Les locaux et le matériel</h2>
+        <p class="eq-q__aide">Les salles, la cour, le matériel mis à disposition.</p>
+
+        <div role="radiogroup" aria-labelledby="t-note_locaux" aria-describedby="err-note_locaux">
           <p class="eq-rate__legend" id="t-note_locaux">
-            Locaux et matériel <span class="eq-req" aria-hidden="true">*</span>
+            Votre satisfaction <span class="eq-req" aria-hidden="true">*</span>
           </p>
           <div class="eq-rate__scale">
             <span class="eq-rate__end">Pas satisfait</span>
@@ -214,86 +242,94 @@
             </div>
             <span class="eq-rate__end eq-rate__end--hi">Très satisfait</span>
           </div>
-          <p class="eq-error" id="err-note_locaux" hidden></p>
-        </fieldset>
-      </fieldset>
+        </div>
+        <p class="eq-error" id="err-note_locaux" hidden></p>
+      </section>
 
-      <!-- ===== 3. Recommandation ===== -->
-      <fieldset class="eq-block" aria-labelledby="t-recommandation">
-        <h2 class="eq-block__legend" id="t-recommandation">Recommandation</h2>
+      <!-- ===== 7. Recommandation =====
+           Choix unique lui aussi : meme traitement que les notes. -->
+      <section class="eq-q" data-cle="recommande" data-type="choix" data-requis="1" data-auto="1">
+        <h2 class="eq-q__titre">Recommanderiez-vous l'école à un autre parent&nbsp;?</h2>
+        <p class="eq-q__aide">Répondez franchement, c'est le but de l'enquête.</p>
 
-        <fieldset class="eq-yn" role="radiogroup" aria-labelledby="t-recommande" aria-describedby="err-recommande">
-          <p class="eq-yn__legend" id="t-recommande">
-            Recommanderiez-vous l'école à un autre parent&nbsp;?
-            <span class="eq-req" aria-hidden="true">*</span>
+        <div role="radiogroup" aria-labelledby="t-recommande" aria-describedby="err-recommande">
+          <p class="eq-rate__legend eq-sr-visuel" id="t-recommande">
+            Votre réponse <span class="eq-req" aria-hidden="true">*</span>
           </p>
           <div class="eq-yn__opts">
             <label class="eq-yn__opt"><input type="radio" name="recommande" value="oui" required><span class="eq-yn__box">Oui</span></label>
             <label class="eq-yn__opt"><input type="radio" name="recommande" value="non"><span class="eq-yn__box">Non</span></label>
           </div>
-          <p class="eq-error" id="err-recommande" hidden></p>
-        </fieldset>
-      </fieldset>
-
-      <!-- ===== 4. Texte libre ===== -->
-      <fieldset class="eq-block" aria-labelledby="t-vos-remarques">
-        <h2 class="eq-block__legend" id="t-vos-remarques">Vos remarques</h2>
-
-        <div class="eq-field">
-          <label class="eq-label" for="points_forts">
-            Ce qui vous plaît le plus <span class="eq-opt">(facultatif)</span>
-          </label>
-          <textarea class="eq-textarea" id="points_forts" name="points_forts"
-                    rows="4" maxlength="2000"
-                    placeholder="Par exemple : l'accueil du matin, le suivi de mon enfant…"></textarea>
         </div>
+        <p class="eq-error" id="err-recommande" hidden></p>
+      </section>
 
-        <div class="eq-field">
-          <label class="eq-label" for="suggestions">
-            Ce qui pourrait être amélioré <span class="eq-opt">(facultatif)</span>
-          </label>
-          <textarea class="eq-textarea" id="suggestions" name="suggestions"
-                    rows="4" maxlength="2000"
-                    placeholder="Dites-le simplement, tout est lu."></textarea>
-        </div>
-      </fieldset>
+      <!-- ===== 8. Points forts ===== -->
+      <section class="eq-q" data-cle="points_forts" data-type="texte-long">
+        <h2 class="eq-q__titre">Qu'est-ce qui vous plaît le plus&nbsp;?</h2>
+        <p class="eq-q__aide">Facultatif — passez si vous n'avez rien à ajouter.</p>
 
-      <!-- ===== 5. Le parent — EN DERNIER, et facultatif ===== -->
-      <fieldset class="eq-block eq-block--last" aria-labelledby="t-vous">
-        <h2 class="eq-block__legend" id="t-vous">Vous</h2>
+        <label class="eq-label" for="points_forts">
+          Ce qui vous plaît le plus <span class="eq-opt">(facultatif)</span>
+        </label>
+        <textarea class="eq-textarea" id="points_forts" name="points_forts"
+                  rows="4" maxlength="2000"
+                  placeholder="Par exemple : l'accueil du matin, le suivi de mon enfant…"></textarea>
+      </section>
 
-        <div class="eq-duo">
-          <div class="eq-field">
-            <label class="eq-label" for="parent_prenom">
-              Votre prénom <span class="eq-opt">(facultatif)</span>
-            </label>
-            <input class="eq-input" type="text" id="parent_prenom" name="parent_prenom"
-                   maxlength="60" autocomplete="given-name">
+      <!-- ===== 9. Suggestions + le parent =====
+           Le nom du parent arrive en DERNIER, et facultatif : on ne demande pas
+           a quelqu'un de se nommer avant de lui demander son avis. -->
+      <section class="eq-q" data-cle="suggestions" data-type="texte-long">
+        <h2 class="eq-q__titre">Qu'est-ce qui pourrait être amélioré&nbsp;?</h2>
+        <p class="eq-q__aide">Facultatif — dites-le simplement, tout est lu.</p>
+
+        <label class="eq-label" for="suggestions">
+          Ce qui pourrait être amélioré <span class="eq-opt">(facultatif)</span>
+        </label>
+        <textarea class="eq-textarea" id="suggestions" name="suggestions"
+                  rows="4" maxlength="2000"
+                  placeholder="Dites-le simplement, tout est lu."></textarea>
+
+        <div class="eq-parent">
+          <h3 class="eq-parent__titre">Vous</h3>
+
+          <div class="eq-duo">
+            <div class="eq-field">
+              <label class="eq-label" for="parent_prenom">
+                Votre prénom <span class="eq-opt">(facultatif)</span>
+              </label>
+              <input class="eq-input" type="text" id="parent_prenom" name="parent_prenom"
+                     maxlength="60" autocomplete="given-name" enterkeyhint="next">
+            </div>
+
+            <div class="eq-field">
+              <label class="eq-label" for="parent_nom">
+                Votre nom <span class="eq-opt">(facultatif)</span>
+              </label>
+              <input class="eq-input" type="text" id="parent_nom" name="parent_nom"
+                     maxlength="60" autocomplete="family-name" enterkeyhint="done">
+            </div>
           </div>
 
-          <div class="eq-field">
-            <label class="eq-label" for="parent_nom">
-              Votre nom <span class="eq-opt">(facultatif)</span>
-            </label>
-            <input class="eq-input" type="text" id="parent_nom" name="parent_nom"
-                   maxlength="60" autocomplete="family-name">
-          </div>
+          <p class="eq-anon">
+            Laissez ces champs vides si vous préférez répondre anonymement.
+          </p>
         </div>
+      </section>
 
-        <p class="eq-anon">
-          Laissez ces champs vides si vous préférez répondre anonymement.
-        </p>
-      </fieldset>
-
-      <!-- Piège à robot. Un humain ne le voit pas et ne peut pas le remplir :
-           il est hors écran, hors tabulation, et hors autocomplétion.
-           Rempli = la réponse est rejetée côté serveur. -->
+      <!-- Piege a robot. Un humain ne le voit pas et ne peut pas le remplir :
+           hors ecran, hors tabulation, hors autocompletion.
+           Rempli = la reponse est rejetee cote serveur. -->
       <div class="eq-hp" aria-hidden="true">
         <label for="eq_site">Ne remplissez pas ce champ</label>
         <input type="text" id="eq_site" name="site_web" tabindex="-1" autocomplete="off">
       </div>
 
-      <div class="eq-submit">
+      <!-- Le bouton d'envoi existe dans le HTML livre : sans JavaScript, c'est
+           lui qui envoie le formulaire complet. Avec JavaScript, il n'apparait
+           qu'a la derniere etape, apres le recapitulatif. -->
+      <div class="eq-submit" id="eq-submit">
         <button class="eq-btn" type="submit" id="eq-send">
           <span class="eq-btn__label">Envoyer mes réponses</span>
         </button>

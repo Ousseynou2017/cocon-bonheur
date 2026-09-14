@@ -1,16 +1,32 @@
 /* ============================================================
    Au Cocon Du Bonheur — enquête de satisfaction
-   Validation côté navigateur, envoi, écran de confirmation.
+   Découpage en étapes, validation, envoi, remerciement.
 
-   Trois partis pris :
-   1. Le formulaire n'est JAMAIS vidé. Si l'envoi échoue, les réponses
-      sont toujours là : un parent qui a écrit trois lignes ne les
+   ------------------------------------------------------------
+   LE PRINCIPE, À LIRE AVANT DE MODIFIER
+   ------------------------------------------------------------
+   Le HTML livré est un formulaire COMPLET et CLASSIQUE : les neuf
+   questions se suivent, avec method="post" et un bouton d'envoi.
+   Sans ce script, un parent voit tout et envoie : ça marche.
+
+   Ce fichier TRANSFORME ce formulaire en parcours d'étapes. Il pose
+   `eq-js` sur <html>, et c'est cette classe — jamais le HTML — qui
+   déclenche le mode étape dans la feuille de style.
+
+   La règle qui en découle : rien d'indispensable ne doit exister
+   uniquement ici. Si ce fichier ne charge pas, on perd le confort,
+   jamais la possibilité de répondre.
+
+   ------------------------------------------------------------
+   Trois partis pris
+   ------------------------------------------------------------
+   1. Le formulaire n'est JAMAIS vidé. Un envoi qui échoue laisse les
+      réponses en place : un parent qui a écrit trois lignes ne les
       retape pas.
-   2. Aucune alert(). Les erreurs s'affichent sous le champ concerné,
-      la confirmation est un vrai écran.
+   2. Aucune alert(). Les erreurs s'affichent sous le champ concerné.
    3. `novalidate` sur le <form> : les messages du navigateur sont en
-      anglais chez beaucoup d'utilisateurs et ne disent pas QUEL champ
-      est en cause quand la page est longue. On les remplace.
+      anglais chez beaucoup de monde et ne disent pas QUEL champ est en
+      cause. On les remplace.
 
    Aucune dépendance, aucun CDN.
    ============================================================ */
@@ -22,10 +38,14 @@
   var done  = document.getElementById('eq-done');
   var intro = document.getElementById('eq-intro');
   var alertBox = document.getElementById('eq-alert');
-  var sendBtn  = document.getElementById('eq-send');
+  var zoneEnvoi = document.getElementById('eq-submit');
+  var sendBtn   = document.getElementById('eq-send');
   var sendLabel = sendBtn ? sendBtn.querySelector('.eq-btn__label') : null;
 
-  if (!form || !done || !sendBtn) return;
+  if (!form || !done || !sendBtn || !zoneEnvoi) return;
+
+  var etapes = [].slice.call(form.querySelectorAll('.eq-q'));
+  if (!etapes.length) return;   // HTML inattendu : on laisse le formulaire long.
 
   var NOTES = ['note_pedagogie', 'note_communication', 'note_encadrement', 'note_locaux'];
 
@@ -34,70 +54,40 @@
     'Grande section', 'CI', 'CP', 'CE1', 'CE2', 'CM1', 'CM2'
   ];
 
-  var LIBELLE = {
-    note_pedagogie:     'la pédagogie',
-    note_communication: 'la communication avec les parents',
-    note_encadrement:   "l'encadrement des enfants",
-    note_locaux:        'les locaux et le matériel'
+  /* Ce qu'on dit au parent quand il n'a pas répondu. Une phrase par
+     question : « ce champ est obligatoire » ne dit pas quoi faire. */
+  var MANQUE = {
+    enfant_prenom:      "Indiquez le prénom de votre enfant pour continuer.",
+    classe:             "Choisissez la classe de votre enfant pour continuer.",
+    note_pedagogie:     'Touchez une note de 1 à 5 pour continuer.',
+    note_communication: 'Touchez une note de 1 à 5 pour continuer.',
+    note_encadrement:   'Touchez une note de 1 à 5 pour continuer.',
+    note_locaux:        'Touchez une note de 1 à 5 pour continuer.',
+    recommande:         'Répondez par oui ou par non pour continuer.'
   };
 
-  /* ---------- Affichage des erreurs ---------- */
+  /* Intitulés courts pour le récapitulatif. */
+  var TITRE_RECAP = {
+    enfant_prenom:      "Prénom de l'enfant",
+    classe:             'Classe',
+    note_pedagogie:     'Pédagogie',
+    note_communication: 'Communication avec les parents',
+    note_encadrement:   'Encadrement des enfants',
+    note_locaux:        'Locaux et matériel',
+    recommande:         "Recommanderiez-vous l'école",
+    points_forts:       'Ce qui vous plaît le plus',
+    suggestions:        'Ce qui pourrait être amélioré'
+  };
 
-  function montrerErreur(id, message) {
-    var p = document.getElementById('err-' + id);
-    if (p) {
-      p.textContent = message;
-      p.hidden = false;
-    }
-    var champ = document.getElementById(id);
-    if (champ) {
-      champ.classList.add('is-bad');
-      champ.setAttribute('aria-invalid', 'true');
-      return champ;
-    }
-    // Pour les groupes de radios : c'est le <fieldset> qui porte l'état,
-    // et le premier bouton du groupe qui reçoit le focus.
-    var groupe = form.querySelector('[name="' + id + '"]');
-    if (groupe) {
-      var bloc = groupe.closest('.eq-rate, .eq-yn');
-      if (bloc) bloc.classList.add('is-bad');
-      return groupe;
-    }
-    return null;
-  }
+  var DUREE_AUTO = 250;   // le temps de voir son choix se colorer avant de partir
 
-  function effacerErreur(id) {
-    var p = document.getElementById('err-' + id);
-    if (p) { p.textContent = ''; p.hidden = true; }
+  var iCourant = 0;
+  var iRecap   = etapes.length;   // le récapitulatif vient après la dernière question
+  var enTransition = false;
 
-    var champ = document.getElementById(id);
-    if (champ) {
-      champ.classList.remove('is-bad');
-      champ.removeAttribute('aria-invalid');
-    }
-    var groupe = form.querySelector('[name="' + id + '"]');
-    if (groupe) {
-      var bloc = groupe.closest('.eq-rate, .eq-yn');
-      if (bloc) bloc.classList.remove('is-bad');
-    }
-  }
-
-  function effacerTout() {
-    effacerErreur('enfant_prenom');
-    effacerErreur('classe');
-    NOTES.forEach(effacerErreur);
-    effacerErreur('recommande');
-    alertBox.hidden = true;
-    alertBox.textContent = '';
-  }
-
-  function annoncer(message) {
-    alertBox.textContent = message;
-    alertBox.hidden = false;
-    alertBox.focus();
-  }
-
-  /* ---------- Lecture des valeurs ---------- */
+  /* ------------------------------------------------------------
+     Lecture des réponses
+     ------------------------------------------------------------ */
 
   function texte(id) {
     var el = document.getElementById(id);
@@ -109,42 +99,368 @@
     return choisi ? choisi.value : '';
   }
 
-  /* ---------- Validation ----------
-     Renvoie le premier élément fautif, ou null si tout va bien. */
-
-  function valider() {
-    var premier = null;
-
-    function fautif(el) { if (!premier && el) premier = el; }
-
-    var prenom = texte('enfant_prenom');
-    if (prenom === '') {
-      fautif(montrerErreur('enfant_prenom', "Indiquez le prénom de votre enfant."));
-    } else if (prenom.length > 60) {
-      fautif(montrerErreur('enfant_prenom', "Ce prénom est trop long (60 caractères au maximum)."));
-    }
-
-    var classe = texte('classe');
-    if (classe === '') {
-      fautif(montrerErreur('classe', "Choisissez la classe de votre enfant."));
-    } else if (CLASSES.indexOf(classe) === -1) {
-      fautif(montrerErreur('classe', "Cette classe n'existe pas dans la liste."));
-    }
-
-    NOTES.forEach(function (nom) {
-      if (radio(nom) === '') {
-        fautif(montrerErreur(nom, 'Donnez une note pour ' + LIBELLE[nom] + '.'));
-      }
-    });
-
-    if (radio('recommande') === '') {
-      fautif(montrerErreur('recommande', "Répondez par oui ou par non."));
-    }
-
-    return premier;
+  function valeurDe(cle) {
+    if (NOTES.indexOf(cle) !== -1 || cle === 'recommande') return radio(cle);
+    return texte(cle);
   }
 
-  /* ---------- Construction du corps envoyé ---------- */
+  /* ------------------------------------------------------------
+     Erreurs
+     ------------------------------------------------------------ */
+
+  function montrerErreur(cle, message) {
+    var p = document.getElementById('err-' + cle);
+    if (p) { p.textContent = message; p.hidden = false; }
+
+    var champ = document.getElementById(cle);
+    if (champ) {
+      champ.classList.add('is-bad');
+      champ.setAttribute('aria-invalid', 'true');
+      return champ;
+    }
+    // Groupe de boutons : c'est le premier bouton qui reçoit le focus.
+    var premier = form.querySelector('[name="' + cle + '"]');
+    if (premier) {
+      var groupe = premier.closest('[role="radiogroup"]');
+      if (groupe) groupe.classList.add('is-bad');
+      return premier;
+    }
+    return null;
+  }
+
+  function effacerErreur(cle) {
+    var p = document.getElementById('err-' + cle);
+    if (p) { p.textContent = ''; p.hidden = true; }
+
+    var champ = document.getElementById(cle);
+    if (champ) {
+      champ.classList.remove('is-bad');
+      champ.removeAttribute('aria-invalid');
+    }
+    var premier = form.querySelector('[name="' + cle + '"]');
+    if (premier) {
+      var groupe = premier.closest('[role="radiogroup"]');
+      if (groupe) groupe.classList.remove('is-bad');
+    }
+  }
+
+  function annoncer(message) {
+    alertBox.textContent = message;
+    alertBox.hidden = false;
+    alertBox.focus();
+  }
+
+  function taireAlerte() {
+    alertBox.hidden = true;
+    alertBox.textContent = '';
+  }
+
+  /* ------------------------------------------------------------
+     Validation
+     ------------------------------------------------------------ */
+
+  /* Une étape. Renvoie true si on peut avancer. */
+  function validerEtape(i) {
+    var etape = etapes[i];
+    if (!etape || etape.dataset.requis !== '1') return true;
+
+    var cle = etape.dataset.cle;
+    var v = valeurDe(cle);
+
+    if (v === '') {
+      var fautif = montrerErreur(cle, MANQUE[cle] || 'Cette réponse est nécessaire pour continuer.');
+      if (fautif) fautif.focus({ preventScroll: true });
+      return false;
+    }
+    if (cle === 'classe' && CLASSES.indexOf(v) === -1) {
+      montrerErreur(cle, "Cette classe ne fait pas partie de la liste.");
+      return false;
+    }
+    effacerErreur(cle);
+    return true;
+  }
+
+  /* Tout le formulaire, avant l'envoi. Renvoie l'index de la première
+     étape fautive, ou -1 si tout est bon. On ne fait jamais confiance au
+     seul passage étape par étape : le parent a pu revenir en arrière et
+     vider un champ. */
+  function premiereEtapeFautive() {
+    for (var i = 0; i < etapes.length; i++) {
+      var etape = etapes[i];
+      if (etape.dataset.requis !== '1') continue;
+      var cle = etape.dataset.cle;
+      var v = valeurDe(cle);
+      if (v === '' || (cle === 'classe' && CLASSES.indexOf(v) === -1)) return i;
+    }
+    return -1;
+  }
+
+  /* ------------------------------------------------------------
+     Le décor : barre de progression, navigation, récapitulatif.
+     Tout est construit ici, donc absent du HTML livré.
+     ------------------------------------------------------------ */
+
+  var prog  = document.createElement('div');
+  prog.className = 'eq-prog';
+  prog.innerHTML =
+    '<div class="eq-prog__rail"><span class="eq-prog__fill" id="eq-prog-fill"></span></div>' +
+    '<p class="eq-prog__texte" id="eq-prog-texte" aria-live="polite"></p>';
+  form.insertBefore(prog, form.firstChild);
+
+  var progFill  = document.getElementById('eq-prog-fill');
+  var progTexte = document.getElementById('eq-prog-texte');
+
+  var recap = document.createElement('section');
+  recap.className = 'eq-q eq-recap';
+  recap.innerHTML =
+    '<h2 class="eq-q__titre">Vérifiez vos réponses</h2>' +
+    '<p class="eq-q__aide">Touchez « Corriger » pour changer une réponse.</p>' +
+    '<dl class="eq-recap__liste" id="eq-recap-liste"></dl>';
+  etapes[etapes.length - 1].insertAdjacentElement('afterend', recap);
+  var recapListe = document.getElementById('eq-recap-liste');
+
+  var nav = document.createElement('div');
+  nav.className = 'eq-nav';
+  nav.innerHTML =
+    '<button type="button" class="eq-nav__btn eq-nav__retour" id="eq-retour">Retour</button>' +
+    '<button type="button" class="eq-nav__btn eq-nav__suivant" id="eq-suivant">Suivant</button>';
+  recap.insertAdjacentElement('afterend', nav);
+
+  var btnRetour  = document.getElementById('eq-retour');
+  var btnSuivant = document.getElementById('eq-suivant');
+
+  // Le bouton d'envoi rejoint le récapitulatif : il ne doit apparaître
+  // qu'une fois les réponses relues.
+  recap.appendChild(zoneEnvoi);
+
+  // À partir d'ici seulement, le mode étape s'applique.
+  document.documentElement.classList.add('eq-js');
+
+  /* Gagner de la hauteur pour que le bouton Suivant reste visible quand le
+     clavier du téléphone est ouvert. Mesuré à 390×440 (un iPhone dont le
+     clavier occupe 400px) : sans ces deux gestes, il fallait faire défiler.
+
+     1. L'en-tête passe en version compacte tout de suite. La classe vient
+        de styles.css, elle n'est pas inventée ici : sur la page d'accueil
+        c'est app.js qui la pose au défilement. Sur un formulaire, le logo
+        en pleine taille ne sert à rien.
+     2. L'introduction disparaît dès qu'on quitte la première question :
+        elle a été lue, elle ne coûte plus que de la place. */
+  var header = document.querySelector('.site-header');
+  if (header) header.classList.add('is-compact');
+
+  /* ------------------------------------------------------------
+     Affichage d'une étape
+     ------------------------------------------------------------ */
+
+  function ecrans() { return etapes.concat([recap]); }
+
+  function majProgression() {
+    var total = etapes.length;
+    if (iCourant >= iRecap) {
+      progTexte.textContent = 'Vérifiez vos réponses';
+      progFill.style.width = '100%';
+    } else {
+      progTexte.textContent = 'Question ' + (iCourant + 1) + ' sur ' + total;
+      progFill.style.width = ((iCourant + 1) / total * 100) + '%';
+    }
+  }
+
+  /* Le focus après un changement d'étape.
+     Sur un champ de saisie, on met le focus DANS le champ : le clavier
+     s'ouvre tout seul et le parent économise un appui. C'est permis
+     parce qu'on est dans la foulée d'un geste de sa part.
+     Sur les autres écrans, le focus va au titre : le lecteur d'écran
+     annonce la question, et aucun clavier ne s'ouvre pour rien. */
+  function poserFocus(ecran) {
+    var type = ecran.dataset ? ecran.dataset.type : '';
+    if (type === 'texte' || type === 'texte-long') {
+      var champ = ecran.querySelector('input[type="text"], textarea');
+      if (champ) { champ.focus({ preventScroll: true }); return; }
+    }
+    var titre = ecran.querySelector('.eq-q__titre');
+    if (titre) {
+      titre.setAttribute('tabindex', '-1');
+      titre.focus({ preventScroll: true });
+    }
+  }
+
+  function afficher(i, sens) {
+    var tous = ecrans();
+    if (i < 0 || i >= tous.length) return;
+
+    tous.forEach(function (e) {
+      e.hidden = true;
+      e.classList.remove('eq-q--entre-droite', 'eq-q--entre-gauche');
+    });
+
+    iCourant = i;
+    var ecran = tous[i];
+    ecran.hidden = false;
+
+    // Glissement : transform et opacity seulement, jamais de flou.
+    if (sens) {
+      ecran.classList.add(sens > 0 ? 'eq-q--entre-droite' : 'eq-q--entre-gauche');
+    }
+
+    btnRetour.hidden  = (i === 0);
+    btnSuivant.hidden = (i >= iRecap);   // au récapitulatif, c'est le bouton d'envoi
+
+    // L'introduction n'accompagne que la première question.
+    if (intro) intro.hidden = (i !== 0);
+
+    if (i >= iRecap) construireRecap();
+
+    majProgression();
+    poserFocus(ecran);
+
+    // Le haut de la question doit être visible : on remonte, sinon une
+    // étape courte laisse la page à la position de la précédente.
+    if (prog.getBoundingClientRect().top < 0) {
+      prog.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+  }
+
+  function avancer() {
+    if (enTransition) return;
+    if (iCourant < iRecap && !validerEtape(iCourant)) return;
+    taireAlerte();
+    afficher(Math.min(iCourant + 1, iRecap), +1);
+  }
+
+  function reculer() {
+    if (enTransition) return;
+    taireAlerte();
+    afficher(Math.max(iCourant - 1, 0), -1);
+  }
+
+  /* ------------------------------------------------------------
+     Récapitulatif
+     ------------------------------------------------------------ */
+
+  function lisible(cle) {
+    var v = valeurDe(cle);
+    if (v === '') return null;
+    if (NOTES.indexOf(cle) !== -1) return v + ' sur 5';
+    if (cle === 'recommande') return v === 'oui' ? 'Oui' : 'Non';
+    return v;
+  }
+
+  function construireRecap() {
+    recapListe.textContent = '';
+
+    etapes.forEach(function (etape, i) {
+      var cle = etape.dataset.cle;
+      var val = lisible(cle);
+
+      // Une question facultative laissée vide n'encombre pas la relecture.
+      if (val === null && etape.dataset.requis !== '1') return;
+
+      var ligne = document.createElement('div');
+      ligne.className = 'eq-recap__ligne';
+
+      var dt = document.createElement('dt');
+      dt.className = 'eq-recap__cle';
+      dt.textContent = TITRE_RECAP[cle] || cle;
+
+      var dd = document.createElement('dd');
+      dd.className = 'eq-recap__val';
+      dd.textContent = val === null ? '—' : val;
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'eq-recap__corriger';
+      btn.textContent = 'Corriger';
+      btn.setAttribute('aria-label', 'Corriger : ' + (TITRE_RECAP[cle] || cle));
+      btn.addEventListener('click', function () { afficher(i, -1); });
+
+      ligne.appendChild(dt);
+      ligne.appendChild(dd);
+      ligne.appendChild(btn);
+      recapListe.appendChild(ligne);
+    });
+
+    // Le parent n'est pas une étape à lui seul : on l'ajoute ici pour que
+    // la relecture soit complète.
+    var qui = [texte('parent_prenom'), texte('parent_nom')].filter(Boolean).join(' ');
+    var ligneQui = document.createElement('div');
+    ligneQui.className = 'eq-recap__ligne';
+    var dtQui = document.createElement('dt');
+    dtQui.className = 'eq-recap__cle';
+    dtQui.textContent = 'Votre nom';
+    var ddQui = document.createElement('dd');
+    ddQui.className = 'eq-recap__val';
+    ddQui.textContent = qui || 'Réponse anonyme';
+    if (!qui) ddQui.classList.add('eq-recap__val--vide');
+    var btnQui = document.createElement('button');
+    btnQui.type = 'button';
+    btnQui.className = 'eq-recap__corriger';
+    btnQui.textContent = 'Corriger';
+    btnQui.setAttribute('aria-label', 'Corriger : votre nom');
+    btnQui.addEventListener('click', function () {
+      afficher(etapes.length - 1, -1);
+      var p = document.getElementById('parent_prenom');
+      if (p) p.focus({ preventScroll: true });
+    });
+    ligneQui.appendChild(dtQui);
+    ligneQui.appendChild(ddQui);
+    ligneQui.appendChild(btnQui);
+    recapListe.appendChild(ligneQui);
+  }
+
+  /* ------------------------------------------------------------
+     Interactions
+     ------------------------------------------------------------ */
+
+  btnSuivant.addEventListener('click', avancer);
+  btnRetour.addEventListener('click', reculer);
+
+  /* Choix unique : un appui suffit, le parcours avance tout seul.
+     C'est l'intérêt du format — un appui au lieu de deux. Le petit délai
+     laisse voir le choix se colorer avant de changer d'écran. */
+  etapes.forEach(function (etape, i) {
+    if (etape.dataset.auto !== '1') return;
+    var cle = etape.dataset.cle;
+
+    etape.querySelectorAll('input[type="radio"]').forEach(function (input) {
+      input.addEventListener('change', function () {
+        effacerErreur(cle);
+        if (i !== iCourant) return;          // corrigé depuis un autre écran
+        enTransition = true;
+        setTimeout(function () {
+          enTransition = false;
+          if (i === iCourant) avancer();
+        }, DUREE_AUTO);
+      });
+    });
+  });
+
+  /* L'erreur s'efface dès que le parent corrige. */
+  etapes.forEach(function (etape) {
+    var cle = etape.dataset.cle;
+    var champ = document.getElementById(cle);
+    if (champ) {
+      champ.addEventListener('input',  function () { effacerErreur(cle); });
+      champ.addEventListener('change', function () { effacerErreur(cle); });
+    }
+  });
+
+  /* Entrée = Suivant.
+     Dans une zone de texte libre, Entrée reste un retour à la ligne : un
+     parent qui écrit un paragraphe ne doit pas être expédié à l'écran
+     suivant au premier passage à la ligne.
+     Échap n'est pas intercepté : il ne ferme rien et ne perd rien. */
+  form.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    if (e.target.tagName === 'TEXTAREA') return;
+    if (e.target === sendBtn) return;                 // laisser l'envoi se faire
+    e.preventDefault();
+    if (iCourant < iRecap) avancer();
+  });
+
+  /* ------------------------------------------------------------
+     Envoi
+     ------------------------------------------------------------ */
 
   function charge() {
     return {
@@ -159,12 +475,9 @@
       suggestions:        texte('suggestions'),
       parent_prenom:      texte('parent_prenom'),
       parent_nom:         texte('parent_nom'),
-      // Piège à robot : un humain le laisse vide, le serveur rejette s'il est rempli.
       site_web:           texte('eq_site')
     };
   }
-
-  /* ---------- Envoi ---------- */
 
   function occupe(oui) {
     sendBtn.disabled = oui;
@@ -174,11 +487,7 @@
   }
 
   function messageEchec(status, corps) {
-    // Le serveur renvoie un message lisible quand il peut. On le préfère
-    // toujours au nôtre : il est plus précis.
-    if (corps && typeof corps.message === 'string' && corps.message) {
-      return corps.message;
-    }
+    if (corps && typeof corps.message === 'string' && corps.message) return corps.message;
     if (status === 429) {
       return "Vous avez déjà envoyé plusieurs réponses. Patientez quelques minutes avant de recommencer.";
     }
@@ -189,8 +498,6 @@
   }
 
   function reussite() {
-    // On ne vide rien et on ne redirige pas : l'écran de remerciement
-    // remplace le formulaire et y reste.
     form.hidden = true;
     if (intro) intro.hidden = true;
     done.hidden = false;
@@ -200,13 +507,13 @@
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
-    effacerTout();
+    taireAlerte();
 
-    var fautif = valider();
-    if (fautif) {
-      annoncer("Quelques réponses manquent. Elles sont signalées ci-dessous.");
-      fautif.focus({ preventScroll: true });
-      fautif.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    var fautive = premiereEtapeFautive();
+    if (fautive !== -1) {
+      afficher(fautive, -1);
+      validerEtape(fautive);
+      annoncer('Il manque une réponse à cette question.');
       return;
     }
 
@@ -236,18 +543,9 @@
       });
   });
 
-  /* ---------- L'erreur s'efface dès que le parent corrige ---------- */
+  /* ------------------------------------------------------------
+     Départ
+     ------------------------------------------------------------ */
 
-  ['enfant_prenom', 'classe'].forEach(function (id) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener('input',  function () { effacerErreur(id); });
-    el.addEventListener('change', function () { effacerErreur(id); });
-  });
-
-  NOTES.concat(['recommande']).forEach(function (nom) {
-    form.querySelectorAll('[name="' + nom + '"]').forEach(function (input) {
-      input.addEventListener('change', function () { effacerErreur(nom); });
-    });
-  });
+  afficher(0, 0);
 })();
