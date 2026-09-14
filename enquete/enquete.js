@@ -214,7 +214,6 @@
   recap.className = 'eq-q eq-recap';
   recap.innerHTML =
     '<h2 class="eq-q__titre">Vérifiez vos réponses</h2>' +
-    '<p class="eq-q__aide">Touchez « Corriger » pour changer une réponse.</p>' +
     '<dl class="eq-recap__liste" id="eq-recap-liste"></dl>';
   etapes[etapes.length - 1].insertAdjacentElement('afterend', recap);
   var recapListe = document.getElementById('eq-recap-liste');

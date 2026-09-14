@@ -32,6 +32,16 @@
   max-width: 680px;
 }
 
+/* Le rythme du site réserve 64px au-dessus de chaque section : c'est la
+   respiration d'une page qu'on lit. Sur un formulaire, cette réserve
+   repousse la question vers le bas de l'écran sans rien apporter.
+   Mesuré à 390×844 : 142px séparaient le bas de l'en-tête du titre de la
+   question, dont 64px de ce seul padding. */
+.page-enquete main.section {
+  padding-block-start: clamp(16px, 3vw, 28px);
+  padding-block-end: clamp(2rem, 6vw, 4rem);
+}
+
 /* ---------- Introduction ---------- */
 
 .eq-intro {
@@ -53,17 +63,6 @@
   font-weight: var(--w-medium);
   line-height: var(--lh-title);
   color: var(--c-heading);
-}
-.eq-lead {
-  margin-top: 14px;
-  font-size: var(--fs-body);
-  max-width: 56ch;
-}
-.eq-note {
-  margin-top: 10px;
-  font-size: var(--fs-note);
-  color: var(--c-heading);
-  max-width: 56ch;
 }
 
 /* ============================================================
@@ -93,13 +92,6 @@
   outline: 3px solid var(--c-purple-deep);
   outline-offset: 4px;
   border-radius: var(--r-8);
-}
-
-.eq-q__aide {
-  margin-top: 8px;
-  margin-bottom: 20px;
-  font-size: var(--fs-fine);
-  color: var(--c-heading);
 }
 
 /* ---------- Champs texte et liste ---------- */
@@ -151,9 +143,6 @@
   border-color: var(--c-purple-deep);
 }
 
-.eq-input::placeholder,
-.eq-textarea::placeholder { color: var(--c-heading); opacity: .55; }
-
 /* La flèche par défaut d'un <select> varie d'un navigateur à l'autre.
    Le chevron est un SVG en fond : aucune requête, un seul rendu partout. */
 .eq-select {
@@ -168,21 +157,6 @@
 /* ---------- L'échelle 1 à 5 ----------
    L'<input> reste dans le flux et focusable : jamais display:none,
    sinon il sort de la navigation clavier. */
-
-.eq-rate__legend {
-  margin-bottom: 12px;
-  font-size: var(--fs-note);
-  font-weight: var(--w-medium);
-  color: var(--c-heading);
-}
-/* Sur l'écran « recommanderiez-vous », la question est déjà le titre :
-   répéter « Votre réponse » au-dessus des boutons serait du bruit. On la
-   garde pour le lecteur d'écran, on la retire de l'œil. */
-.eq-sr-visuel {
-  position: absolute; width: 1px; height: 1px;
-  padding: 0; margin: -1px; overflow: hidden;
-  clip-path: inset(50%); white-space: nowrap; border: 0;
-}
 
 .eq-rate__scale { display: flex; align-items: center; gap: 14px; }
 .eq-rate__end {
@@ -293,13 +267,6 @@
   margin-top: 26px;
   padding-top: 22px;
   border-top: var(--hairline);
-}
-.eq-parent__titre {
-  font-family: var(--font-display);
-  font-size: var(--fs-note);
-  font-weight: var(--w-medium);
-  color: var(--c-heading);
-  margin-bottom: 4px;
 }
 .eq-duo {
   display: grid;
@@ -468,8 +435,26 @@
    la ligne de flottaison. Une zone de texte reste redimensionnable par le
    parent s'il écrit long. */
 .eq-js .eq-textarea { min-height: 84px; }
-.eq-js .eq-q__aide { margin-bottom: 16px; }
 .eq-js .eq-parent { margin-top: 20px; padding-top: 18px; }
+
+/* Une étiquette qui répète la question juste au-dessus n'apprend rien à
+   qui voit l'écran. Elle reste lisible au lecteur d'écran, et surtout
+   elle reste VISIBLE sans JavaScript : dans le formulaire long, les neuf
+   questions se suivent et chaque champ a besoin de son étiquette. */
+.eq-js .eq-label--repet {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+/* En mode étape, on ne peut pas avancer sans répondre : la note qui
+   explique quelles questions sont obligatoires n'a plus d'objet. Elle
+   reste affichée dans le formulaire long, où elle sert. */
+.eq-js .eq-submit__note { display: none; }
+
+/* Le titre porte seul la question : il lui faut l'air que les phrases
+   d'accompagnement occupaient. */
+.eq-js .eq-q__titre { margin-bottom: 20px; }
 
 /* ---------- Navigation ---------- */
 
