@@ -418,6 +418,16 @@
   /* Choix unique : un appui suffit, le parcours avance tout seul.
      C'est l'intérêt du format — un appui au lieu de deux. Le petit délai
      laisse voir le choix se colorer avant de changer d'écran. */
+
+  function avanceAuto(i) {
+    if (i !== iCourant) return;              // corrigé depuis un autre écran
+    enTransition = true;
+    setTimeout(function () {
+      enTransition = false;
+      if (i === iCourant) avancer();
+    }, DUREE_AUTO);
+  }
+
   etapes.forEach(function (etape, i) {
     if (etape.dataset.auto !== '1') return;
     var cle = etape.dataset.cle;
@@ -425,14 +435,32 @@
     etape.querySelectorAll('input[type="radio"]').forEach(function (input) {
       input.addEventListener('change', function () {
         effacerErreur(cle);
-        if (i !== iCourant) return;          // corrigé depuis un autre écran
-        enTransition = true;
-        setTimeout(function () {
-          enTransition = false;
-          if (i === iCourant) avancer();
-        }, DUREE_AUTO);
+        avanceAuto(i);
       });
     });
+
+    /* La liste déroulante avance aussi toute seule, avec UNE précaution.
+       Au clavier, parcourir une liste avec les flèches déclenche un
+       `change` à CHAQUE déplacement : sans garde-fou, on serait expédié à
+       l'écran suivant dès la première flèche, sur la mauvaise réponse.
+       On note donc que la navigation est clavier, et on laisse alors le
+       parent valider lui-même — Entrée vaut déjà Suivant. Un choix fait
+       au doigt ou à la souris, lui, avance tout seul. */
+    var liste = etape.querySelector('select');
+    if (!liste) return;
+
+    var auClavier = false;
+    liste.addEventListener('pointerdown', function () { auClavier = false; });
+    liste.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== 'Tab') auClavier = true;
+    });
+    liste.addEventListener('change', function () {
+      effacerErreur(cle);
+      if (auClavier) return;
+      avanceAuto(i);
+    });
+    // Le parent a quitté la liste au clavier : son choix est arrêté.
+    liste.addEventListener('blur', function () { auClavier = false; });
   });
 
   /* L'erreur s'efface dès que le parent corrige. */
