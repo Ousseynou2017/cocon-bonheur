@@ -11,8 +11,8 @@
        et rien à gagner à être partagée. Pas d'Open Graph, pas d'indexation. -->
   <meta name="robots" content="noindex, nofollow">
 
-  <link rel="icon" href="../favicon.png" sizes="32x32">
-  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+  <link rel="icon" href="/favicon.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,8 +20,8 @@
 
   <!-- Le design system du site fait autorité : couleurs, échelle typographique,
        rayons, anneau de focus. La feuille ci-dessous n'ajoute QUE le formulaire. -->
-  <link rel="stylesheet" href="../styles.css">
-  <link rel="stylesheet" href="enquete.css">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/enquete/enquete.css">
 </head>
 <body class="page-enquete">
 
@@ -52,8 +52,8 @@
 <header class="site-header">
   <div class="site-header__inner wrap">
     <a class="site-header__brand" href="/">
-      <img class="site-header__logo" src="../images/logo-cocon-262.webp"
-           srcset="../images/logo-cocon-262.webp 262w, ../images/logo-cocon-524.webp 524w"
+      <img class="site-header__logo" src="/images/logo-cocon-262.webp"
+           srcset="/images/logo-cocon-262.webp 262w, /images/logo-cocon-524.webp 524w"
            sizes="262px" width="262" height="125" alt="Au Cocon Du Bonheur">
     </a>
 
@@ -90,7 +90,7 @@
     </div>
 
     <!-- ---------- Le formulaire ---------- -->
-    <form class="eq-form" id="eq-form" novalidate>
+    <form class="eq-form" id="eq-form" method="post" action="/api/enquete" novalidate>
 
       <!-- Bande d'erreur générale : vide et masquée au départ. Elle reçoit le
            focus quand l'envoi échoue, pour que le lecteur d'écran l'annonce. -->
@@ -330,8 +330,8 @@
 
     <div class="footer__brand">
       <img class="footer__logo"
-           src="../images/logo-creme-248.webp"
-           srcset="../images/logo-creme-248.webp 248w, ../images/logo-creme-496.webp 496w"
+           src="/images/logo-creme-248.webp"
+           srcset="/images/logo-creme-248.webp 248w, /images/logo-creme-496.webp 496w"
            sizes="124px"
            width="248" height="72"
            alt="Au Cocon Du Bonheur"
@@ -369,6 +369,6 @@
   </div>
 </footer>
 
-<script defer src="enquete.js"></script>
+<script defer src="/enquete/enquete.js"></script>
 </body>
 </html>
