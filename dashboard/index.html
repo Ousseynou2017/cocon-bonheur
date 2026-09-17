@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Tableau de bord — Au Cocon Du Bonheur</title>
+
+  <!-- Page d'administration : elle n'a rien à faire dans un moteur de
+       recherche, et rien à gagner à être partagée. -->
+  <meta name="robots" content="noindex, nofollow">
+
+  <link rel="icon" href="/favicon.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Le design system du site fait autorité : couleurs, échelle, rayons,
+       anneau de focus. Rien n'est réinventé ici. -->
+  <link rel="stylesheet" href="/styles.css">
+
+  <style>
+    /* ============================================================
+       Écran de connexion du tableau de bord.
+       Reprend les contrôles du formulaire d'enquête (.eq-input,
+       .eq-btn) en les nommant db-* : même géométrie, mêmes états.
+       Graisse plafonnée à 500, comme partout sur le site. Le jaune
+       #FFD400 reste réservé au bouton d'appel téléphonique : il
+       n'apparaît nulle part ici.
+       ============================================================ */
+
+    .page-dashboard {
+      background: var(--c-cream);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--gutter);
+    }
+
+    .db-wrap { width: 100%; max-width: 420px; }
+
+    .db-carte {
+      background: var(--c-white);
+      border: var(--hairline);
+      border-radius: var(--r-20);
+      padding: clamp(1.5rem, 5vw, 2.25rem);
+    }
+
+    .db-title {
+      margin: 0 0 6px;
+      font-family: var(--font-display);
+      font-size: var(--fs-section);
+      font-weight: var(--w-medium);
+      line-height: var(--lh-title);
+      color: var(--c-purple-deep);
+    }
+
+    .db-sub {
+      margin: 0 0 22px;
+      font-size: var(--fs-note);
+      font-weight: var(--w-regular);
+      line-height: var(--lh-body);
+      color: var(--c-heading);
+    }
+
+    .db-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: var(--fs-note);
+      font-weight: var(--w-medium);
+      color: var(--c-heading);
+    }
+
+    /* 1rem = 16px : le plancher iOS, sinon Safari zoome au focus. */
+    .db-input {
+      width: 100%;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: var(--w-regular);
+      line-height: var(--lh-body);
+      color: var(--c-text);
+      background: var(--c-white);
+      border: 1px solid rgb(94 73 102 / .3);
+      border-radius: var(--r-12);
+      padding: 13px 14px;
+      min-height: 48px;
+      transition: border-color var(--m-micro) var(--ease-ui);
+    }
+    .db-input:hover { border-color: var(--c-purple); }
+    .db-input:focus-visible {
+      outline: 3px solid var(--c-purple-deep);
+      outline-offset: 2px;
+      border-color: var(--c-purple-deep);
+    }
+
+    .db-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 100%;
+      min-height: 52px;
+      margin-top: 18px;
+      padding: 14px 38px;
+      border: 0;
+      border-radius: var(--r-pill);
+      background: var(--c-purple);
+      color: var(--c-white);
+      font-family: var(--font-body);
+      font-size: var(--fs-note);
+      font-weight: var(--w-medium);
+      line-height: 1;
+      cursor: pointer;
+      transition: background-color var(--m-micro) var(--ease-ui),
+                  transform var(--m-micro) var(--ease-ui);
+    }
+    .db-btn:hover { background: var(--c-purple-deep); transform: translateY(-1px); }
+    .db-btn:active { transform: translateY(0); }
+    .db-btn:focus-visible { outline: 3px solid var(--c-purple-deep); outline-offset: 3px; }
+    .db-btn[disabled] {
+      background: var(--c-heading);
+      opacity: .6;
+      cursor: progress;
+      transform: none;
+    }
+
+    .db-alert {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: var(--r-12);
+      border: 1px solid var(--c-purple);
+      background: var(--c-cream-deep);
+      font-size: var(--fs-fine);
+      line-height: var(--lh-body);
+      color: var(--c-text);
+    }
+
+    /* ============================================================
+       Le tableau de bord lui-même.
+       Pensé pour 390px d'abord : la directrice le consultera sur son
+       téléphone. Aucune graisse au-dessus de 500, aucun #FFD400.
+       L'accent est le violet de la marque — c'est lui qui désigne
+       l'axe le plus faible, le seul chiffre qui dise quoi corriger.
+       ============================================================ */
+
+    /* L'écran de connexion est centré verticalement ; le tableau de bord,
+       lui, se lit du haut vers le bas et respire plus large. */
+    .page-dashboard.est-ouvert { align-items: flex-start; }
+    .est-ouvert .db-wrap { max-width: 640px; }
+
+    .db-tete { margin-bottom: 16px; }
+    .db-tete .db-title { margin-bottom: 2px; }
+    .db-tete .db-sub { margin-bottom: 0; font-size: var(--fs-fine); }
+
+    .db-bloc { margin-top: 14px; }
+    .db-carte.db-bloc { padding: 16px; }
+
+    .db-h2 {
+      margin: 0 0 12px;
+      font-family: var(--font-body);
+      font-size: var(--fs-note);
+      font-weight: var(--w-medium);
+      color: var(--c-heading);
+    }
+    .db-h2--seul { margin: 22px 0 10px; }
+
+    /* ---------- Les trois chiffres ---------- */
+    /* minmax(0, 1fr) et pas 1fr : sinon une colonne refuse de descendre
+       sous la largeur de son contenu et la rangée déborde. */
+    .db-chiffres {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .db-chiffre {
+      background: var(--c-white);
+      border: var(--hairline);
+      border-radius: var(--r-16);
+      padding: 14px 10px;
+      text-align: center;
+    }
+    .db-chiffre__val {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: var(--w-medium);
+      line-height: 1.1;
+      color: var(--c-purple-deep);
+    }
+    .db-chiffre__lib {
+      display: block;
+      margin-top: 4px;
+      font-size: var(--fs-fine);
+      font-weight: var(--w-regular);
+      line-height: 1.3;
+      color: var(--c-heading);
+    }
+
+    /* ---------- Les quatre axes ---------- */
+    .db-axe { margin-bottom: 14px; }
+    .db-axe:last-child { margin-bottom: 0; }
+
+    .db-axe__tete {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .db-axe__nom {
+      font-size: var(--fs-fine);
+      font-weight: var(--w-regular);
+      color: var(--c-text);
+    }
+    .db-axe__val {
+      font-size: var(--fs-note);
+      font-weight: var(--w-medium);
+      color: var(--c-heading);
+      white-space: nowrap;
+    }
+
+    .db-axe__piste {
+      height: 10px;
+      border-radius: var(--r-pill);
+      background: rgb(94 73 102 / .12);
+      overflow: hidden;
+    }
+    .db-axe__barre {
+      height: 100%;
+      border-radius: var(--r-pill);
+      /* Un lavis de l'accent, pas une autre couleur : les trois axes
+         corrects restent lisibles sans voler l'œil au quatrième. */
+      background: rgb(135 56 151 / .32);
+    }
+
+    /* L'axe le plus faible : pleine couleur, valeur en violet profond,
+       et une étiquette qui dit pourquoi il ressort. Trois signaux, pas
+       seulement la couleur — un daltonien doit le voir aussi. */
+    .db-axe--faible .db-axe__barre { background: var(--c-purple); }
+    .db-axe--faible .db-axe__val,
+    .db-axe--faible .db-axe__nom { color: var(--c-purple-deep); }
+    .db-axe__marque {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 2px 8px;
+      border-radius: var(--r-pill);
+      background: var(--c-purple);
+      color: var(--c-white);
+      font-size: .75rem;
+      font-weight: var(--w-medium);
+      line-height: 1.5;
+      white-space: nowrap;
+    }
+
+    /* ---------- Filtre et export ---------- */
+    /* La flèche native d'un <select> varie d'un navigateur à l'autre.
+       Le chevron est un SVG en fond, comme sur le formulaire d'enquête :
+       aucune requête de plus, un seul rendu partout. */
+    .db-select {
+      appearance: none;
+      padding-right: 42px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235A2166' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 18px;
+    }
+    .db-btn--second {
+      background: transparent;
+      color: var(--c-purple-deep);
+      border: 1px solid var(--c-purple);
+      margin-top: 14px;
+    }
+    .db-btn--second:hover { background: var(--c-purple); color: var(--c-white); }
+
+    /* ---------- Une réponse ---------- */
+    .db-rep {
+      background: var(--c-white);
+      border: var(--hairline);
+      border-radius: var(--r-16);
+      padding: 16px;
+      margin-bottom: 10px;
+    }
+    .db-rep__tete {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .db-rep__qui {
+      font-size: var(--fs-note);
+      font-weight: var(--w-medium);
+      color: var(--c-purple-deep);
+    }
+    .db-rep__classe {
+      font-weight: var(--w-regular);
+      color: var(--c-heading);
+    }
+    .db-rep__date {
+      font-size: var(--fs-fine);
+      font-weight: var(--w-regular);
+      color: var(--c-heading);
+      white-space: nowrap;
+    }
+
+    .db-rep__notes {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .db-rep__note {
+      text-align: center;
+      padding: 7px 2px;
+      border-radius: var(--r-8);
+      background: var(--c-cream);
+    }
+    .db-rep__note b {
+      display: block;
+      font-size: 1rem;
+      font-weight: var(--w-medium);
+      color: var(--c-text);
+    }
+    .db-rep__note span {
+      display: block;
+      font-size: .6875rem;
+      line-height: 1.3;
+      color: var(--c-heading);
+    }
+
+    .db-rep__reco {
+      margin: 0 0 12px;
+      font-size: var(--fs-fine);
+      color: var(--c-text);
+    }
+    .db-rep__reco b { font-weight: var(--w-medium); color: var(--c-purple-deep); }
+
+    .db-rep__lib {
+      margin: 0 0 3px;
+      font-size: .75rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: var(--w-medium);
+      color: var(--c-heading);
+    }
+    /* Le texte du parent, EN ENTIER. `pre-wrap` garde ses retours à la
+       ligne ; `overflow-wrap` empêche un mot très long de déborder. */
+    .db-rep__txt {
+      margin: 0 0 12px;
+      font-size: var(--fs-fine);
+      line-height: var(--lh-body);
+      color: var(--c-text);
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .db-rep__txt:last-child { margin-bottom: 0; }
+    /* « non renseigné » ne doit pas se lire comme une vraie réponse. */
+    .db-rep__txt.est-vide { color: var(--c-heading); font-style: italic; }
+
+    .db-vide {
+      background: var(--c-white);
+      border: var(--hairline);
+      border-radius: var(--r-16);
+      padding: 22px 16px;
+      text-align: center;
+      font-size: var(--fs-fine);
+      color: var(--c-heading);
+    }
+
+    @media (max-width: 400px) {
+      .db-carte.db-bloc { padding: 14px; }
+      .db-chiffre { padding: 12px 6px; }
+      .db-chiffre__val { font-size: 1.5rem; }
+      /* Mesuré à 390px : « recommandent » réclame 111px pour 97px utiles
+         et débordait de sa tuile. À 12px il en fait 79. Le libellé est le
+         seul à rétrécir — les trois chiffres, eux, gardent leur taille. */
+      .db-chiffre__lib { font-size: .75rem; }
+    }
+
+    /* [hidden] est sans effet dès qu'une règle pose display:flex ou grid.
+       Cette ligne passe donc après tout le reste, pour gagner. */
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body class="page-dashboard">
+
+  <main class="db-wrap">
+
+    <section class="db-carte" id="db-login">
+      <h1 class="db-title">Tableau de bord</h1>
+      <p class="db-sub">Réservé à la direction de l’école.</p>
+
+      <form id="db-form" novalidate>
+        <label class="db-label" for="db-mdp">Mot de passe</label>
+        <input class="db-input" type="password" id="db-mdp" name="motdepasse"
+               autocomplete="current-password" autocapitalize="off"
+               spellcheck="false" required>
+
+        <div class="db-alert" id="db-alert" role="alert" tabindex="-1" hidden></div>
+
+        <button class="db-btn" type="submit" id="db-go">Se connecter</button>
+      </form>
+    </section>
+
+    <!-- Conteneur de l'affichage. Il est VIDE dans le fichier livré, et il
+         le restera : le site est statique, Vercel sert ce fichier tel quel à
+         qui le demande. Aucune réponse de parent ne peut donc y être écrite
+         à la construction. Le passage 2 le remplira depuis
+         /api/dashboard-donnees, après vérification du cookie. -->
+    <section id="db-donnees" hidden>
+
+      <!-- DONNEES PASSAGE 2 -->
+
+      <!-- Tout ce qui suit est une COQUILLE : aucune réponse de parent
+           n'est écrite dans ce fichier. Le site est statique, Vercel le
+           sert tel quel à qui le demande. Les valeurs arrivent de
+           /api/dashboard-donnees, après vérification du cookie, et sont
+           posées par le script en bas de page. -->
+
+      <header class="db-tete">
+        <h1 class="db-title">Enquête parents</h1>
+        <p class="db-sub" id="db-portee">Toutes les classes</p>
+      </header>
+
+      <!-- Les trois chiffres du haut -->
+      <div class="db-chiffres">
+        <div class="db-chiffre">
+          <span class="db-chiffre__val" id="db-total">—</span>
+          <span class="db-chiffre__lib">réponses</span>
+        </div>
+        <div class="db-chiffre">
+          <span class="db-chiffre__val" id="db-moyenne">—</span>
+          <span class="db-chiffre__lib">moyenne / 5</span>
+        </div>
+        <div class="db-chiffre">
+          <span class="db-chiffre__val" id="db-reco">—</span>
+          <span class="db-chiffre__lib">recommandent</span>
+        </div>
+      </div>
+
+      <!-- Les quatre axes. Le plus faible reçoit la classe
+           .db-axe--faible : c'est le seul chiffre qui dit quoi corriger. -->
+      <div class="db-carte db-bloc">
+        <h2 class="db-h2">Les quatre axes</h2>
+        <div id="db-axes"></div>
+      </div>
+
+      <!-- Filtre + export -->
+      <div class="db-carte db-bloc db-outils">
+        <div class="db-outils__filtre">
+          <label class="db-label" for="db-classe">Classe</label>
+          <select class="db-input db-select" id="db-classe">
+            <option value="">Toutes les classes</option>
+            <optgroup label="Maternelle">
+              <option value="Crèche">Crèche</option>
+              <option value="Toute petite section">Toute petite section</option>
+              <option value="Petite section">Petite section</option>
+              <option value="Moyenne section">Moyenne section</option>
+              <option value="Grande section">Grande section</option>
+            </optgroup>
+            <optgroup label="Élémentaire">
+              <option value="CI">CI</option>
+              <option value="CP">CP</option>
+              <option value="CE1">CE1</option>
+              <option value="CE2">CE2</option>
+              <option value="CM1">CM1</option>
+              <option value="CM2">CM2</option>
+            </optgroup>
+          </select>
+        </div>
+        <button class="db-btn db-btn--second" type="button" id="db-csv">
+          Exporter en CSV
+        </button>
+      </div>
+
+      <!-- La liste, plus récentes d'abord -->
+      <h2 class="db-h2 db-h2--seul">Réponses</h2>
+      <div id="db-liste"></div>
+
+    </section>
+
+  </main>
+
+<script>
+/* ------------------------------------------------------------
+   Ce script ne contient AUCUN secret : ni clé Supabase, ni URL de
+   base, ni mot de passe. Il ne sait faire que deux choses — poser
+   une question à une route, et montrer ou cacher un bloc. Tout ce
+   qui est sensible vit côté serveur, dans les fonctions /api.
+   ------------------------------------------------------------ */
+(function () {
+  'use strict';
+
+  var form    = document.getElementById('db-form');
+  var champ   = document.getElementById('db-mdp');
+  var bouton  = document.getElementById('db-go');
+  var alerte  = document.getElementById('db-alert');
+  var ecranCo = document.getElementById('db-login');
+  var donnees = document.getElementById('db-donnees');
+
+  function dire(message) {
+    alerte.textContent = message;
+    alerte.hidden = false;
+    alerte.focus();
+  }
+
+  var selecteur = document.getElementById('db-classe');
+  var boutonCsv = document.getElementById('db-csv');
+  var dernier   = null;   // le dernier JSON reçu, réutilisé par l'export
+
+  /* « non renseigné », au même endroit pour l'affichage ET pour l'export :
+     les deux doivent dire la même chose, sinon on se demande lequel ment.
+     Un champ absent n'est jamais une ligne vide. */
+  function dit(v) {
+    return (typeof v === 'string' && v.trim()) ? v : null;
+  }
+
+  /* Le serveur renvoie `null` quand une moyenne n'existe pas — zéro
+     réponse. On écrit un tiret, jamais « 0,0 » : annoncer la pire note
+     possible alors qu'on ne sait rien serait un mensonge. */
+  function nombreOuTiret(v, suffixe) {
+    if (v === null || v === undefined) return '—';
+    return String(v).replace('.', ',') + (suffixe || '');
+  }
+
+  function dateCourte(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  /* textContent partout, jamais innerHTML sur du texte de parent : une
+     suggestion contenant un chevron doit s'afficher, pas s'exécuter. */
+  function bloc(parent, libelle, valeur) {
+    var t = document.createElement('p');
+    t.className = 'db-rep__lib';
+    t.textContent = libelle;
+    parent.appendChild(t);
+
+    var p = document.createElement('p');
+    p.className = 'db-rep__txt' + (valeur === null ? ' est-vide' : '');
+    p.textContent = valeur === null ? 'non renseigné' : valeur;
+    parent.appendChild(p);
+  }
+
+  function peindreChiffres(r) {
+    document.getElementById('db-total').textContent   = String(r.total);
+    document.getElementById('db-moyenne').textContent = nombreOuTiret(r.moyenneGlobale);
+    document.getElementById('db-reco').textContent    = nombreOuTiret(r.pourcentageRecommande, ' %');
+  }
+
+  function peindreAxes(r) {
+    var hote = document.getElementById('db-axes');
+    hote.textContent = '';
+
+    r.axes.forEach(function (axe) {
+      var faible = (axe.cle === r.axeLePlusFaible);
+
+      var ligne = document.createElement('div');
+      ligne.className = 'db-axe' + (faible ? ' db-axe--faible' : '');
+
+      var tete = document.createElement('div');
+      tete.className = 'db-axe__tete';
+
+      var gauche = document.createElement('span');
+      gauche.className = 'db-axe__nom';
+      gauche.textContent = axe.libelle;
+      /* L'accent ne repose pas que sur la couleur : une étiquette dit
+         explicitement de quoi il s'agit. */
+      if (faible) {
+        var marque = document.createElement('span');
+        marque.className = 'db-axe__marque';
+        marque.textContent = 'à améliorer';
+        gauche.appendChild(marque);
+      }
+
+      var droite = document.createElement('span');
+      droite.className = 'db-axe__val';
+      droite.textContent = nombreOuTiret(axe.moyenne) + ' / 5';
+
+      tete.appendChild(gauche);
+      tete.appendChild(droite);
+
+      var piste = document.createElement('div');
+      piste.className = 'db-axe__piste';
+      var barre = document.createElement('div');
+      barre.className = 'db-axe__barre';
+      barre.style.width = (axe.moyenne === null ? 0 : (axe.moyenne / 5) * 100) + '%';
+      piste.appendChild(barre);
+
+      ligne.appendChild(tete);
+      ligne.appendChild(piste);
+      hote.appendChild(ligne);
+    });
+  }
+
+  function peindreListe(reponses) {
+    var hote = document.getElementById('db-liste');
+    hote.textContent = '';
+
+    if (!reponses.length) {
+      var rien = document.createElement('div');
+      rien.className = 'db-vide';
+      rien.textContent = 'Aucune réponse pour cette sélection.';
+      hote.appendChild(rien);
+      return;
+    }
+
+    reponses.forEach(function (r) {
+      var carte = document.createElement('article');
+      carte.className = 'db-rep';
+
+      var tete = document.createElement('div');
+      tete.className = 'db-rep__tete';
+
+      var qui = document.createElement('span');
+      qui.className = 'db-rep__qui';
+      qui.textContent = dit(r.enfant_prenom) || 'non renseigné';
+      var cl = document.createElement('span');
+      cl.className = 'db-rep__classe';
+      cl.textContent = '  ·  ' + (dit(r.classe) || 'non renseigné');
+      qui.appendChild(cl);
+
+      var quand = document.createElement('span');
+      quand.className = 'db-rep__date';
+      quand.textContent = dateCourte(r.date);
+
+      tete.appendChild(qui);
+      tete.appendChild(quand);
+      carte.appendChild(tete);
+
+      var notes = document.createElement('div');
+      notes.className = 'db-rep__notes';
+      [['Pédagogie', r.notes.pedagogie], ['Communi.', r.notes.communication],
+       ['Encadr.', r.notes.encadrement], ['Locaux', r.notes.locaux]]
+        .forEach(function (paire) {
+          var c = document.createElement('div');
+          c.className = 'db-rep__note';
+          var b = document.createElement('b');
+          b.textContent = paire[1] === null ? '—' : paire[1] + '/5';
+          var s = document.createElement('span');
+          s.textContent = paire[0];
+          c.appendChild(b); c.appendChild(s);
+          notes.appendChild(c);
+        });
+      carte.appendChild(notes);
+
+      var reco = document.createElement('p');
+      reco.className = 'db-rep__reco';
+      reco.textContent = 'Recommanderait l’école : ';
+      var val = document.createElement('b');
+      val.textContent = r.recommande === true ? 'Oui'
+                      : r.recommande === false ? 'Non' : 'non renseigné';
+      reco.appendChild(val);
+      carte.appendChild(reco);
+
+      bloc(carte, 'Suggestions', dit(r.suggestions));
+      bloc(carte, 'Points forts', dit(r.points_forts));
+
+      var parent = [dit(r.parent_prenom), dit(r.parent_nom)].filter(Boolean).join(' ');
+      bloc(carte, 'Parent ayant répondu', parent || null);
+
+      hote.appendChild(carte);
+    });
+  }
+
+  function peindre(data) {
+    dernier = data;
+    var r = data.filtre;
+    document.getElementById('db-portee').textContent =
+      r.classe ? ('Classe : ' + r.classe) : 'Toutes les classes';
+    peindreChiffres(r);
+    peindreAxes(r);
+    peindreListe(data.reponses);
+  }
+
+  function charger() {
+    var q = selecteur.value ? ('?classe=' + encodeURIComponent(selecteur.value)) : '';
+    return fetch('/api/dashboard-donnees' + q, { credentials: 'same-origin' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('refus');
+        return r.json();
+      })
+      .then(peindre);
+  }
+
+  /* ---------- Export CSV ----------
+     Construit dans le navigateur à partir du JSON DÉJÀ reçu : aucune
+     requête de plus, donc aucune donnée qui repasse par le réseau.
+     Point-virgule et BOM UTF-8 : sans eux, Excel en français met tout
+     dans une seule colonne et casse les accents. */
+  function versCsv(reponses) {
+    var entetes = ['Date', 'Enfant', 'Classe', 'Pédagogie', 'Communication',
+                   'Encadrement', 'Locaux', 'Recommande', 'Suggestions',
+                   'Points forts', 'Parent'];
+
+    var cellule = function (v) {
+      var t = (v === null || v === undefined || v === '') ? 'non renseigné' : String(v);
+      // Guillemets doublés : c'est la seule façon d'en garder un dans un
+      // champ cité. Les retours à la ligne survivent entre guillemets.
+      return '"' + t.replace(/"/g, '""') + '"';
+    };
+
+    var lignes = [entetes.map(cellule).join(';')];
+    reponses.forEach(function (r) {
+      lignes.push([
+        dateCourte(r.date),
+        dit(r.enfant_prenom), dit(r.classe),
+        r.notes.pedagogie, r.notes.communication,
+        r.notes.encadrement, r.notes.locaux,
+        r.recommande === true ? 'Oui' : r.recommande === false ? 'Non' : null,
+        dit(r.suggestions), dit(r.points_forts),
+        [dit(r.parent_prenom), dit(r.parent_nom)].filter(Boolean).join(' ') || null
+      ].map(cellule).join(';'));
+    });
+    return '﻿' + lignes.join('\r\n');
+  }
+
+  boutonCsv.addEventListener('click', function () {
+    if (!dernier) return;
+    var suffixe = dernier.filtre.classe
+      ? dernier.filtre.classe.replace(/[^A-Za-z0-9]+/g, '-').toLowerCase()
+      : 'toutes-classes';
+    var lien = document.createElement('a');
+    var blob = new Blob([versCsv(dernier.reponses)], { type: 'text/csv;charset=utf-8;' });
+    lien.href = URL.createObjectURL(blob);
+    lien.download = 'enquete-parents-' + suffixe + '.csv';
+    document.body.appendChild(lien);
+    lien.click();
+    document.body.removeChild(lien);
+    URL.revokeObjectURL(lien.href);
+  });
+
+  selecteur.addEventListener('change', function () {
+    charger().catch(function () { dire('La lecture a échoué. Rechargez la page.'); });
+  });
+
+  function ouvrir() {
+    ecranCo.hidden = true;
+    donnees.hidden = false;
+    document.body.classList.add('est-ouvert');
+    charger().catch(function () {
+      var hote = document.getElementById('db-liste');
+      hote.textContent = '';
+      var rien = document.createElement('div');
+      rien.className = 'db-vide';
+      rien.textContent = 'La lecture des réponses a échoué. Rechargez la page.';
+      hote.appendChild(rien);
+    });
+  }
+
+  /* Une session de 8 h survit à un rechargement : on demande à la route
+     si le cookie déjà posé est encore bon, plutôt que de redemander le
+     mot de passe à chaque fois. */
+  fetch('/api/dashboard-donnees', { credentials: 'same-origin' })
+    .then(function (r) { if (r.ok) ouvrir(); })
+    .catch(function () { /* hors ligne : on laisse l'écran de connexion */ });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    alerte.hidden = true;
+    bouton.disabled = true;
+
+    fetch('/api/dashboard-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ motdepasse: champ.value })
+    })
+      .then(function (r) {
+        return r.json().catch(function () { return {}; })
+          .then(function (corps) { return { statut: r.status, corps: corps }; });
+      })
+      .then(function (res) {
+        bouton.disabled = false;
+        if (res.statut === 200) { champ.value = ''; ouvrir(); return; }
+        dire(res.corps && res.corps.message
+          ? res.corps.message
+          : 'Connexion refusée.');
+      })
+      .catch(function () {
+        bouton.disabled = false;
+        dire('La connexion au serveur a échoué. Réessayez dans un instant.');
+      });
+  });
+})();
+</script>
+
+</body>
+</html>
