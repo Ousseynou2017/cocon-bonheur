@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Questionnaire plateforme — Au Cocon Du Bonheur</title>
+  <meta name="description" content="Questionnaire de la direction pour préparer l'espace parents et les cours en ligne d'Au Cocon Du Bonheur.">
+
+  <!-- Page de travail pour la direction : aucun lien ne mène ici, et
+       elle n'a rien à faire dans un moteur de recherche. -->
+  <meta name="robots" content="noindex, nofollow">
+
+  <link rel="icon" href="/favicon.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Même habillage que l'enquête parents : le design system du site,
+       puis la feuille du formulaire d'enquête (LUE, jamais modifiée d'ici).
+       qp.css n'ajoute que ce que l'enquête n'a pas : cases à cocher,
+       champ « Autre », classement. -->
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/enquete/enquete.css">
+  <link rel="stylesheet" href="/questionnaire-plateforme/qp.css">
+</head>
+<body class="page-enquete">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false"
+     style="position:absolute;width:0;height:0;overflow:hidden">
+  <defs>
+    <symbol id="m-cocon" viewBox="0 0 100 100" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" vector-effect="non-scaling-stroke">
+      <path d="M72 12A44 44 0 1 0 72 88"/>
+      <path d="M66 26A30 30 0 1 0 66 74"/>
+      <path d="M60 40A16 16 0 1 0 60 60"/>
+    </symbol>
+    <symbol id="m-fil" viewBox="0 0 100 60" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+            vector-effect="non-scaling-stroke">
+      <path d="M3 14C26 3 58 10 82 40"/>
+      <path d="M82 40 64 33M82 40 75 21"/>
+    </symbol>
+    <symbol id="m-coche" viewBox="0 0 100 100" fill="none" stroke="currentColor"
+            stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 53 38 77 86 22"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="site-header">
+  <div class="site-header__inner wrap">
+    <a class="site-header__brand" href="/">
+      <img class="site-header__logo" src="/images/logo-cocon-262.webp"
+           srcset="/images/logo-cocon-262.webp 262w, /images/logo-cocon-524.webp 524w"
+           sizes="262px" width="262" height="125" alt="Au Cocon Du Bonheur">
+    </a>
+
+    <nav class="site-nav" aria-label="Navigation principale">
+      <a class="site-nav__link" href="/#cycles">Cycles</a>
+      <a class="site-nav__link" href="/#activites">La vie de l'école</a>
+      <a class="site-nav__link" href="/#contact">Nous trouver</a>
+    </nav>
+
+    <a class="btn-call" href="tel:+221778845353" aria-label="Appeler le 77 884 53 53">
+      <svg class="btn-call__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M6.6 10.8c1.4 2.8 3.7 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.7 21 3 13.3 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.3 1L6.6 10.8Z" fill="currentColor" stroke="none"/>
+      </svg>
+      <span class="btn-call__label">Appeler le </span>77 884 53 53
+    </a>
+  </div>
+</header>
+
+<main class="section section--cream">
+  <div class="wrap eq-wrap">
+
+    <div class="eq-intro" id="qp-intro">
+      <svg class="mark mark--r8 eq-intro__cocon" aria-hidden="true"><use href="#m-cocon"/></svg>
+      <h1 class="eq-title">Préparer la plateforme de l'école</h1>
+      <p class="qp-intro__texte">Ces questions servent à construire l'espace parents et les cours en ligne d'Au Cocon. Répondez à votre rythme, il n'y a pas de mauvaise réponse.</p>
+    </div>
+
+    <!-- ---------- Le formulaire ----------
+         Comme l'enquête parents : livré ENTIER et CLASSIQUE. Sans
+         JavaScript, les cinq sections se suivent et le formulaire part
+         tel quel chez Web3Forms (action + access_key ci-dessous).
+
+         qp.js le découpe en une section par écran, gère « Autre », le
+         classement, le brouillon, et envoie une version mise en forme.
+
+         Chaque question est un .qp-q : son intitulé (.qp-q__lab) devient
+         le libellé de la réponse dans le mail. Changer l'intitulé change
+         donc le mail, rien d'autre à toucher.
+         ---------- -->
+    <form class="eq-form" id="qp-form" method="post" action="https://api.web3forms.com/submit" novalidate>
+      <input type="hidden" name="access_key" value="bb8621a4-92fa-4055-a5f3-8a3c8317e3ec">
+      <input type="hidden" name="subject" value="Questionnaire plateforme">
+      <input type="hidden" name="from_name" value="Questionnaire Au Cocon">
+
+      <div class="eq-alert" id="qp-alert" role="alert" tabindex="-1" hidden></div>
+
+      <!-- ===== Section 1 — L'école ===== -->
+      <section class="eq-q qp-etape">
+        <p class="qp-etape__num">Section 1 sur 5</p>
+        <h2 class="eq-q__titre">L'école</h2>
+
+        <div class="qp-q">
+          <label class="qp-q__lab" for="qp-nom">1. Votre nom <span class="eq-req" aria-hidden="true">*</span></label>
+          <input class="eq-input" type="text" id="qp-nom" name="Votre nom" maxlength="80"
+                 autocomplete="name" enterkeyhint="next" required aria-describedby="err-qp-nom">
+          <p class="eq-error" id="err-qp-nom" hidden></p>
+        </div>
+
+        <div class="qp-q">
+          <p class="qp-q__lab" id="l-q2">2. Quelles classes seront concernées par les notes&nbsp;?</p>
+          <div class="qp-choix qp-choix--grille" role="group" aria-labelledby="l-q2">
+            <label class="qp-opt"><input type="checkbox" name="Q2 Classes (notes)" value="Crèche"><span class="qp-opt__box">Crèche</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q2 Classes (notes)" value="Petite section"><span class="qp-opt__box">Petite section</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q2 Classes (notes)" value="Moyenne section"><span class="qp-opt__box">Moyenne section</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q2 Classes (notes)" value="Grande section"><span class="qp-opt__box">Grande section</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q2 Classes (notes)" value="CI"><span class="qp-opt__box">CI</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q2 Classes (notes)" value="CP"><span class="qp-opt__box">CP</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q2 Classes (notes)" value="CE1"><span class="qp-opt__box">CE1</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q2 Classes (notes)" value="CE2"><span class="qp-opt__box">CE2</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q2 Classes (notes)" value="CM1"><span class="qp-opt__box">CM1</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q2 Classes (notes)" value="CM2"><span class="qp-opt__box">CM2</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q2 Classes (notes)" value="Autre" data-autre><span class="qp-opt__box">Autre</span></label>
+          </div>
+          <input class="eq-input qp-autre" type="text" name="Q2 Autre" maxlength="200" aria-label="Autre classe : précisez" placeholder="Autre : précisez">
+        </div>
+
+        <div class="qp-q">
+          <label class="qp-q__lab" for="qp-q3">3. Combien d'élèves environ&nbsp;?</label>
+          <input class="eq-input qp-nombre" type="number" id="qp-q3" name="Q3 Nombre d'élèves" min="0" max="5000" inputmode="numeric">
+        </div>
+
+        <div class="qp-q">
+          <label class="qp-q__lab" for="qp-q4">4. Combien d'enseignants&nbsp;?</label>
+          <input class="eq-input qp-nombre" type="number" id="qp-q4" name="Q4 Nombre d'enseignants" min="0" max="500" inputmode="numeric">
+        </div>
+      </section>
+
+      <!-- ===== Section 2 — Les notes ===== -->
+      <section class="eq-q qp-etape">
+        <p class="qp-etape__num">Section 2 sur 5</p>
+        <h2 class="eq-q__titre">Les notes</h2>
+
+        <div class="qp-q">
+          <p class="qp-q__lab" id="l-q5">5. Qui saisira les notes&nbsp;?</p>
+          <div class="qp-choix" role="radiogroup" aria-labelledby="l-q5">
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q5 Saisie des notes" value="Moi seule"><span class="qp-opt__box">Moi seule</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q5 Saisie des notes" value="Chaque enseignant pour sa classe"><span class="qp-opt__box">Chaque enseignant pour sa classe</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q5 Saisie des notes" value="Une secrétaire"><span class="qp-opt__box">Une secrétaire</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q5 Saisie des notes" value="Autre" data-autre><span class="qp-opt__box">Autre</span></label>
+          </div>
+          <input class="eq-input qp-autre" type="text" name="Q5 Autre" maxlength="200" aria-label="Autre : précisez" placeholder="Autre : précisez">
+        </div>
+
+        <div class="qp-q">
+          <p class="qp-q__lab" id="l-q6">6. À quel rythme&nbsp;?</p>
+          <div class="qp-choix" role="radiogroup" aria-labelledby="l-q6">
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q6 Rythme" value="Après chaque devoir"><span class="qp-opt__box">Après chaque devoir</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q6 Rythme" value="Chaque mois"><span class="qp-opt__box">Chaque mois</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q6 Rythme" value="Chaque trimestre"><span class="qp-opt__box">Chaque trimestre</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q6 Rythme" value="Autre" data-autre><span class="qp-opt__box">Autre</span></label>
+          </div>
+          <input class="eq-input qp-autre" type="text" name="Q6 Autre" maxlength="200" aria-label="Autre rythme : précisez" placeholder="Autre : précisez">
+        </div>
+
+        <div class="qp-q">
+          <p class="qp-q__lab" id="l-q7">7. Sous quelle forme&nbsp;?</p>
+          <div class="qp-choix" role="group" aria-labelledby="l-q7">
+            <label class="qp-opt"><input type="checkbox" name="Q7 Forme des notes" value="Note sur 10"><span class="qp-opt__box">Note sur 10</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q7 Forme des notes" value="Note sur 20"><span class="qp-opt__box">Note sur 20</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q7 Forme des notes" value="Appréciation (Très bien, Bien, Assez bien…)"><span class="qp-opt__box">Appréciation (Très bien, Bien, Assez bien…)</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q7 Forme des notes" value="Autre" data-autre><span class="qp-opt__box">Autre</span></label>
+          </div>
+          <input class="eq-input qp-autre" type="text" name="Q7 Autre" maxlength="200" aria-label="Autre forme : précisez" placeholder="Autre : précisez">
+        </div>
+
+        <div class="qp-q">
+          <label class="qp-q__lab" for="qp-q8">8. Quelles matières&nbsp;?</label>
+          <input class="eq-input" type="text" id="qp-q8" name="Q8 Matières" maxlength="500">
+        </div>
+
+        <div class="qp-q">
+          <p class="qp-q__lab" id="l-q9">9. Voulez-vous un bulletin que les parents peuvent télécharger&nbsp;?</p>
+          <div class="qp-choix qp-choix--ligne" role="radiogroup" aria-labelledby="l-q9">
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q9 Bulletin téléchargeable" value="Oui"><span class="qp-opt__box">Oui</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q9 Bulletin téléchargeable" value="Non"><span class="qp-opt__box">Non</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q9 Bulletin téléchargeable" value="Je ne sais pas"><span class="qp-opt__box">Je ne sais pas</span></label>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Section 3 — Les parents et les paiements ===== -->
+      <section class="eq-q qp-etape">
+        <p class="qp-etape__num">Section 3 sur 5</p>
+        <h2 class="eq-q__titre">Les parents et les paiements</h2>
+
+        <div class="qp-q">
+          <p class="qp-q__lab" id="l-q10">10. Pour vous, un parent «&nbsp;en règle&nbsp;», c'est&nbsp;:</p>
+          <div class="qp-choix" role="radiogroup" aria-labelledby="l-q10">
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q10 Parent en règle" value="Scolarité du mois payée"><span class="qp-opt__box">Scolarité du mois payée</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q10 Parent en règle" value="Trimestre payé"><span class="qp-opt__box">Trimestre payé</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q10 Parent en règle" value="Inscription payée"><span class="qp-opt__box">Inscription payée</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q10 Parent en règle" value="Autre" data-autre><span class="qp-opt__box">Autre</span></label>
+          </div>
+          <input class="eq-input qp-autre" type="text" name="Q10 Autre" maxlength="200" aria-label="Autre : précisez" placeholder="Autre : précisez">
+        </div>
+
+        <div class="qp-q">
+          <p class="qp-q__lab" id="l-q11">11. Aujourd'hui, comment suivez-vous qui a payé&nbsp;?</p>
+          <div class="qp-choix qp-choix--grille" role="group" aria-labelledby="l-q11">
+            <label class="qp-opt"><input type="checkbox" name="Q11 Suivi des paiements" value="Cahier"><span class="qp-opt__box">Cahier</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q11 Suivi des paiements" value="Excel"><span class="qp-opt__box">Excel</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q11 Suivi des paiements" value="Wave"><span class="qp-opt__box">Wave</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q11 Suivi des paiements" value="Orange Money"><span class="qp-opt__box">Orange Money</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q11 Suivi des paiements" value="Autre" data-autre><span class="qp-opt__box">Autre</span></label>
+          </div>
+          <input class="eq-input qp-autre" type="text" name="Q11 Autre" maxlength="200" aria-label="Autre moyen de suivi : précisez" placeholder="Autre : précisez">
+        </div>
+
+        <div class="qp-q">
+          <p class="qp-q__lab" id="l-q12">12. Qui mettra à jour qui a payé sur la plateforme&nbsp;?</p>
+          <div class="qp-choix" role="radiogroup" aria-labelledby="l-q12">
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q12 Mise à jour des paiements" value="Moi"><span class="qp-opt__box">Moi</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q12 Mise à jour des paiements" value="Une secrétaire"><span class="qp-opt__box">Une secrétaire</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q12 Mise à jour des paiements" value="Autre" data-autre><span class="qp-opt__box">Autre</span></label>
+          </div>
+          <input class="eq-input qp-autre" type="text" name="Q12 Autre" maxlength="200" aria-label="Autre : précisez" placeholder="Autre : précisez">
+        </div>
+
+        <div class="qp-q">
+          <p class="qp-q__lab" id="l-q13">13. Un parent qui n'est pas en règle voit&nbsp;:</p>
+          <div class="qp-choix" role="radiogroup" aria-labelledby="l-q13">
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q13 Parent pas en règle" value="Rien"><span class="qp-opt__box">Rien</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q13 Parent pas en règle" value="Un message « Merci de contacter l'école »"><span class="qp-opt__box">Un message «&nbsp;Merci de contacter l'école&nbsp;»</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q13 Parent pas en règle" value="Tout sauf les notes"><span class="qp-opt__box">Tout sauf les notes</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q13 Parent pas en règle" value="Autre" data-autre><span class="qp-opt__box">Autre</span></label>
+          </div>
+          <input class="eq-input qp-autre" type="text" name="Q13 Autre" maxlength="200" aria-label="Autre : précisez" placeholder="Autre : précisez">
+        </div>
+
+        <div class="qp-q">
+          <p class="qp-q__lab" id="l-q14">14. Comment les parents se connecteront&nbsp;?</p>
+          <div class="qp-choix" role="radiogroup" aria-labelledby="l-q14">
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q14 Connexion des parents" value="Numéro de téléphone et code"><span class="qp-opt__box">Numéro de téléphone et code</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q14 Connexion des parents" value="Email et mot de passe"><span class="qp-opt__box">Email et mot de passe</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q14 Connexion des parents" value="Je ne sais pas"><span class="qp-opt__box">Je ne sais pas</span></label>
+          </div>
+        </div>
+
+        <div class="qp-q">
+          <p class="qp-q__lab" id="l-q15">15. Un parent peut-il avoir plusieurs enfants à l'école&nbsp;?</p>
+          <div class="qp-choix qp-choix--ligne" role="radiogroup" aria-labelledby="l-q15">
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q15 Plusieurs enfants" value="Oui"><span class="qp-opt__box">Oui</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q15 Plusieurs enfants" value="Non"><span class="qp-opt__box">Non</span></label>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Section 4 — Cours et quiz ===== -->
+      <section class="eq-q qp-etape">
+        <p class="qp-etape__num">Section 4 sur 5</p>
+        <h2 class="eq-q__titre">Cours et quiz</h2>
+
+        <div class="qp-q">
+          <p class="qp-q__lab" id="l-q16">16. Qui préparera les cours et enregistrera les audios&nbsp;?</p>
+          <div class="qp-choix" role="radiogroup" aria-labelledby="l-q16">
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q16 Préparation des cours" value="Moi"><span class="qp-opt__box">Moi</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q16 Préparation des cours" value="Les enseignants"><span class="qp-opt__box">Les enseignants</span></label>
+            <label class="qp-opt qp-opt--rond"><input type="radio" name="Q16 Préparation des cours" value="Autre" data-autre><span class="qp-opt__box">Autre</span></label>
+          </div>
+          <input class="eq-input qp-autre" type="text" name="Q16 Autre" maxlength="200" aria-label="Autre : précisez" placeholder="Autre : précisez">
+        </div>
+
+        <div class="qp-q">
+          <p class="qp-q__lab" id="l-q17">17. En quelles langues&nbsp;?</p>
+          <div class="qp-choix qp-choix--grille" role="group" aria-labelledby="l-q17">
+            <label class="qp-opt"><input type="checkbox" name="Q17 Langues" value="Français"><span class="qp-opt__box">Français</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q17 Langues" value="Wolof"><span class="qp-opt__box">Wolof</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q17 Langues" value="Anglais"><span class="qp-opt__box">Anglais</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q17 Langues" value="Arabe"><span class="qp-opt__box">Arabe</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q17 Langues" value="Autre" data-autre><span class="qp-opt__box">Autre</span></label>
+          </div>
+          <input class="eq-input qp-autre" type="text" name="Q17 Autre" maxlength="200" aria-label="Autre langue : précisez" placeholder="Autre : précisez">
+        </div>
+
+        <div class="qp-q">
+          <p class="qp-q__lab" id="l-q18">18. Pour quelles classes&nbsp;?</p>
+          <div class="qp-choix qp-choix--grille" role="group" aria-labelledby="l-q18">
+            <label class="qp-opt"><input type="checkbox" name="Q18 Classes (cours)" value="Crèche"><span class="qp-opt__box">Crèche</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q18 Classes (cours)" value="Petite section"><span class="qp-opt__box">Petite section</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q18 Classes (cours)" value="Moyenne section"><span class="qp-opt__box">Moyenne section</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q18 Classes (cours)" value="Grande section"><span class="qp-opt__box">Grande section</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q18 Classes (cours)" value="CI"><span class="qp-opt__box">CI</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q18 Classes (cours)" value="CP"><span class="qp-opt__box">CP</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q18 Classes (cours)" value="CE1"><span class="qp-opt__box">CE1</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q18 Classes (cours)" value="CE2"><span class="qp-opt__box">CE2</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q18 Classes (cours)" value="CM1"><span class="qp-opt__box">CM1</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q18 Classes (cours)" value="CM2"><span class="qp-opt__box">CM2</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q18 Classes (cours)" value="Autre" data-autre><span class="qp-opt__box">Autre</span></label>
+          </div>
+          <input class="eq-input qp-autre" type="text" name="Q18 Autre" maxlength="200" aria-label="Autre classe : précisez" placeholder="Autre : précisez">
+        </div>
+
+        <div class="qp-q">
+          <p class="qp-q__lab" id="l-q19">19. Quand un enfant réussit un quiz, que se passe-t-il&nbsp;?</p>
+          <div class="qp-choix" role="group" aria-labelledby="l-q19">
+            <label class="qp-opt"><input type="checkbox" name="Q19 Quiz réussi" value="Il gagne une étoile ou un badge"><span class="qp-opt__box">Il gagne une étoile ou un badge</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q19 Quiz réussi" value="Il débloque la leçon suivante"><span class="qp-opt__box">Il débloque la leçon suivante</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q19 Quiz réussi" value="Le parent est prévenu"><span class="qp-opt__box">Le parent est prévenu</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q19 Quiz réussi" value="L'enseignant voit le résultat"><span class="qp-opt__box">L'enseignant voit le résultat</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q19 Quiz réussi" value="Autre" data-autre><span class="qp-opt__box">Autre</span></label>
+          </div>
+          <input class="eq-input qp-autre" type="text" name="Q19 Autre" maxlength="200" aria-label="Autre : précisez" placeholder="Autre : précisez">
+        </div>
+
+        <div class="qp-q">
+          <p class="qp-q__lab" id="l-q20">20. Sur quel appareil les enfants feront les exercices&nbsp;?</p>
+          <div class="qp-choix" role="group" aria-labelledby="l-q20">
+            <label class="qp-opt"><input type="checkbox" name="Q20 Appareil" value="Téléphone des parents"><span class="qp-opt__box">Téléphone des parents</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q20 Appareil" value="Tablette de l'école"><span class="qp-opt__box">Tablette de l'école</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q20 Appareil" value="Ordinateur"><span class="qp-opt__box">Ordinateur</span></label>
+            <label class="qp-opt"><input type="checkbox" name="Q20 Appareil" value="Autre" data-autre><span class="qp-opt__box">Autre</span></label>
+          </div>
+          <input class="eq-input qp-autre" type="text" name="Q20 Autre" maxlength="200" aria-label="Autre appareil : précisez" placeholder="Autre : précisez">
+        </div>
+      </section>
+
+      <!-- ===== Section 5 — Priorités ===== -->
+      <section class="eq-q qp-etape">
+        <p class="qp-etape__num">Section 5 sur 5</p>
+        <h2 class="eq-q__titre">Priorités</h2>
+
+        <!-- Classement : sans script, trois cases (ce qui compte).
+             Avec qp.js, l'ordre des appuis devient le rang 1, 2, 3. -->
+        <div class="qp-q" data-rang>
+          <p class="qp-q__lab" id="l-q21">21. Par quoi commencer&nbsp;?</p>
+          <p class="qp-aide" id="a-q21">Touchez dans l'ordre&nbsp;: d'abord ce qui compte le plus.</p>
+          <div class="qp-choix" role="group" aria-labelledby="l-q21" aria-describedby="a-q21">
+            <label class="qp-opt qp-opt--rang"><input type="checkbox" name="Q21 Par quoi commencer" value="L'espace parents avec les notes"><span class="qp-opt__box">L'espace parents avec les notes</span></label>
+            <label class="qp-opt qp-opt--rang"><input type="checkbox" name="Q21 Par quoi commencer" value="Les cours en ligne"><span class="qp-opt__box">Les cours en ligne</span></label>
+            <label class="qp-opt qp-opt--rang"><input type="checkbox" name="Q21 Par quoi commencer" value="Les quiz"><span class="qp-opt__box">Les quiz</span></label>
+          </div>
+        </div>
+
+        <div class="qp-q">
+          <label class="qp-q__lab" for="qp-q22">22. Pour quand le souhaitez-vous&nbsp;?</label>
+          <input class="eq-input" type="text" id="qp-q22" name="Q22 Pour quand" maxlength="200">
+        </div>
+
+        <div class="qp-q">
+          <label class="qp-q__lab" for="qp-q23">23. Autre chose à ajouter&nbsp;?</label>
+          <textarea class="eq-textarea" id="qp-q23" name="Q23 Autre chose" rows="5" maxlength="4000"></textarea>
+        </div>
+
+        <!-- Piège à robot reconnu par Web3Forms : coché = envoi ignoré. -->
+        <div class="eq-hp" aria-hidden="true">
+          <label for="qp-botcheck">Ne cochez pas cette case</label>
+          <input type="checkbox" id="qp-botcheck" name="botcheck" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div class="eq-submit" id="qp-submit">
+          <button class="eq-btn" type="submit" id="qp-send">
+            <span class="eq-btn__label">Envoyer mes réponses</span>
+          </button>
+          <p class="eq-submit__note">Seul votre nom est obligatoire. Les autres questions peuvent rester vides.</p>
+        </div>
+      </section>
+    </form>
+
+    <div class="eq-done" id="qp-done" role="status" tabindex="-1" hidden>
+      <svg class="eq-done__coche" aria-hidden="true"><use href="#m-coche"/></svg>
+      <h2 class="eq-done__title">Merci, c'est envoyé</h2>
+      <p class="eq-done__text">
+        Vos réponses sont bien arrivées. Elles serviront à construire
+        l'espace parents et les cours en ligne d'Au Cocon.
+      </p>
+      <p class="eq-done__text eq-done__text--fine">
+        Vous pouvez fermer cette page.
+      </p>
+    </div>
+
+  </div>
+</main>
+
+<footer class="site-footer on-purple">
+  <div class="wrap footer__wrap">
+
+    <div class="footer__brand">
+      <img class="footer__logo"
+           src="/images/logo-creme-248.webp"
+           srcset="/images/logo-creme-248.webp 248w, /images/logo-creme-496.webp 496w"
+           sizes="124px"
+           width="248" height="72"
+           alt="Au Cocon Du Bonheur"
+           loading="lazy">
+      <p class="footer__name">Au Cocon Du Bonheur</p>
+      <p class="footer__address">
+        Cité El Hadj Malick Sy, Ouakam, Dakar<br>
+        Repère&nbsp;: Pharmacie Yaye Antoinette, près du Monument de la Renaissance
+      </p>
+    </div>
+
+    <div class="footer__col">
+      <h3 class="footer__heading">Nous joindre</h3>
+      <ul class="footer__list footer__list--joindre">
+        <li class="footer__row--tel"><svg class="mark mark--r6 footer__fil" aria-hidden="true"><use href="#m-fil"/></svg><a class="footer__link" href="tel:+221778845353">+221 77 884 53 53</a></li>
+        <li><a class="footer__link" href="tel:+221773937467">+221 77 393 74 67</a></li>
+        <li><a class="footer__link" href="tel:+221338656575">+221 33 865 65 75</a></li>
+      </ul>
+    </div>
+
+    <div class="footer__col">
+      <h3 class="footer__heading">Nous suivre</h3>
+      <ul class="footer__list">
+        <li><a class="footer__link" href="https://www.facebook.com/aucocondubonheur" target="_blank" rel="noopener">Facebook</a></li>
+        <li><a class="footer__link" href="https://www.instagram.com/au_cocon_du_bonheur/" target="_blank" rel="noopener">Instagram</a></li>
+      </ul>
+    </div>
+
+    <div class="footer__col">
+      <h3 class="footer__heading">Autorisation</h3>
+      <p class="footer__legal">604 IA/DK/BEP — arrêté n°07486 du 27/10/2016</p>
+      <p class="footer__legal">École ouverte en 2016</p>
+    </div>
+
+  </div>
+</footer>
+
+<script defer src="/questionnaire-plateforme/qp.js"></script>
+</body>
+</html>
