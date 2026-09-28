@@ -8,29 +8,28 @@
   <link rel="icon" href="/favicon.png" sizes="32x32">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/demo-plateforme/demo.css">
 </head>
 <body>
-<main class="page">
-  <span class="pastille">Maquette · données fictives</span>
-  <header class="haut">
-    <h1 class="haut__titre">Bonjour Mme Sow</h1>
-    <p class="haut__sous" id="sous"></p>
-  </header>
-
+<main class="contenu" id="contenu">
   <!-- Écran 1 : le bouton, puis ce qui est déjà publié aujourd'hui -->
-  <section data-vue="jour" aria-label="Aujourd'hui">
-    <a class="action" href="#publier"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg><span class="action__txt">Publier l'exercice du jour</span><svg class="ico ico--fleche" aria-hidden="true"><use href="#i-fleche"/></svg></a>
-    <h2 class="titre-section">Publiés aujourd'hui</h2>
+  <section data-vue="jour" aria-labelledby="t1">
+    <span class="pastille">Maquette · données fictives</span>
+    <div class="entete">
+      <h1 id="t1">Bonjour Mme Sow</h1>
+      <p id="sous"></p>
+    </div>
+    <a class="action action--plein" href="#publier"><span class="action__ico"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg></span><span class="action__txt">Publier l'exercice du jour</span><span class="action__fleche"><svg class="ico" aria-hidden="true"><use href="#i-fleche"/></svg></span></a>
+    <div class="section-titre"><h2>Publiés aujourd'hui</h2></div>
     <div class="pile" id="jour-liste"></div>
   </section>
 
   <!-- Écran 2 : le formulaire, sur une seule page -->
-  <section data-vue="publier" aria-label="Publier l'exercice du jour" hidden>
-    <a class="lien" href="#jour"><svg class="ico" aria-hidden="true"><use href="#i-retour"/></svg>Aujourd'hui</a>
-    <form class="carte" id="f-exo" novalidate style="margin-top:8px">
+  <section data-vue="publier" aria-labelledby="t2" hidden>
+    <span class="pastille">Maquette · données fictives</span>
+    <div class="entete"><h1 id="t2">Exercice du jour</h1></div>
+    <form class="carte" id="f-exo" novalidate>
       <div class="champs">
         <div class="champs champs--2">
           <div class="champ"><label for="ex-classe">Classe</label><select class="entree" id="ex-classe"></select></div>
@@ -40,7 +39,7 @@
         <div class="champ"><label for="ex-texte">Texte</label><textarea class="entree" id="ex-texte" dir="auto" placeholder="Ce que l'élève fait à la maison"></textarea></div>
         <div class="fichier">
           <input type="file" id="ex-pdf" accept="application/pdf">
-          <label for="ex-pdf" class="btn btn--clair"><svg class="ico" aria-hidden="true"><use href="#i-trombone"/></svg>Joindre un PDF</label>
+          <label for="ex-pdf" class="btn btn--teinte"><svg class="ico" aria-hidden="true"><use href="#i-trombone"/></svg>Joindre un PDF</label>
           <span class="fichier__nom" id="ex-pdf-nom"></span>
         </div>
         <details class="options">
@@ -51,25 +50,20 @@
               <span class="label">Audio</span>
               <div class="fichier">
                 <input type="file" id="ex-audio" accept="audio/*">
-                <label for="ex-audio" class="btn btn--clair">Joindre un audio</label>
+                <label for="ex-audio" class="btn btn--teinte">Joindre un audio</label>
                 <span class="fichier__nom" id="ex-audio-nom"></span>
               </div>
             </div>
           </div>
         </details>
-        <button class="btn btn--plein" type="submit">Publier</button>
+        <div class="exo__bas" style="margin-top:0">
+          <button class="btn" type="submit">Publier</button>
+          <a class="btn btn--contour" href="#jour">Annuler</a>
+        </div>
       </div>
     </form>
   </section>
 </main>
-
-<nav class="nav-bas" aria-label="Navigation">
-  <div class="nav-bas__in">
-    <a href="/demo-plateforme/"><svg class="ico" aria-hidden="true"><use href="#i-espaces"/></svg>Espaces</a>
-    <a href="#jour" data-defaut><svg class="ico" aria-hidden="true"><use href="#i-jour"/></svg>Aujourd'hui</a>
-    <a href="#publier"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>Publier</a>
-  </div>
-</nav>
 
 <!-- Feuille A4 : invisible à l'écran, seule chose imprimée. -->
 <div class="feuille" id="feuille"></div>
@@ -82,6 +76,11 @@
   var $ = function (id) { return document.getElementById(id); };
   // Mme Aminata Sow (CE1) : c'est elle qui a l'exercice en arabe.
   var moi = U.prof("p3");
+  U.coquille({
+    espace: "Enseignant",
+    liens: [{ href: "#jour", ico: "jour", txt: "Aujourd'hui", defaut: true }, { href: "#publier", ico: "plus", txt: "Publier" }],
+    qui: { nom: moi.nom, role: "Classe de " + moi.classe }
+  });
   $("sous").textContent = "Classe de " + moi.classe + " · " + U.dateFr(D.DATE_DEMO);
 
   function duJour() {
@@ -104,8 +103,8 @@
     var l = duJour();
     $("jour-liste").innerHTML = l.length ? l.map(function (x) {
       return U.carteExo(x,
-        '<button type="button" class="btn btn--clair" data-imprimer="' + x.id + '"><svg class="ico" aria-hidden="true"><use href="#i-imprimer"/></svg>Imprimer</button>' +
-        '<button type="button" class="btn btn--clair" data-pdf="' + x.id + '"><svg class="ico" aria-hidden="true"><use href="#i-telecharger"/></svg>PDF</button>');
+        '<button type="button" class="btn btn--contour" data-imprimer="' + x.id + '">' + U.ico("imprimer") + "Imprimer</button>" +
+        '<button type="button" class="btn btn--contour" data-pdf="' + x.id + '">' + U.ico("telecharger") + "PDF</button>");
     }).join("") : '<p class="doux">Rien de publié pour l\'instant.</p>';
     feuille(l);   // un Ctrl+P du navigateur imprime aussi la bonne feuille
   }

@@ -32,18 +32,25 @@
     { id: "p6", nom: "M. Cheikh Mbaye",    classe: "CM2", tel: "77 000 01 06" }
   ];
 
-  // Montant EXEMPLE, en F CFA par mois.
+  // Montant EXEMPLE, en F CFA par mois. Ordre d'affichage : maternelle d'abord.
+  // `notes: false` : pas de notes en maternelle.
   var CLASSES = [
-    { id: "CI",  effectif: 18, scolarite: 25000 },
-    { id: "CP",  effectif: 17, scolarite: 25000 },
-    { id: "CE1", effectif: 17, scolarite: 27500 },
-    { id: "CE2", effectif: 16, scolarite: 27500 },
-    { id: "CM1", effectif: 16, scolarite: 30000 },
-    { id: "CM2", effectif: 16, scolarite: 30000 }
+    { id: "TPS", nom: "Toute petite section", effectif: 12, scolarite: 20000, notes: false },
+    { id: "PS",  nom: "Petite section",       effectif: 14, scolarite: 20000, notes: false },
+    { id: "MS",  nom: "Moyenne section",      effectif: 15, scolarite: 20000, notes: false },
+    { id: "GS",  nom: "Grande section",       effectif: 15, scolarite: 22500, notes: false },
+    { id: "CI",  nom: "CI",  effectif: 18, scolarite: 25000, notes: true },
+    { id: "CP",  nom: "CP",  effectif: 17, scolarite: 25000, notes: true },
+    { id: "CE1", nom: "CE1", effectif: 17, scolarite: 27500, notes: true },
+    { id: "CE2", nom: "CE2", effectif: 16, scolarite: 27500, notes: true },
+    { id: "CM1", nom: "CM1", effectif: 16, scolarite: 30000, notes: true },
+    { id: "CM2", nom: "CM2", effectif: 16, scolarite: 30000, notes: true }
   ];
   CLASSES.forEach(function (c) {
-    c.prof = ENSEIGNANTS.filter(function (p) { return p.classe === c.id; })[0].id;
+    var p = ENSEIGNANTS.filter(function (x) { return x.classe === c.id; })[0];
+    c.prof = p ? p.id : null;
   });
+  var SEMESTRES = ["S1", "S2"];
 
   var PRENOMS_F = ["Awa", "Fatou", "Aïssatou", "Mariama", "Khady", "Ndèye", "Coumba", "Astou", "Bineta", "Rokhaya", "Adama", "Seynabou", "Marème", "Dieynaba", "Oumou", "Sokhna", "Yacine", "Ndeye Fatou", "Aminata", "Penda"];
   var PRENOMS_G = ["Mamadou", "Moussa", "Ibrahima", "Cheikh", "Abdoulaye", "Ousmane", "Modou", "Babacar", "Serigne", "Pape", "Alioune", "Lamine", "Omar", "Souleymane", "Malick", "Assane", "Elhadji", "Idrissa", "Saliou", "Birame"];
@@ -57,7 +64,9 @@
   var eleves = [];
   var parents = [];
   var n = 0;
-  CLASSES.forEach(function (c) {
+  // L'élémentaire est tiré EN PREMIER : ajouter la maternelle après ne
+  // décale pas le tirage, les élèves du CI au CM2 gardent leur nom.
+  CLASSES.filter(function (c) { return c.notes; }).concat(CLASSES.filter(function (c) { return !c.notes; })).forEach(function (c) {
     for (var i = 0; i < c.effectif; i++) {
       n++;
       var fille = hasard() < 0.5;
@@ -132,19 +141,33 @@
     "Beaux efforts en arabe ce mois-ci.",
     "Le travail à la maison n'est pas toujours fait."
   ];
+  // Notes par SEMESTRE (S1, S2), du CI au CM2 seulement.
+  // L'année n'est jamais stockée : elle se calcule (moyenne S1 / S2).
   var notes = {};
   eleves.forEach(function (e) {
+    if (!CLASSES.filter(function (c) { return c.id === e.classe; })[0].notes) return;
     var niveau = 5 + hasard() * 4;           // chaque élève a son niveau
-    var parMatiere = {};
+    var s1 = {}, s2 = {};
     MATIERES.forEach(function (m) {
       var v = Math.round((niveau + (hasard() - 0.5) * 3) * 2) / 2;
-      parMatiere[m] = Math.max(2, Math.min(10, v));
+      s1[m] = Math.max(2, Math.min(10, v));
+      s2[m] = Math.max(2, Math.min(10, s1[m] + Math.round((hasard() - 0.4) * 4) / 2));
     });
-    notes[e.id] = { mois: MOIS_COURANT, parMatiere: parMatiere, observation: pioche(OBSERVATIONS) };
+    notes[e.id] = { S1: s1, S2: s2, observation: pioche(OBSERVATIONS) };
   });
   // La famille de démo : des notes lisibles et variées.
-  notes[cadette.id] = { mois: MOIS_COURANT, parMatiere: { "Français": 8.5, "Maths": 9, "Anglais": 7, "Arabe": 6.5, "Chinois": 5.5 }, observation: "Aïssatou lit de mieux en mieux. Très bonne participation en classe." };
-  notes[aine.id]    = { mois: MOIS_COURANT, parMatiere: { "Français": 7, "Maths": 6, "Anglais": 8, "Arabe": 9.5, "Chinois": 4.5 }, observation: "Mamadou progresse en arabe. Doit revoir les fractions à la maison." };
+  notes[cadette.id] = { S1: { "Français": 8.5, "Maths": 9, "Anglais": 7, "Arabe": 6.5, "Chinois": 5.5 },
+                        S2: { "Français": 9, "Maths": 8.5, "Anglais": 7.5, "Arabe": 7, "Chinois": 6 },
+                        observation: "Aïssatou lit de mieux en mieux. Très bonne participation." };
+  notes[aine.id]    = { S1: { "Français": 7, "Maths": 6, "Anglais": 8, "Arabe": 9.5, "Chinois": 4.5 },
+                        S2: { "Français": 7.5, "Maths": 6.5, "Anglais": 8, "Arabe": 9, "Chinois": 5.5 },
+                        observation: "Mamadou progresse en arabe. Doit revoir les fractions." };
+
+  // Note de l'année = moyenne des deux semestres (les deux doivent exister).
+  function noteAnnee(n, m) {
+    var a = n.S1[m], b = n.S2[m];
+    return typeof a === "number" && typeof b === "number" ? Math.round((a + b) / 2 * 10) / 10 : null;
+  }
 
   // --- Exercices de la semaine (lundi 12 → vendredi 16 octobre) ---
   var exercices = [
@@ -199,6 +222,8 @@
     MOIS: MOIS,
     MOIS_COURANT: MOIS_COURANT,
     MATIERES: MATIERES,
+    SEMESTRES: SEMESTRES,
+    noteAnnee: noteAnnee,
     CLASSES: CLASSES,
     ENSEIGNANTS: ENSEIGNANTS,
     FAMILLE_DEMO: FAMILLE_DEMO,

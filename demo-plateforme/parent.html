@@ -8,19 +8,15 @@
   <link rel="icon" href="/favicon.png" sizes="32x32">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/demo-plateforme/demo.css">
 </head>
 <body>
-<main class="page">
-  <span class="pastille">Maquette · données fictives</span>
-  <header class="haut">
-    <h1 class="haut__titre">Bonjour Mme Diallo</h1>
-  </header>
-
+<main class="contenu" id="contenu">
   <!-- Écran unique : l'enfant choisi -->
-  <section data-vue="enfant" aria-label="Mon enfant">
+  <section data-vue="enfant" aria-labelledby="t1">
+    <span class="pastille">Maquette · données fictives</span>
+    <div class="entete"><h1 id="t1">Bonjour Mme Diallo</h1></div>
     <div class="enfants" id="enfants" role="group" aria-label="Enfant"></div>
 
     <div class="grille-parent">
@@ -29,7 +25,7 @@
         <div id="exo"></div>
       </article>
       <article class="carte">
-        <div class="carte__titre"><h2 id="notes-titre">Notes du mois</h2></div>
+        <div class="carte__titre"><h2>Notes</h2></div>
         <div id="notes"></div>
       </article>
       <article class="carte">
@@ -38,16 +34,9 @@
       </article>
     </div>
 
-    <p class="discret"><button type="button" class="lien doux" id="bascule"></button></p>
+    <p class="discret"><button type="button" class="lien" id="bascule"></button></p>
   </section>
 </main>
-
-<nav class="nav-bas" aria-label="Navigation">
-  <div class="nav-bas__in">
-    <a href="/demo-plateforme/"><svg class="ico" aria-hidden="true"><use href="#i-espaces"/></svg>Espaces</a>
-    <a href="#enfant" data-defaut><svg class="ico" aria-hidden="true"><use href="#i-parent"/></svg>Mon enfant</a>
-  </div>
-</nav>
 
 <script src="/demo-plateforme/donnees.js"></script>
 <script src="/demo-plateforme/demo.js"></script>
@@ -56,8 +45,13 @@
   var D = DEMO, U = DEMO_UI, S = U.etat(), M = D.MOIS_COURANT;
   var $ = function (id) { return document.getElementById(id); };
   var famille = S.parents.filter(function (p) { return p.id === D.FAMILLE_DEMO; })[0];
+  U.coquille({
+    espace: "Parent",
+    liens: [{ href: "#enfant", ico: "parent", txt: "Mon enfant", defaut: true }],
+    qui: { nom: famille.nom, role: "Parent (fictif)" }
+  });
   // Mamadou (CM1) d'abord, Aïssatou (CI) ensuite.
-  var enfants = famille.enfants.map(U.eleve).sort(function (a, b) { return a.prenom === "Mamadou" ? -1 : 1; });
+  var enfants = famille.enfants.map(U.eleve).sort(function (a) { return a.prenom === "Mamadou" ? -1 : 1; });
   var choisi = enfants[+(U.memo("enfant") || 0)] || enfants[0];
   var retard = U.memo("retard") === "1";
 
@@ -73,25 +67,25 @@
 
   function tout() {
     [].forEach.call($("enfants").children, function (b, i) { b.setAttribute("aria-pressed", enfants[i] === choisi ? "true" : "false"); });
-    var c = U.classe(choisi.classe), mois = D.MOIS[M].toLowerCase();
+    var c = U.classe(choisi.classe);
     var aJour = !retard && S.paiements[choisi.id][M];
 
-    // Exercice du jour : le plus récent publié aujourd'hui pour la classe.
+    // Exercice du jour : ce qui est publié aujourd'hui pour la classe.
     var ex = S.exercices.filter(function (x) { return x.classe === choisi.classe && x.date === D.DATE_DEMO; });
-    $("exo").innerHTML = ex.length ? ex.slice().reverse().map(function (x) {
-      return U.carteExo(x).replace('class="carte exo"', 'class="exo"');
-    }).join('<hr style="border:0;border-top:1px solid rgb(94 73 102 / .1);margin:18px 0">') : '<p class="doux">Pas d\'exercice aujourd\'hui.</p>';
+    $("exo").innerHTML = ex.length ? ex.slice().reverse().map(function (x) { return U.carteExo(x, "", true); })
+      .join('<hr style="border:0;border-top:1px solid var(--bord);margin:20px 0">') : '<p class="doux">Pas d\'exercice aujourd\'hui.</p>';
 
-    // Notes : cachées si la famille n'est pas à jour.
-    $("notes-titre").textContent = "Notes d'" + mois;
+    // Notes : S1, S2, année (calculée). Cachées si la famille n'est pas à jour.
     if (!aJour) {
       $("notes").innerHTML = '<div class="bloque"><b>Merci de contacter l\'école</b><span class="doux">Secrétariat : 77 884 53 53</span></div>';
     } else {
-      var n = S.notes[choisi.id].parMatiere;
-      var moy = U.moyenne(D.MATIERES.map(function (m) { return n[m]; }));
-      $("notes").innerHTML = '<dl class="notes-l">' + D.MATIERES.map(function (m) {
-        return "<dt>" + m + "</dt><dd>" + U.note(n[m]) + ' <span>· ' + (D.appreciation(n[m]) || "—") + "</span></dd>";
-      }).join("") + "<dt><b>Moyenne</b></dt><dd><b>" + U.note(moy) + "</b> <span>· " + D.appreciation(moy) + "</span></dd></dl>";
+      var n = S.notes[choisi.id];
+      var ann = D.MATIERES.map(function (m) { return D.noteAnnee(n, m); });
+      var moy = function (p) { return U.moyenne(D.MATIERES.map(function (m) { return n[p][m]; })); };
+      $("notes").innerHTML = '<table class="tab-notes"><thead><tr><th>Matière</th><th>S1</th><th>S2</th><th>Année</th></tr></thead><tbody>' +
+        D.MATIERES.map(function (m, i) { return "<tr><td>" + m + "</td><td>" + U.note(n.S1[m]) + "</td><td>" + U.note(n.S2[m]) + '</td><td class="annee">' + U.note(ann[i]) + "</td></tr>"; }).join("") +
+        "</tbody><tfoot><tr><td>Moyenne</td><td>" + U.note(moy("S1")) + "</td><td>" + U.note(moy("S2")) + '</td><td class="annee">' + U.note(U.moyenne(ann)) + "</td></tr></tfoot></table>" +
+        '<p class="mention">Sur 10 · liste des matières par classe à venir.</p>';
     }
 
     // Paiement
