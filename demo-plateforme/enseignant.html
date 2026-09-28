@@ -2,102 +2,77 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Enseignant — Maquette plateforme — Au Cocon Du Bonheur</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Enseignant — Plateforme Au Cocon (maquette)</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="/favicon.png" sizes="32x32">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
-  <link rel="stylesheet" href="/enquete/enquete.css">
   <link rel="stylesheet" href="/demo-plateforme/demo.css">
 </head>
-<body data-page="Enseignant">
+<body>
+<main class="page">
+  <span class="pastille">Maquette · données fictives</span>
+  <header class="haut">
+    <h1 class="haut__titre">Bonjour Mme Sow</h1>
+    <p class="haut__sous" id="sous"></p>
+  </header>
 
-<header class="dp-tete">
-  <div class="wrap dp-tete__in">
-    <img class="dp-tete__logo" src="/images/logo-cocon-262.webp" width="262" height="125" alt="Au Cocon Du Bonheur">
-    <div class="dp-tete__espace">Enseignant<span class="dp-tete__qui" id="qui"></span></div>
-    <a class="dp-tete__changer" href="/demo-plateforme/"><span class="dp-tete__long">Changer d'espace</span><span class="dp-tete__court">Espaces</span></a>
-  </div>
-</header>
+  <!-- Écran 1 : le bouton, puis ce qui est déjà publié aujourd'hui -->
+  <section data-vue="jour" aria-label="Aujourd'hui">
+    <a class="action" href="#publier"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg><span class="action__txt">Publier l'exercice du jour</span><svg class="ico ico--fleche" aria-hidden="true"><use href="#i-fleche"/></svg></a>
+    <h2 class="titre-section">Publiés aujourd'hui</h2>
+    <div class="pile" id="jour-liste"></div>
+  </section>
 
-<main class="wrap dp-main">
-  <div class="dp-inter-bande">
-    <label class="eq-label" for="choix-prof" style="margin:0">Voir la maquette comme&nbsp;:</label>
-    <select class="eq-select" id="choix-prof" style="flex:1 1 12em;width:auto;min-width:0"></select>
-  </div>
-
-  <div class="dp-onglets" role="tablist" aria-label="Rubriques de l'enseignant">
-    <button class="dp-onglet" role="tab" id="t-publier" aria-controls="p-publier">Exercice du jour</button>
-    <button class="dp-onglet" role="tab" id="t-mes" aria-controls="p-mes">Mes exercices</button>
-    <button class="dp-onglet" role="tab" id="t-classe" aria-controls="p-classe">Ma classe</button>
-  </div>
-
-  <!-- ===== Publier ===== -->
-  <section id="p-publier" role="tabpanel" aria-labelledby="t-publier" class="dp-bloc" hidden>
-    <h2 class="dp-h2">Publier l'exercice du jour</h2>
-    <form id="f-exo" class="dp-champs" novalidate>
-      <div class="dp-champ"><label class="eq-label" for="ex-classe">Classe</label><select class="eq-select" id="ex-classe"></select></div>
-      <div class="dp-champ"><label class="eq-label" for="ex-matiere">Matière</label><select class="eq-select" id="ex-matiere"></select></div>
-      <div class="dp-champ"><label class="eq-label" for="ex-date">Date</label><input class="eq-input" id="ex-date" type="date"></div>
-      <div class="dp-champ"><label class="eq-label" for="ex-titre">Titre</label><input class="eq-input" id="ex-titre" dir="auto" placeholder="ex. Les sons [on] et [an]" autocomplete="off"></div>
-      <div class="dp-champ dp-plein"><label class="eq-label" for="ex-texte">Consigne</label><textarea class="eq-textarea" id="ex-texte" dir="auto" placeholder="Ce que l'élève doit faire à la maison… (l'arabe s'écrit de droite à gauche tout seul)"></textarea></div>
-      <div class="dp-champ">
-        <span class="eq-label">Fiche PDF <span class="eq-opt">(facultatif)</span></span>
-        <div class="dp-fichier">
+  <!-- Écran 2 : le formulaire, sur une seule page -->
+  <section data-vue="publier" aria-label="Publier l'exercice du jour" hidden>
+    <a class="lien" href="#jour"><svg class="ico" aria-hidden="true"><use href="#i-retour"/></svg>Aujourd'hui</a>
+    <form class="carte" id="f-exo" novalidate style="margin-top:8px">
+      <div class="champs">
+        <div class="champs champs--2">
+          <div class="champ"><label for="ex-classe">Classe</label><select class="entree" id="ex-classe"></select></div>
+          <div class="champ"><label for="ex-matiere">Matière</label><select class="entree" id="ex-matiere"></select></div>
+        </div>
+        <div class="champ"><label for="ex-titre">Titre</label><input class="entree" id="ex-titre" dir="auto" autocomplete="off" placeholder="ex. Les sons [on] et [an]"></div>
+        <div class="champ"><label for="ex-texte">Texte</label><textarea class="entree" id="ex-texte" dir="auto" placeholder="Ce que l'élève fait à la maison"></textarea></div>
+        <div class="fichier">
           <input type="file" id="ex-pdf" accept="application/pdf">
-          <label for="ex-pdf" class="dp-btn dp-btn--clair">📄 Joindre un PDF</label>
-          <span class="dp-fichier__nom" id="ex-pdf-nom">Aucun fichier</span>
+          <label for="ex-pdf" class="btn btn--clair"><svg class="ico" aria-hidden="true"><use href="#i-trombone"/></svg>Joindre un PDF</label>
+          <span class="fichier__nom" id="ex-pdf-nom"></span>
         </div>
+        <details class="options">
+          <summary>Plus d'options</summary>
+          <div class="champs champs--2">
+            <div class="champ"><label for="ex-date">Date</label><input class="entree" id="ex-date" type="date"></div>
+            <div class="champ">
+              <span class="label">Audio</span>
+              <div class="fichier">
+                <input type="file" id="ex-audio" accept="audio/*">
+                <label for="ex-audio" class="btn btn--clair">Joindre un audio</label>
+                <span class="fichier__nom" id="ex-audio-nom"></span>
+              </div>
+            </div>
+          </div>
+        </details>
+        <button class="btn btn--plein" type="submit">Publier</button>
       </div>
-      <div class="dp-champ">
-        <span class="eq-label">Audio <span class="eq-opt">(facultatif)</span></span>
-        <div class="dp-fichier">
-          <input type="file" id="ex-audio" accept="audio/*">
-          <label for="ex-audio" class="dp-btn dp-btn--clair">🎙️ Joindre un audio</label>
-          <span class="dp-fichier__nom" id="ex-audio-nom">Aucun fichier</span>
-        </div>
-      </div>
-      <div class="dp-champ dp-plein"><button class="dp-btn" type="submit">Publier pour les parents</button>
-        <span class="dp-fin" style="margin-left:6px">Les fichiers ne sont pas envoyés : seul leur nom s'affiche.</span></div>
     </form>
   </section>
-
-  <!-- ===== Mes exercices ===== -->
-  <section id="p-mes" role="tabpanel" aria-labelledby="t-mes" hidden>
-    <h2 class="dp-h2">Mes exercices <span class="dp-fin" id="nb-mes"></span></h2>
-    <div id="l-mes"></div>
-  </section>
-
-  <!-- ===== Ma classe ===== -->
-  <section id="p-classe" role="tabpanel" aria-labelledby="t-classe" hidden>
-    <div class="dp-bloc">
-      <div class="dp-bloc__tete">
-        <h2 class="dp-h2" id="classe-titre"></h2>
-        <div class="dp-actions">
-          <button class="dp-btn" type="button" id="btn-imprimer">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>Imprimer
-          </button>
-          <button class="dp-btn dp-btn--clair" type="button" id="btn-pdf">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0-4-4m4 4 4-4M4 17v3h16v-3"/></svg>Télécharger en PDF
-          </button>
-        </div>
-      </div>
-      <div class="dp-filtres">
-        <div class="dp-champ" style="flex:0 1 16em"><label class="eq-label" for="cl-jour">Feuille du jour</label><select class="eq-select" id="cl-jour"></select></div>
-      </div>
-      <div id="cl-exos"></div>
-    </div>
-    <div class="dp-bloc">
-      <h2 class="dp-h2">Élèves <span class="dp-fin" id="cl-nb"></span></h2>
-      <p class="dp-fin" id="cl-eleves" style="line-height:1.8"></p>
-    </div>
-  </section>
-
-  <p class="dp-pied"><button type="button" class="dp-lien" data-raz>Remettre la maquette à zéro</button></p>
 </main>
 
+<nav class="nav-bas" aria-label="Navigation">
+  <div class="nav-bas__in">
+    <a href="/demo-plateforme/"><svg class="ico" aria-hidden="true"><use href="#i-espaces"/></svg>Espaces</a>
+    <a href="#jour" data-defaut><svg class="ico" aria-hidden="true"><use href="#i-jour"/></svg>Aujourd'hui</a>
+    <a href="#publier"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>Publier</a>
+  </div>
+</nav>
+
 <!-- Feuille A4 : invisible à l'écran, seule chose imprimée. -->
-<div class="dp-feuille" id="feuille"></div>
+<div class="feuille" id="feuille"></div>
 
 <script src="/demo-plateforme/donnees.js"></script>
 <script src="/demo-plateforme/demo.js"></script>
@@ -105,91 +80,74 @@
 (function () {
   var D = DEMO, U = DEMO_UI, S = U.etat();
   var $ = function (id) { return document.getElementById(id); };
-  var moi;
+  // Mme Aminata Sow (CE1) : c'est elle qui a l'exercice en arabe.
+  var moi = U.prof("p3");
+  $("sous").textContent = "Classe de " + moi.classe + " · " + U.dateFr(D.DATE_DEMO);
 
-  // Mme Aminata Sow (CE1) par défaut : c'est elle qui a l'exercice en arabe.
-  var memo = null; try { memo = sessionStorage.getItem("cocon-demo-prof"); } catch (e) {}
-  $("choix-prof").innerHTML = S.comptes.map(function (p) { return '<option value="' + p.id + '">' + U.esc(p.nom) + " — " + p.classe + "</option>"; }).join("");
-  $("choix-prof").value = U.prof(memo) ? memo : "p3";
-  $("choix-prof").addEventListener("change", function () { try { sessionStorage.setItem("cocon-demo-prof", this.value); } catch (e) {} tout(); });
+  function duJour() {
+    return S.exercices.filter(function (x) { return x.prof === moi.id && x.date === D.DATE_DEMO; }).reverse();
+  }
 
-  U.onglets(document.querySelector(".dp-onglets"));
-  U.optionsClasses($("ex-classe"));
+  // ----- Feuille A4 -----
+  function feuille(liste) {
+    $("feuille").innerHTML =
+      '<div class="feuille__tete"><img src="/images/logo-cocon-262.webp" alt=""><div class="feuille__ecole">Au Cocon Du Bonheur<br>Ouakam, Dakar · 77 884 53 53<br>' + U.esc(moi.nom) + "</div></div>" +
+      "<h1>Classe de " + moi.classe + " — " + U.dateFr(D.DATE_DEMO) + "</h1>" +
+      '<div class="feuille__nom"><span>Prénom et nom&nbsp;:</span><span>Signature du parent&nbsp;:</span></div>' +
+      liste.map(function (x) {
+        return '<section class="feuille__exo"><div class="feuille__meta">' + U.esc(x.matiere) + " · " + x.classe + "</div>" +
+          '<h2 dir="' + U.sens(x.titre) + '">' + U.esc(x.titre) + '</h2><p class="feuille__texte" dir="' + U.sens(x.texte) + '">' + U.esc(x.texte) + '</p><div class="feuille__lignes"></div></section>';
+      }).join("") + '<p class="feuille__pied">Maquette — données fictives</p>';
+  }
+
+  function majJour() {
+    var l = duJour();
+    $("jour-liste").innerHTML = l.length ? l.map(function (x) {
+      return U.carteExo(x,
+        '<button type="button" class="btn btn--clair" data-imprimer="' + x.id + '"><svg class="ico" aria-hidden="true"><use href="#i-imprimer"/></svg>Imprimer</button>' +
+        '<button type="button" class="btn btn--clair" data-pdf="' + x.id + '"><svg class="ico" aria-hidden="true"><use href="#i-telecharger"/></svg>PDF</button>');
+    }).join("") : '<p class="doux">Rien de publié pour l\'instant.</p>';
+    feuille(l);   // un Ctrl+P du navigateur imprime aussi la bonne feuille
+  }
+  $("jour-liste").addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-imprimer],[data-pdf]"); if (!b) return;
+    var id = b.getAttribute("data-imprimer") || b.getAttribute("data-pdf");
+    feuille(S.exercices.filter(function (x) { return x.id === id; }));
+    if (b.hasAttribute("data-pdf")) {
+      U.toast("Choisissez « Enregistrer en PDF »");
+      setTimeout(function () { window.print(); }, 700);
+    } else window.print();
+  });
+  // Sur iPhone, print() rend la main tout de suite : on ne remet la feuille
+  // « du jour » qu'une fois l'impression finie.
+  window.addEventListener("afterprint", function () { feuille(duJour()); });
+
+  // ----- Formulaire -----
+  U.selectClasses($("ex-classe"), moi.classe);
   $("ex-matiere").innerHTML = D.MATIERES.map(function (m) { return "<option>" + m + "</option>"; }).join("");
-  $("ex-date").value = D.DATE_DEMO;
-
-  // Jours de la semaine de la maquette.
-  var jours = ["2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16"];
-  $("cl-jour").innerHTML = '<option value="">Toute la semaine</option>' + jours.map(function (j) { return '<option value="' + j + '">' + U.dateFr(j) + "</option>"; }).join("");
-  $("cl-jour").value = D.DATE_DEMO;
-  $("cl-jour").addEventListener("change", majClasse);
-
-  function exosDeClasse() {
-    var j = $("cl-jour").value;
-    return S.exercices.filter(function (x) { return x.classe === moi.classe && (!j || x.date === j); });
+  function vider() {
+    $("f-exo").reset();
+    $("ex-classe").value = moi.classe; $("ex-date").value = D.DATE_DEMO;
+    $("ex-pdf-nom").textContent = "Aucun fichier"; $("ex-audio-nom").textContent = "Aucun fichier";
   }
-  function majClasse() {
-    var l = exosDeClasse();
-    $("cl-exos").innerHTML = l.length ? l.map(U.carteExo).join("") : '<p class="dp-fin">Aucun exercice ce jour-là. Publiez-en un dans «&nbsp;Exercice du jour&nbsp;».</p>';
-    // Feuille tenue à jour en permanence : un Ctrl+P du navigateur imprime aussi la bonne.
-    preparerFeuille();
-  }
-
-  function tout() {
-    moi = U.prof($("choix-prof").value);
-    $("qui").textContent = moi.nom + " · " + moi.classe;
-    $("ex-classe").value = moi.classe;
-    var mes = S.exercices.filter(function (x) { return x.prof === moi.id; }).sort(function (a, b) { return a.date < b.date ? 1 : -1; });
-    $("nb-mes").textContent = "(" + mes.length + ")";
-    $("l-mes").innerHTML = mes.length ? mes.map(U.carteExo).join("") : '<p class="dp-fin">Aucun exercice publié pour l\'instant.</p>';
-    var el = U.elevesDe(moi.classe);
-    $("classe-titre").textContent = "Classe de " + moi.classe;
-    $("cl-nb").textContent = "(" + el.length + ")";
-    $("cl-eleves").textContent = el.map(function (e) { return e.prenom + " " + e.nom; }).join(" · ");
-    majClasse();
-  }
-
-  // Fichiers : on n'en lit que le nom.
   ["pdf", "audio"].forEach(function (k) {
     $("ex-" + k).addEventListener("change", function () { $("ex-" + k + "-nom").textContent = this.files[0] ? this.files[0].name : "Aucun fichier"; });
   });
-
   $("f-exo").addEventListener("submit", function (ev) {
     ev.preventDefault();
     var titre = $("ex-titre").value.trim(), texte = $("ex-texte").value.trim();
-    if (!titre) { $("ex-titre").focus(); U.toast("Donnez un titre à l'exercice"); return; }
-    if (!texte) { $("ex-texte").focus(); U.toast("Écrivez la consigne"); return; }
-    var pdf = $("ex-pdf").files[0], audio = $("ex-audio").files[0];
-    S.exercices.push({ id: "x" + Date.now(), prof: moi.id, classe: $("ex-classe").value, matiere: $("ex-matiere").value, date: $("ex-date").value || D.DATE_DEMO,
+    if (!titre) { $("ex-titre").focus(); U.toast("Donnez un titre"); return; }
+    if (!texte) { $("ex-texte").focus(); U.toast("Écrivez le texte de l'exercice"); return; }
+    var pdf = $("ex-pdf").files[0], audio = $("ex-audio").files[0], date = $("ex-date").value || D.DATE_DEMO;
+    S.exercices.push({ id: "x" + Date.now(), prof: moi.id, classe: $("ex-classe").value, matiere: $("ex-matiere").value, date: date,
       titre: titre, texte: texte, pdf: pdf ? pdf.name : "", audio: audio ? audio.name : "" });
-    U.sauver(); this.reset();
-    $("ex-date").value = D.DATE_DEMO; $("ex-pdf-nom").textContent = "Aucun fichier"; $("ex-audio-nom").textContent = "Aucun fichier";
-    tout();
-    U.toast("Exercice publié — les parents le voient déjà");
-    document.getElementById("t-mes").click();
+    U.sauver(); vider(); majJour();
+    location.hash = "jour";
+    U.toast(date === D.DATE_DEMO ? "Publié — les parents le voient déjà" : "Programmé pour le " + U.dateFr(date));
   });
 
-  // ----- Feuille A4 -----
-  function preparerFeuille() {
-    var l = exosDeClasse(), j = $("cl-jour").value;
-    $("feuille").innerHTML =
-      '<div class="dp-feuille__tete"><img src="/images/logo-cocon-262.webp" alt=""><div class="dp-feuille__ecole">Au Cocon Du Bonheur<br>Ouakam, Dakar · 77 884 53 53<br>' + U.esc(moi.nom) + "</div></div>" +
-      "<h1>Classe de " + moi.classe + " — " + (j ? U.dateFr(j) : "semaine du 12 octobre") + "</h1>" +
-      '<div class="dp-feuille__nom"><span>Prénom et nom&nbsp;:</span><span>Signature du parent&nbsp;:</span></div>' +
-      (l.length ? l.map(function (x) {
-        return '<section class="dp-feuille__exo"><div class="dp-feuille__meta">' + U.esc(x.matiere) + " · " + U.dateFr(x.date) + "</div>" +
-          '<h2 dir="' + U.sens(x.titre) + '">' + U.esc(x.titre) + '</h2><p class="dp-feuille__texte" dir="' + U.sens(x.texte) + '">' + U.esc(x.texte) + '</p><div class="dp-feuille__lignes"></div></section>';
-      }).join("") : "<p>Aucun exercice pour ce jour.</p>") +
-      '<p class="dp-feuille__pied">Maquette — données fictives</p>';
-  }
-  $("btn-imprimer").addEventListener("click", function () { preparerFeuille(); window.print(); });
-  $("btn-pdf").addEventListener("click", function () {
-    preparerFeuille();
-    U.toast("Choisissez « Enregistrer en PDF » dans la fenêtre qui s'ouvre");
-    setTimeout(function () { window.print(); }, 900);
-  });
-
-  tout();
+  vider(); majJour();
+  U.ecrans();
 })();
 </script>
 </body>

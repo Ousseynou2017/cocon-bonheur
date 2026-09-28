@@ -1,30 +1,37 @@
 /* ============================================================
-   MAQUETTE — socle commun aux 5 pages.
-   - l'état de la démo (paiements cochés, annonces écrites…) vit dans
-     sessionStorage : il suit l'onglet d'une page à l'autre et
-     s'efface quand on ferme l'onglet. Rien ne part sur un serveur.
-   - bandeau « MAQUETTE », bouton « Un avis sur cette page ? », onglets.
+   MAQUETTE — socle commun.
+   - État de la démo dans sessionStorage : il suit l'onglet d'un
+     espace à l'autre et s'efface à la fermeture. Rien ne part ailleurs.
+   - Icônes : un seul style, trait fin, injectées une fois en <symbol>.
+   - Écrans : <section data-vue="x">, choisis par l'ancre (#x) de l'URL,
+     pour que le bouton « retour » du téléphone marche.
    ============================================================ */
 (function () {
   "use strict";
   var D = window.DEMO;
-  var CLE = "cocon-demo-v1";
+  var CLE = "cocon-demo-v2";
+  var WA_ECOLE = "221778845353";   // TOUS les liens WhatsApp vont à l'école
 
   // ---------- État ----------
-  function copie(o) { return JSON.parse(JSON.stringify(o)); }
   var etat;
   try { etat = JSON.parse(sessionStorage.getItem(CLE)); } catch (e) { etat = null; }
-  if (!etat) etat = copie(D.depart);
+  if (!etat) etat = JSON.parse(JSON.stringify(D.depart));
   function sauver() { try { sessionStorage.setItem(CLE, JSON.stringify(etat)); } catch (e) { /* navigation privée : la démo marche quand même */ } }
-  function remettreAZero() { try { sessionStorage.removeItem(CLE); } catch (e) {} location.reload(); }
+  function memo(cle, val) {
+    try {
+      if (val === undefined) return sessionStorage.getItem("cocon-" + cle);
+      sessionStorage.setItem("cocon-" + cle, val);
+    } catch (e) { return null; }
+  }
 
-  // ---------- Petits outils ----------
+  // ---------- Outils ----------
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }
-  function fcfa(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " F CFA"; }
+  function nombre(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+  function fcfa(n) { return nombre(n) + " F CFA"; }
   function note(n) { return n === null || n === undefined || n === "" ? "—" : String(n).replace(".", ","); }
   function dateFr(iso) {
     var j = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
@@ -32,140 +39,109 @@
     var d = new Date(iso + "T12:00:00");
     return j[d.getDay()] + " " + d.getDate() + " " + m[d.getMonth()];
   }
-  function lienWa(numero, texte) {
-    return "https://wa.me/" + numero.replace(/\D/g, "") + "?text=" + encodeURIComponent(texte);
-  }
+  function wa(texte) { return "https://wa.me/" + WA_ECOLE + "?text=" + encodeURIComponent(texte); }
   function classe(id) { return D.CLASSES.filter(function (c) { return c.id === id; })[0]; }
   function eleve(id) { return etat.eleves.filter(function (e) { return e.id === id; })[0]; }
   function parentDe(e) { return etat.parents.filter(function (p) { return p.id === e.parent; })[0]; }
   function prof(id) { return etat.comptes.filter(function (p) { return p.id === id; })[0]; }
   function elevesDe(cid) { return etat.eleves.filter(function (e) { return e.classe === cid; }); }
-  function moyenne(liste) {
-    var v = liste.filter(function (x) { return typeof x === "number" && !isNaN(x); });
-    if (!v.length) return null;
-    return Math.round(v.reduce(function (a, b) { return a + b; }, 0) / v.length * 10) / 10;
+  function moyenne(l) {
+    var v = l.filter(function (x) { return typeof x === "number" && !isNaN(x); });
+    return v.length ? Math.round(v.reduce(function (a, b) { return a + b; }, 0) / v.length * 10) / 10 : null;
   }
-  function moyenneEleve(eid) {
-    var n = etat.notes[eid];
-    return n ? moyenne(D.MATIERES.map(function (m) { return n.parMatiere[m]; })) : null;
+  function familleAJour(p, mois) { return p.enfants.every(function (id) { return etat.paiements[id][mois]; }); }
+  // Arabe détecté → droite à gauche.
+  function sens(s) { return /[؀-ۿ]/.test(s || "") ? "rtl" : "ltr"; }
+
+  // ---------- Icônes (trait 1,6, bouts arrondis) ----------
+  var ICONES = {
+    direction: '<path d="M4 20V11M10 20V5M16 20v-6M3 20h18"/>',
+    secretariat: '<rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 3.5h6v3H9zM9 11h6M9 15h4"/>',
+    enseignant: '<path d="M3 5.5h5.5A3.5 3.5 0 0 1 12 9v11a2.5 2.5 0 0 0-2.5-2.5H3zM21 5.5h-5.5A3.5 3.5 0 0 0 12 9v11a2.5 2.5 0 0 1 2.5-2.5H21z"/>',
+    parent: '<path d="M3.5 11 12 4l8.5 7M5.5 9.5V20h13V9.5M10 20v-5h4v5"/>',
+    message: '<path d="M4.5 19.5 5.8 16A7.8 7.8 0 1 1 8.4 18.6z"/>',
+    imprimer: '<path d="M7 9V4h10v5M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v6H7z"/>',
+    telecharger: '<path d="M12 4v11M8 11l4 4 4-4M5 20h14"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    espaces: '<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
+    cloche: '<path d="M6 16v-5a6 6 0 1 1 12 0v5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0"/>',
+    paiement: '<rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18M15.5 14.5h2"/>',
+    notes: '<path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4"/>',
+    jour: '<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+    trombone: '<path d="m8.5 12.5 6-6a3 3 0 0 1 4.2 4.2l-8 8a5 5 0 0 1-7-7l7-7"/>',
+    fleche: '<path d="m9 6 6 6-6 6"/>',
+    retour: '<path d="m15 6-6 6 6 6"/>'
+  };
+  function monterIcones() {
+    var s = '<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false"><defs>';
+    for (var k in ICONES) s += '<symbol id="i-' + k + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + ICONES[k] + "</symbol>";
+    document.body.insertAdjacentHTML("afterbegin", s + "</defs></svg>");
   }
-  // Une famille est à jour si TOUS ses enfants ont payé le mois.
-  function familleAJour(pid, mois) {
-    var p = etat.parents.filter(function (x) { return x.id === pid; })[0];
-    return p.enfants.every(function (eid) { return etat.paiements[eid][mois]; });
-  }
+  function ico(nom, cls) { return '<svg class="ico' + (cls ? " " + cls : "") + '" aria-hidden="true" focusable="false"><use href="#i-' + nom + '"/></svg>'; }
 
-  // ---------- Bandeau, en-tête, bouton d'avis ----------
-  var nomPage = document.body.getAttribute("data-page") || "Accueil";
-  var sousPage = "";
-
-  function monter() {
-    var bandeau = document.createElement("div");
-    bandeau.className = "dp-bandeau";
-    bandeau.setAttribute("role", "note");
-    bandeau.innerHTML = "<strong>MAQUETTE</strong> — données fictives — rien n'est enregistré";
-    document.body.insertBefore(bandeau, document.body.firstChild);
-
-    var avis = document.createElement("a");
-    avis.className = "dp-avis";
-    avis.target = "_blank";
-    avis.rel = "noopener";
-    avis.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 3C7 3 3 6.6 3 11c0 2.4 1.2 4.6 3.1 6L5.5 21l4.1-2.3c.8.2 1.6.3 2.4.3 5 0 9-3.6 9-8s-4-8-9-8Z"/></svg><span>Un avis sur cette page&nbsp;?</span>';
-    function majAvis() {
-      var ou = nomPage + (sousPage ? " › " + sousPage : "");
-      avis.href = lienWa(D.WHATSAPP_ECOLE, "Maquette plateforme — page : " + ou + "\n\nMon avis : ");
-    }
-    majAvis();
-    document.body.appendChild(avis);
-    window.DEMO_UI.majAvis = majAvis;
-
-    var raz = document.querySelectorAll("[data-raz]");
-    for (var i = 0; i < raz.length; i++) raz[i].addEventListener("click", remettreAZero);
-  }
-
-  // ---------- Onglets ----------
-  // <div class="dp-onglets" role="tablist"> <button role="tab" aria-controls="p-x"> …
-  // Le nom de l'onglet ouvert part avec l'avis WhatsApp.
-  function onglets(racine, auChangement) {
-    var tabs = racine.querySelectorAll('[role="tab"]');
-    function ouvrir(t, focus) {
-      for (var i = 0; i < tabs.length; i++) {
-        var actif = tabs[i] === t;
-        tabs[i].setAttribute("aria-selected", actif ? "true" : "false");
-        tabs[i].tabIndex = actif ? 0 : -1;
-        document.getElementById(tabs[i].getAttribute("aria-controls")).hidden = !actif;
-      }
-      if (focus) t.focus();
-      sousPage = t.textContent.trim();
-      if (window.DEMO_UI.majAvis) window.DEMO_UI.majAvis();
-      try { sessionStorage.setItem("onglet-" + nomPage, t.id); } catch (e) {}
-      if (auChangement) auChangement(t.getAttribute("aria-controls"));
-    }
-    for (var i = 0; i < tabs.length; i++) {
-      tabs[i].addEventListener("click", function () { ouvrir(this); });
-      tabs[i].addEventListener("keydown", function (ev) {
-        var idx = Array.prototype.indexOf.call(tabs, this);
-        if (ev.key === "ArrowRight") { ev.preventDefault(); ouvrir(tabs[(idx + 1) % tabs.length], true); }
-        if (ev.key === "ArrowLeft")  { ev.preventDefault(); ouvrir(tabs[(idx - 1 + tabs.length) % tabs.length], true); }
+  // ---------- Écrans ----------
+  // opts.defaut === false : aucun écran tant que l'ancre n'en désigne pas un.
+  function ecrans(opts) {
+    opts = opts || {};
+    var vues = [].slice.call(document.querySelectorAll("[data-vue]"));
+    function montrer(premier) {
+      var h = location.hash.slice(1);
+      var ok = vues.some(function (v) { return v.getAttribute("data-vue") === h; });
+      var cible = ok ? h : (opts.defaut === false ? "" : vues[0].getAttribute("data-vue"));
+      vues.forEach(function (v) { v.hidden = v.getAttribute("data-vue") !== cible; });
+      [].forEach.call(document.querySelectorAll('a[href^="#"]'), function (a) {
+        var actif = a.getAttribute("href") === "#" + cible || (!ok && a.hasAttribute("data-defaut") && opts.defaut !== false);
+        if (actif) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
       });
+      if (!premier) window.scrollTo(0, 0);
+      if (opts.change) opts.change(cible);
     }
-    var memo = null;
-    try { memo = document.getElementById(sessionStorage.getItem("onglet-" + nomPage)); } catch (e) {}
-    ouvrir(memo && racine.contains(memo) ? memo : tabs[0]);
-    return { ouvrir: function (id) { ouvrir(document.getElementById(id)); } };
+    window.addEventListener("hashchange", function () { montrer(false); });
+    montrer(true);
   }
 
-  // Petit message de confirmation en bas d'écran.
+  // ---------- Message bref en bas d'écran ----------
   var toastEl, toastT;
   function toast(txt) {
     if (!toastEl) {
       toastEl = document.createElement("div");
-      toastEl.className = "dp-toast";
+      toastEl.className = "toast";
       toastEl.setAttribute("role", "status");
       document.body.appendChild(toastEl);
     }
     toastEl.textContent = txt;
     toastEl.classList.add("is-on");
     clearTimeout(toastT);
-    toastT = setTimeout(function () { toastEl.classList.remove("is-on"); }, 2600);
+    toastT = setTimeout(function () { toastEl.classList.remove("is-on"); }, 2400);
   }
 
-  // Remplit un <select> de classes.
-  function optionsClasses(sel, avecToutes) {
-    sel.innerHTML = (avecToutes ? '<option value="">Toutes les classes</option>' : "") +
-      D.CLASSES.map(function (c) { return '<option value="' + c.id + '">' + c.id + "</option>"; }).join("");
-  }
-
-  // Arabe détecté → droite à gauche. Le reste garde le sens du français.
-  function sens(s) { return /[؀-ۿ]/.test(s || "") ? "rtl" : "ltr"; }
-
-  // Carte d'un exercice : même rendu chez l'enseignant et chez le parent.
-  function carteExo(x) {
-    var p = prof(x.prof);
-    var pj = "";
-    if (x.pdf) pj += '<button type="button" class="dp-pj" data-pj="Le PDF « ' + esc(x.pdf) + ' » s\'ouvrirait ici">📄 ' + esc(x.pdf) + "</button>";
-    if (x.audio) pj += '<button type="button" class="dp-pj" data-pj="L\'audio « ' + esc(x.audio) + ' » se lirait ici">🔊 ' + esc(x.audio) + "</button>";
-    return '<article class="dp-exo">' +
-      '<div class="dp-exo__meta"><span class="dp-pas dp-pas--neutre">' + esc(x.matiere) + "</span><span>" + x.classe + " · " + dateFr(x.date) + (p ? " · " + esc(p.nom) : "") + "</span></div>" +
-      '<h3 class="dp-exo__titre" dir="' + sens(x.titre) + '">' + esc(x.titre) + "</h3>" +
-      '<p class="dp-exo__texte" dir="' + sens(x.texte) + '">' + esc(x.texte) + "</p>" +
-      (pj ? '<div class="dp-exo__pj">' + pj + "</div>" : "") + "</article>";
+  // ---------- Carte d'un exercice (enseignant et parent) ----------
+  function carteExo(x, actions) {
+    var pj = x.pdf ? '<button type="button" class="pj" data-pj="' + esc(x.pdf) + '">' + ico("trombone") + esc(x.pdf) + "</button>" : "";
+    return '<article class="carte exo">' +
+      '<p class="exo__meta"><span class="etiquette">' + esc(x.matiere) + "</span>" + x.classe + " · " + dateFr(x.date) + "</p>" +
+      '<h3 class="exo__titre" dir="' + sens(x.titre) + '">' + esc(x.titre) + "</h3>" +
+      '<p class="exo__texte" dir="' + sens(x.texte) + '">' + esc(x.texte) + "</p>" +
+      (pj || actions ? '<div class="exo__bas">' + pj + (actions || "") + "</div>" : "") + "</article>";
   }
   document.addEventListener("click", function (ev) {
     var b = ev.target.closest && ev.target.closest("[data-pj]");
-    if (b) toast("Maquette : " + b.getAttribute("data-pj"));
+    if (b) toast("Maquette : le PDF « " + b.getAttribute("data-pj") + " » s'ouvrirait ici");
   });
 
+  function selectClasses(sel, valeur) {
+    sel.innerHTML = D.CLASSES.map(function (c) { return '<option value="' + c.id + '">' + c.id + "</option>"; }).join("");
+    if (valeur) sel.value = valeur;
+  }
+
   window.DEMO_UI = {
-    sens: sens, carteExo: carteExo,
-    etat: function () { return etat; },
-    sauver: sauver,
-    esc: esc, fcfa: fcfa, note: note, dateFr: dateFr, lienWa: lienWa,
+    etat: function () { return etat; }, sauver: sauver, memo: memo,
+    esc: esc, nombre: nombre, fcfa: fcfa, note: note, dateFr: dateFr, wa: wa, sens: sens,
     classe: classe, eleve: eleve, parentDe: parentDe, prof: prof, elevesDe: elevesDe,
-    moyenne: moyenne, moyenneEleve: moyenneEleve, familleAJour: familleAJour,
-    onglets: onglets, toast: toast, optionsClasses: optionsClasses
+    moyenne: moyenne, familleAJour: familleAJour,
+    ico: ico, ecrans: ecrans, toast: toast, carteExo: carteExo, selectClasses: selectClasses
   };
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", monter);
-  else monter();
+  // Les pages chargent ce script en fin de <body> : le DOM est déjà là.
+  monterIcones();
 })();

@@ -2,168 +2,97 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Direction — Maquette plateforme — Au Cocon Du Bonheur</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Direction — Plateforme Au Cocon (maquette)</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="/favicon.png" sizes="32x32">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
-  <link rel="stylesheet" href="/enquete/enquete.css">
   <link rel="stylesheet" href="/demo-plateforme/demo.css">
 </head>
-<body data-page="Direction">
+<body>
+<main class="page">
+  <span class="pastille">Maquette · données fictives</span>
+  <header class="haut">
+    <h1 class="haut__titre">Direction</h1>
+    <p class="haut__sous" id="mois"></p>
+  </header>
 
-<header class="dp-tete">
-  <div class="wrap dp-tete__in">
-    <img class="dp-tete__logo" src="/images/logo-cocon-262.webp" width="262" height="125" alt="Au Cocon Du Bonheur">
-    <div class="dp-tete__espace">Direction<span class="dp-tete__qui" id="aujourdhui"></span></div>
-    <a class="dp-tete__changer" href="/demo-plateforme/"><span class="dp-tete__long">Changer d'espace</span><span class="dp-tete__court">Espaces</span></a>
-  </div>
-</header>
-
-<main class="wrap dp-main">
-  <div class="dp-onglets" role="tablist" aria-label="Rubriques de la direction">
-    <button class="dp-onglet" role="tab" id="t-bord" aria-controls="p-bord">Tableau de bord</button>
-    <button class="dp-onglet" role="tab" id="t-enquete" aria-controls="p-enquete">Enquête parents</button>
-  </div>
-
-  <section id="p-bord" role="tabpanel" aria-labelledby="t-bord">
-    <div class="dp-kpis" id="kpis"></div>
-
-    <div class="dp-bloc">
-      <div class="dp-bloc__tete">
-        <h2 class="dp-h2">Par classe</h2>
-        <span class="dp-exemple">montants exemple</span>
-      </div>
-      <div class="dp-scroll"><table class="dp-table" id="par-classe"></table></div>
+  <!-- Écran 1 : les trois chiffres, puis les familles à relancer -->
+  <section data-vue="tableau" aria-label="Tableau de bord">
+    <div class="chiffres">
+      <div class="carte chiffre chiffre--familles"><div class="chiffre__val" id="c-familles"></div><div class="chiffre__lib">familles à jour</div></div>
+      <div class="carte chiffre chiffre--argent"><div class="chiffre__val" id="c-argent"></div><div class="chiffre__lib" id="c-argent-lib"></div></div>
+      <div class="carte chiffre chiffre--eleves"><div class="chiffre__val" id="c-eleves"></div><div class="chiffre__lib">élèves inscrits</div></div>
     </div>
 
-    <div class="dp-bloc">
-      <div class="dp-bloc__tete">
-        <h2 class="dp-h2">Impayés du mois <span id="nb-impayes" class="dp-fin"></span></h2>
-        <span class="dp-exemple">numéros fictifs — n'envoyez pas</span>
-      </div>
-      <ul class="dp-liste" id="impayes"></ul>
-    </div>
-
-    <div class="dp-duo">
-      <div class="dp-bloc">
-        <div class="dp-bloc__tete">
-          <h2 class="dp-h2">Moyennes par matière</h2>
-          <div class="dp-champ" style="min-width:8em">
-            <label class="sr-only" for="choix-classe">Classe</label>
-            <select class="eq-select" id="choix-classe"></select>
-          </div>
-        </div>
-        <div class="dp-barres" id="par-matiere"></div>
-        <p class="dp-fin" style="margin-top:12px">Notes d'octobre, sur 10.</p>
-      </div>
-
-      <div class="dp-bloc">
-        <h2 class="dp-h2">Activité des enseignants</h2>
-        <p class="dp-fin" style="margin:-6px 0 12px">Exercices publiés cette semaine.</p>
-        <div class="dp-barres" id="activite"></div>
-      </div>
+    <h2 class="titre-section">À relancer</h2>
+    <div class="carte">
+      <ul class="liste" id="relances"></ul>
+      <a class="btn btn--clair btn--plein" href="#tout" id="voir-tout" style="margin-top:8px"></a>
     </div>
   </section>
 
-  <section id="p-enquete" role="tabpanel" aria-labelledby="t-enquete" hidden>
-    <div class="dp-bloc">
-      <div class="dp-bloc__tete">
-        <h2 class="dp-h2">Enquête de satisfaction des parents</h2>
-        <span class="dp-pas dp-pas--ok">Déjà en place</span>
-      </div>
-      <p class="dp-fin" style="margin-bottom:16px">L'enquête tourne déjà sur le site. Dans la plateforme, ses résultats seraient simplement rangés ici. Chiffres ci-dessous fictifs.</p>
-      <div class="dp-kpis" id="kpis-enquete" style="grid-template-columns:repeat(auto-fit,minmax(9em,1fr));margin-bottom:0"></div>
-    </div>
+  <!-- Écran 2 : toutes les familles pas à jour -->
+  <section data-vue="tout" aria-label="Toutes les familles à relancer" hidden>
+    <a class="lien" href="#tableau"><svg class="ico" aria-hidden="true"><use href="#i-retour"/></svg>Tableau</a>
+    <h2 class="titre-section" style="margin-top:8px" id="tout-titre"></h2>
+    <div class="carte"><ul class="liste" id="relances-tout"></ul></div>
   </section>
-
-  <p class="dp-pied"><button type="button" class="dp-lien" data-raz>Remettre la maquette à zéro</button></p>
 </main>
+
+<nav class="nav-bas" aria-label="Navigation">
+  <div class="nav-bas__in">
+    <a href="/demo-plateforme/"><svg class="ico" aria-hidden="true"><use href="#i-espaces"/></svg>Espaces</a>
+    <a href="#tableau" data-defaut><svg class="ico" aria-hidden="true"><use href="#i-direction"/></svg>Tableau</a>
+    <a href="#tout"><svg class="ico" aria-hidden="true"><use href="#i-cloche"/></svg>À relancer</a>
+  </div>
+</nav>
 
 <script src="/demo-plateforme/donnees.js"></script>
 <script src="/demo-plateforme/demo.js"></script>
 <script>
 (function () {
   var D = DEMO, U = DEMO_UI, S = U.etat(), M = D.MOIS_COURANT;
-  var mois = D.MOIS[M];
-  document.getElementById("aujourdhui").textContent = U.dateFr(D.DATE_DEMO).replace(/^./, function (c) { return c.toUpperCase(); }) + " (maquette)";
-  U.onglets(document.querySelector(".dp-onglets"));
+  var mois = D.MOIS[M].toLowerCase();
+  var $ = function (id) { return document.getElementById(id); };
+  $("mois").textContent = "Mois d'" + mois + " · montants exemple";
 
-  // Semaine du lundi 12 au dimanche 18 octobre.
-  function cetteSemaine(x) { return x.date >= "2026-10-12" && x.date <= "2026-10-18"; }
-
-  // ----- 4 chiffres -----
-  var familles = S.parents.length;
-  var aJour = S.parents.filter(function (p) { return U.familleAJour(p.id, M); }).length;
+  // Les chiffres se relisent de l'état : une case cochée au secrétariat les fait bouger.
+  var aJour = S.parents.filter(function (p) { return U.familleAJour(p, M); });
   var attendu = 0, encaisse = 0;
   S.eleves.forEach(function (e) {
     var s = U.classe(e.classe).scolarite;
-    attendu += s;
-    if (S.paiements[e.id][M]) encaisse += s;
+    attendu += s; if (S.paiements[e.id][M]) encaisse += s;
   });
-  var exos = S.exercices.filter(cetteSemaine).length;
-  function kpi(val, lib) { return '<div class="dp-kpi"><div class="dp-kpi__val">' + val + '</div><div class="dp-kpi__lib">' + lib + "</div></div>"; }
-  document.getElementById("kpis").innerHTML =
-    kpi(S.eleves.length, "élèves inscrits") +
-    kpi(Math.round(aJour / familles * 100) + " %", aJour + " familles sur " + familles + " à jour en " + mois.toLowerCase()) +
-    kpi(U.fcfa(encaisse).replace(" F CFA", "") + " <small>F</small>", "encaissés sur " + U.fcfa(attendu) + " attendus <span class=\"dp-exemple\">exemple</span>") +
-    kpi(exos, "exercices publiés cette semaine");
+  $("c-familles").textContent = Math.round(aJour.length / S.parents.length * 100) + " %";
+  $("c-argent").textContent = U.nombre(encaisse) + " F";
+  $("c-argent-lib").textContent = "encaissés sur " + U.nombre(attendu) + " F attendus";
+  $("c-eleves").textContent = S.eleves.length;
 
-  // ----- Tableau par classe -----
-  var lignes = D.CLASSES.map(function (c) {
-    var el = U.elevesDe(c.id);
-    var payes = el.filter(function (e) { return S.paiements[e.id][M]; }).length;
-    var moy = U.moyenne(el.map(function (e) { return U.moyenneEleve(e.id); }));
-    var p = U.prof(c.prof);
-    return "<tr><td><b>" + c.id + "</b></td><td>" + U.esc(p ? p.nom : "—") + '</td><td class="num">' + el.length +
-      '</td><td class="num">' + Math.round(payes / el.length * 100) + ' %</td><td class="num">' + U.note(moy) + "/10</td><td class=\"num\">" + U.fcfa(c.scolarite) + "</td></tr>";
-  }).join("");
-  document.getElementById("par-classe").innerHTML =
-    '<thead><tr><th>Classe</th><th>Enseignant</th><th class="num">Effectif</th><th class="num">À jour</th><th class="num">Moyenne</th><th class="num">Scolarité / mois</th></tr></thead><tbody>' + lignes + "</tbody>";
-
-  // ----- Impayés -----
-  var imp = S.eleves.filter(function (e) { return !S.paiements[e.id][M]; });
-  document.getElementById("nb-impayes").textContent = "(" + imp.length + " élèves)";
-  document.getElementById("impayes").innerHTML = imp.length ? imp.map(function (e) {
-    var p = U.parentDe(e), c = U.classe(e.classe);
-    var msg = "Bonjour " + p.nom + ",\n\nNous espérons que vous allez bien. Sauf erreur de notre part, la scolarité du mois d'" + mois.toLowerCase() +
-      " pour " + e.prenom + " (" + e.classe + "), soit " + U.fcfa(c.scolarite) + ", n'est pas encore réglée.\n\n" +
-      "Vous pouvez passer au secrétariat ou nous appeler au 77 884 53 53. Si le paiement a déjà été fait, merci de ne pas tenir compte de ce message.\n\n" +
-      "Bien cordialement,\nLa direction — Au Cocon Du Bonheur";
-    return '<li><span class="dp-liste__txt"><b>' + U.esc(e.prenom + " " + e.nom) + " · " + e.classe + "</b>" + U.esc(p.nom) + " · " + p.tel + " · " + U.fcfa(c.scolarite) +
-      '</span><a class="dp-btn" target="_blank" rel="noopener" href="' + U.lienWa("221" + p.tel, msg) + '">Relancer sur WhatsApp</a></li>';
-  }).join("") : '<li>Tout le monde est à jour ce mois-ci.</li>';
-
-  // ----- Moyennes par matière -----
-  function barres(el, lignes, max, suffixe) {
-    el.innerHTML = lignes.map(function (l) {
-      var pct = l.val === null ? 0 : Math.round(l.val / max * 100);
-      return '<div class="dp-barre"><span>' + U.esc(l.lib) + '</span><div class="dp-barre__rail" role="img" aria-label="' + U.esc(l.lib) + " : " + U.note(l.val) + suffixe +
-        '"><div class="dp-barre__fill" style="width:' + pct + '%"></div></div><span class="dp-barre__val">' + U.note(l.val) + "</span></div>";
-    }).join("");
-  }
-  var sel = document.getElementById("choix-classe");
-  U.optionsClasses(sel);
-  function majMatieres() {
-    var el = U.elevesDe(sel.value);
-    barres(document.getElementById("par-matiere"), D.MATIERES.map(function (m) {
-      return { lib: m, val: U.moyenne(el.map(function (e) { return S.notes[e.id].parMatiere[m]; })) };
-    }), 10, " sur 10");
-  }
-  sel.addEventListener("change", majMatieres);
-  majMatieres();
-
-  // ----- Activité des profs -----
-  var act = S.comptes.map(function (p) {
-    return { lib: p.nom.replace(/^(Mme|M\.) /, ""), val: S.exercices.filter(function (x) { return x.prof === p.id && cetteSemaine(x); }).length };
+  // Familles pas à jour, avec ce qu'elles doivent ce mois-ci.
+  var retard = S.parents.filter(function (p) { return !U.familleAJour(p, M); }).map(function (p) {
+    var enf = p.enfants.map(U.eleve).filter(function (e) { return !S.paiements[e.id][M]; });
+    return { p: p, enf: enf, du: enf.reduce(function (t, e) { return t + U.classe(e.classe).scolarite; }, 0) };
   });
-  var max = Math.max(5, Math.max.apply(null, act.map(function (a) { return a.val; })));
-  barres(document.getElementById("activite"), act, max, " exercices");
-  document.querySelectorAll("#activite .dp-barre").forEach(function (b) { b.style.gridTemplateColumns = "8.5em minmax(0,1fr) 2em"; });
 
-  // ----- Enquête -----
-  document.getElementById("kpis-enquete").innerHTML =
-    kpi(D.ENQUETE.reponses, "réponses de parents") + kpi(D.ENQUETE.satisfaction, "satisfaction moyenne") + kpi(D.ENQUETE.recommandent, "recommanderaient l'école");
+  function ligne(r) {
+    var qui = r.enf.map(function (e) { return e.prenom + " (" + e.classe + ")"; }).join(", ");
+    var msg = "[Maquette — relance à envoyer à " + r.p.nom + "]\n\n" +
+      "Bonjour " + r.p.nom + ",\nSauf erreur de notre part, la scolarité d'" + mois + " de " + qui + " (" + U.fcfa(r.du) + ") n'est pas encore réglée. " +
+      "Merci de passer au secrétariat ou de nous appeler au 77 884 53 53.\nBien cordialement,\nLa direction — Au Cocon Du Bonheur";
+    return '<li><span class="liste__txt"><b>' + U.esc(r.p.nom) + "</b><span>" + U.esc(qui) + " · " + U.nombre(r.du) + " F</span></span>" +
+      '<a class="btn" target="_blank" rel="noopener" href="' + U.wa(msg) + '"><svg class="ico" aria-hidden="true"><use href="#i-message"/></svg>Relancer</a></li>';
+  }
+  $("relances").innerHTML = retard.length ? retard.slice(0, 5).map(ligne).join("") : "<li>Toutes les familles sont à jour.</li>";
+  $("relances-tout").innerHTML = retard.map(ligne).join("");
+  $("voir-tout").textContent = "Voir tout (" + retard.length + ")";
+  $("voir-tout").hidden = retard.length <= 5;
+  $("tout-titre").textContent = retard.length + " familles à relancer";
+
+  U.ecrans();
 })();
 </script>
 </body>

@@ -2,67 +2,52 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Parent — Maquette plateforme — Au Cocon Du Bonheur</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Parent — Plateforme Au Cocon (maquette)</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="/favicon.png" sizes="32x32">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
-  <link rel="stylesheet" href="/enquete/enquete.css">
   <link rel="stylesheet" href="/demo-plateforme/demo.css">
 </head>
-<body data-page="Parent">
+<body>
+<main class="page">
+  <span class="pastille">Maquette · données fictives</span>
+  <header class="haut">
+    <h1 class="haut__titre">Bonjour Mme Diallo</h1>
+  </header>
 
-<header class="dp-tete">
-  <div class="wrap dp-tete__in">
-    <img class="dp-tete__logo" src="/images/logo-cocon-262.webp" width="262" height="125" alt="Au Cocon Du Bonheur">
-    <div class="dp-tete__espace">Espace parent<span class="dp-tete__qui" id="qui"></span></div>
-    <a class="dp-tete__changer" href="/demo-plateforme/"><span class="dp-tete__long">Changer d'espace</span><span class="dp-tete__court">Espaces</span></a>
-  </div>
-</header>
+  <!-- Écran unique : l'enfant choisi -->
+  <section data-vue="enfant" aria-label="Mon enfant">
+    <div class="enfants" id="enfants" role="group" aria-label="Enfant"></div>
 
-<main class="wrap dp-main">
-  <!-- Interrupteur de démonstration : il n'existera pas dans la vraie version. -->
-  <div class="dp-inter-bande">
-    <label class="dp-inter">
-      <input type="checkbox" id="pas-a-jour">
-      <span class="dp-inter__piste" aria-hidden="true"></span>
-      <span>Voir comme un parent <b>pas à jour</b></span>
-    </label>
-    <span class="dp-fin">(réglage de la maquette seulement)</span>
-  </div>
+    <div class="grille-parent">
+      <article class="carte">
+        <div class="carte__titre"><h2>Exercice du jour</h2></div>
+        <div id="exo"></div>
+      </article>
+      <article class="carte">
+        <div class="carte__titre"><h2 id="notes-titre">Notes du mois</h2></div>
+        <div id="notes"></div>
+      </article>
+      <article class="carte">
+        <div class="carte__titre"><h2>Paiement</h2><span id="pay-statut"></span></div>
+        <p class="doux" id="pay-txt"></p>
+      </article>
+    </div>
 
-  <h1 class="dp-h2">Quel enfant&nbsp;?</h1>
-  <div class="dp-enfants" id="enfants"></div>
-
-  <div class="dp-onglets" role="tablist" aria-label="Rubriques du parent">
-    <button class="dp-onglet" role="tab" id="t-exos" aria-controls="p-exos">Exercices</button>
-    <button class="dp-onglet" role="tab" id="t-notes" aria-controls="p-notes">Notes</button>
-    <button class="dp-onglet" role="tab" id="t-annonces" aria-controls="p-annonces">Annonces <span id="nb-annonces"></span></button>
-    <button class="dp-onglet" role="tab" id="t-paiement" aria-controls="p-paiement">Paiement</button>
-  </div>
-
-  <section id="p-exos" role="tabpanel" aria-labelledby="t-exos" hidden>
-    <h2 class="dp-h2">Exercices de la classe</h2>
-    <div id="l-exos"></div>
+    <p class="discret"><button type="button" class="lien doux" id="bascule"></button></p>
   </section>
-
-  <section id="p-notes" role="tabpanel" aria-labelledby="t-notes" class="dp-bloc" hidden>
-    <h2 class="dp-h2" id="notes-titre"></h2>
-    <div id="notes"></div>
-  </section>
-
-  <section id="p-annonces" role="tabpanel" aria-labelledby="t-annonces" class="dp-bloc" hidden>
-    <h2 class="dp-h2">Annonces de l'école</h2>
-    <ul class="dp-liste" id="l-annonces"></ul>
-  </section>
-
-  <section id="p-paiement" role="tabpanel" aria-labelledby="t-paiement" class="dp-bloc" hidden>
-    <div class="dp-bloc__tete"><h2 class="dp-h2">Paiement de la scolarité</h2><span class="dp-exemple">montant exemple</span></div>
-    <div id="paiement"></div>
-  </section>
-
-  <p class="dp-pied"><button type="button" class="dp-lien" data-raz>Remettre la maquette à zéro</button></p>
 </main>
+
+<nav class="nav-bas" aria-label="Navigation">
+  <div class="nav-bas__in">
+    <a href="/demo-plateforme/"><svg class="ico" aria-hidden="true"><use href="#i-espaces"/></svg>Espaces</a>
+    <a href="#enfant" data-defaut><svg class="ico" aria-hidden="true"><use href="#i-parent"/></svg>Mon enfant</a>
+  </div>
+</nav>
 
 <script src="/demo-plateforme/donnees.js"></script>
 <script src="/demo-plateforme/demo.js"></script>
@@ -71,65 +56,52 @@
   var D = DEMO, U = DEMO_UI, S = U.etat(), M = D.MOIS_COURANT;
   var $ = function (id) { return document.getElementById(id); };
   var famille = S.parents.filter(function (p) { return p.id === D.FAMILLE_DEMO; })[0];
-  var enfants = famille.enfants.map(U.eleve);
-  var choisi = enfants[0];
-  $("qui").textContent = famille.nom;
-
-  var memo = false; try { memo = sessionStorage.getItem("cocon-demo-retard") === "1"; } catch (e) {}
-  $("pas-a-jour").checked = memo;
-  $("pas-a-jour").addEventListener("change", function () { try { sessionStorage.setItem("cocon-demo-retard", this.checked ? "1" : "0"); } catch (e) {} tout(); });
+  // Mamadou (CM1) d'abord, Aïssatou (CI) ensuite.
+  var enfants = famille.enfants.map(U.eleve).sort(function (a, b) { return a.prenom === "Mamadou" ? -1 : 1; });
+  var choisi = enfants[+(U.memo("enfant") || 0)] || enfants[0];
+  var retard = U.memo("retard") === "1";
 
   $("enfants").innerHTML = enfants.map(function (e, i) {
-    return '<button type="button" class="dp-enfant" data-i="' + i + '"><b>' + U.esc(e.prenom) + "</b><span>" + e.classe + "</span></button>";
+    return '<button type="button" class="enfant" data-i="' + i + '">' + U.esc(e.prenom) + " · " + e.classe + "</button>";
   }).join("");
   $("enfants").addEventListener("click", function (ev) {
-    var b = ev.target.closest(".dp-enfant"); if (!b) return;
+    var b = ev.target.closest(".enfant"); if (!b) return;
+    U.memo("enfant", b.getAttribute("data-i"));
     choisi = enfants[+b.getAttribute("data-i")]; tout();
   });
-
-  U.onglets(document.querySelector(".dp-onglets"));
-
-  function aJour() { return !$("pas-a-jour").checked && S.paiements[choisi.id][M]; }
+  $("bascule").addEventListener("click", function () { retard = !retard; U.memo("retard", retard ? "1" : "0"); tout(); });
 
   function tout() {
     [].forEach.call($("enfants").children, function (b, i) { b.setAttribute("aria-pressed", enfants[i] === choisi ? "true" : "false"); });
-    var mois = D.MOIS[M], c = U.classe(choisi.classe);
+    var c = U.classe(choisi.classe), mois = D.MOIS[M].toLowerCase();
+    var aJour = !retard && S.paiements[choisi.id][M];
 
-    // Exercices
-    var ex = S.exercices.filter(function (x) { return x.classe === choisi.classe; }).sort(function (a, b) { return a.date < b.date ? 1 : -1; });
-    $("l-exos").innerHTML = ex.length ? ex.map(U.carteExo).join("") : '<p class="dp-fin">Pas encore d\'exercice cette semaine pour la classe de ' + choisi.classe + ".</p>";
+    // Exercice du jour : le plus récent publié aujourd'hui pour la classe.
+    var ex = S.exercices.filter(function (x) { return x.classe === choisi.classe && x.date === D.DATE_DEMO; });
+    $("exo").innerHTML = ex.length ? ex.slice().reverse().map(function (x) {
+      return U.carteExo(x).replace('class="carte exo"', 'class="exo"');
+    }).join('<hr style="border:0;border-top:1px solid rgb(94 73 102 / .1);margin:18px 0">') : '<p class="doux">Pas d\'exercice aujourd\'hui.</p>';
 
-    // Notes : cachées si la famille n'est pas à jour
-    $("notes-titre").textContent = "Notes de " + choisi.prenom + " — " + mois;
-    if (!aJour()) {
-      $("notes").innerHTML = '<div class="dp-bloque"><b>Merci de contacter l\'école</b>Les notes seront visibles dès que la situation sera réglée.<br>Secrétariat&nbsp;: 77&nbsp;884&nbsp;53&nbsp;53</div>';
+    // Notes : cachées si la famille n'est pas à jour.
+    $("notes-titre").textContent = "Notes d'" + mois;
+    if (!aJour) {
+      $("notes").innerHTML = '<div class="bloque"><b>Merci de contacter l\'école</b><span class="doux">Secrétariat : 77 884 53 53</span></div>';
     } else {
-      var n = S.notes[choisi.id], moy = U.moyenneEleve(choisi.id);
-      $("notes").innerHTML = '<div class="dp-scroll"><table class="dp-table"><thead><tr><th>Matière</th><th class="num">Note</th><th>Appréciation</th></tr></thead><tbody>' +
-        D.MATIERES.map(function (m) { var v = n.parMatiere[m]; return "<tr><td>" + m + '</td><td class="num">' + U.note(v) + "/10</td><td>" + (D.appreciation(v) || "—") + "</td></tr>"; }).join("") +
-        '</tbody><tfoot><tr><td>Moyenne</td><td class="num"><b>' + U.note(moy) + "/10</b></td><td>" + D.appreciation(moy) + "</td></tr></tfoot></table></div>" +
-        '<p style="margin-top:14px;font-size:1rem"><b>Observation&nbsp;:</b> <span dir="auto">' + U.esc(n.observation) + "</span></p>";
+      var n = S.notes[choisi.id].parMatiere;
+      var moy = U.moyenne(D.MATIERES.map(function (m) { return n[m]; }));
+      $("notes").innerHTML = '<dl class="notes-l">' + D.MATIERES.map(function (m) {
+        return "<dt>" + m + "</dt><dd>" + U.note(n[m]) + ' <span>· ' + (D.appreciation(n[m]) || "—") + "</span></dd>";
+      }).join("") + "<dt><b>Moyenne</b></dt><dd><b>" + U.note(moy) + "</b> <span>· " + D.appreciation(moy) + "</span></dd></dl>";
     }
 
-    // Annonces : toute l'école + la classe de l'enfant
-    var an = S.annonces.filter(function (a) { return a.cible === "Toute l'école" || a.cible === "Parents de " + choisi.classe; });
-    $("nb-annonces").textContent = "(" + an.length + ")";
-    $("l-annonces").innerHTML = an.map(function (a) {
-      return '<li><span class="dp-liste__txt"><b dir="auto">' + U.esc(a.titre) + '</b><span dir="auto" style="white-space:pre-line">' + U.esc(a.texte) + '</span><span class="dp-fin" style="display:block;margin-top:4px">' + U.dateFr(a.date) + " · " + U.esc(a.cible) + "</span></span></li>";
-    }).join("");
-
     // Paiement
-    var ok = aJour();
-    function pastille(cls, txt) { return '<span class="dp-pas ' + cls + '">' + txt + "</span>"; }
-    $("paiement").innerHTML = '<p style="margin-bottom:12px">' + (ok ? pastille("dp-pas--ok", "À jour") : pastille("dp-pas--non", "Pas à jour")) + " " + mois + " — " + U.fcfa(c.scolarite) + " pour " + U.esc(choisi.prenom) + " (" + c.id + ")</p>" +
-      (ok ? '<p class="dp-fin">Merci, la scolarité du mois est réglée.</p>'
-          : '<p class="dp-fin">Le paiement du mois n\'apparaît pas encore. Merci de passer au secrétariat ou d\'appeler le 77&nbsp;884&nbsp;53&nbsp;53.</p>') +
-      '<ul class="dp-liste" style="margin-top:10px">' + D.MOIS.slice(0, 4).map(function (m, i) {
-        var p = i === M ? ok : S.paiements[choisi.id][i];
-        return '<li><span class="dp-liste__txt">' + m + "</span>" + (p ? pastille("dp-pas--ok", "Payé") : i === M ? pastille("dp-pas--non", "À régler") : pastille("dp-pas--neutre", "À venir")) + "</li>";
-      }).join("") + "</ul>";
+    $("pay-statut").innerHTML = aJour ? '<span class="statut statut--ok">À jour</span>' : '<span class="statut statut--non">Pas à jour</span>';
+    $("pay-txt").textContent = (aJour ? "Octobre réglé · " : "Octobre à régler · ") + U.fcfa(c.scolarite) + " (exemple)";
+
+    $("bascule").textContent = retard ? "Revenir à un parent à jour" : "Voir comme un parent pas à jour";
   }
   tout();
+  U.ecrans();
 })();
 </script>
 </body>
