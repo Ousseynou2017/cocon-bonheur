@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Maquette plateforme — Au Cocon Du Bonheur</title>
+  <!-- Maquette de travail pour la direction : aucun lien ne mène ici. -->
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/favicon.png" sizes="32x32">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/enquete/enquete.css">
+  <link rel="stylesheet" href="/demo-plateforme/demo.css">
+</head>
+<body data-page="Accueil">
+
+<header class="dp-tete">
+  <div class="wrap dp-tete__in">
+    <img class="dp-tete__logo" src="/images/logo-cocon-262.webp" width="262" height="125" alt="Au Cocon Du Bonheur">
+    <div class="dp-tete__espace">Plateforme de l'école<span class="dp-tete__qui">Maquette à tester</span></div>
+  </div>
+</header>
+
+<main class="wrap dp-main">
+  <h1 class="dp-titre">Qui êtes-vous&nbsp;?</h1>
+  <p class="dp-intro">Touchez un espace pour le visiter. Tout est inventé&nbsp;: les élèves, les notes, les montants. Essayez tout, rien ne sera abîmé.</p>
+
+  <div class="dp-roles">
+    <a class="dp-role" href="/demo-plateforme/direction.html" data-role="la direction">
+      <span class="dp-role__je">Je suis…</span>
+      <span class="dp-role__nom">Direction</span>
+      <span class="dp-role__quoi">Les chiffres de l'école, les impayés, les moyennes, l'activité des enseignants.</span>
+    </a>
+    <a class="dp-role" href="/demo-plateforme/secretariat.html" data-role="le secrétariat">
+      <span class="dp-role__je">Je suis…</span>
+      <span class="dp-role__nom">Secrétariat</span>
+      <span class="dp-role__quoi">Élèves, parents, paiements du mois, notes, comptes, annonces.</span>
+    </a>
+    <a class="dp-role" href="/demo-plateforme/enseignant.html" data-role="un enseignant">
+      <span class="dp-role__je">Je suis…</span>
+      <span class="dp-role__nom">Enseignant</span>
+      <span class="dp-role__quoi">Publier l'exercice du jour, voir sa classe, imprimer la feuille.</span>
+    </a>
+    <a class="dp-role" href="/demo-plateforme/parent.html" data-role="un parent">
+      <span class="dp-role__je">Je suis…</span>
+      <span class="dp-role__nom">Parent</span>
+      <span class="dp-role__quoi">Exercices, notes du mois, annonces et paiement de chaque enfant.</span>
+    </a>
+  </div>
+
+  <p class="dp-pied">Vous avez déjà cliqué partout&nbsp;? <button type="button" class="dp-lien" data-raz>Remettre la maquette à zéro</button></p>
+</main>
+
+<!-- Écran de connexion FACTICE : montré une seule fois par visite.
+     Aucun champ n'est envoyé nulle part, le formulaire n'a pas d'action. -->
+<div class="dp-voile" id="connexion" hidden>
+  <div class="dp-fenetre" role="dialog" aria-modal="true" aria-labelledby="connexion-titre">
+    <h2 class="dp-h2" id="connexion-titre">Connexion</h2>
+    <p class="dp-fin">Voici ce que verra <span id="connexion-qui">chaque utilisateur</span>. Dans la maquette, pas besoin de mot de passe&nbsp;: touchez simplement «&nbsp;Entrer&nbsp;».</p>
+    <form id="connexion-form" novalidate>
+      <div class="eq-field">
+        <label class="eq-label" for="cx-tel">Numéro de téléphone</label>
+        <input class="eq-input" id="cx-tel" type="tel" inputmode="tel" value="77 000 00 00" autocomplete="off">
+      </div>
+      <div class="eq-field">
+        <label class="eq-label" for="cx-mdp">Mot de passe</label>
+        <input class="eq-input" id="cx-mdp" type="password" value="exemple" autocomplete="off">
+      </div>
+      <p class="dp-fin" style="margin-top:10px">Mot de passe oublié&nbsp;? Le secrétariat le réinitialise.</p>
+      <div class="dp-actions" style="margin-top:18px">
+        <button class="dp-btn" type="submit">Entrer</button>
+        <button class="dp-btn dp-btn--clair" type="button" id="connexion-annuler">Annuler</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/demo-plateforme/donnees.js"></script>
+<script src="/demo-plateforme/demo.js"></script>
+<script>
+(function () {
+  var voile = document.getElementById("connexion");
+  var cible = null;
+  function dejaVu() { try { return sessionStorage.getItem("cocon-demo-connexion") === "1"; } catch (e) { return false; } }
+  document.querySelectorAll(".dp-role").forEach(function (a) {
+    a.addEventListener("click", function (ev) {
+      if (dejaVu()) return;               // une fois suffit
+      ev.preventDefault();
+      cible = a.href;
+      document.getElementById("connexion-qui").textContent = a.getAttribute("data-role");
+      voile.hidden = false;
+      document.getElementById("cx-tel").focus();
+    });
+  });
+  document.getElementById("connexion-form").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    try { sessionStorage.setItem("cocon-demo-connexion", "1"); } catch (e) {}
+    location.href = cible;
+  });
+  function fermer() { voile.hidden = true; }
+  document.getElementById("connexion-annuler").addEventListener("click", fermer);
+  voile.addEventListener("click", function (ev) { if (ev.target === voile) fermer(); });
+  document.addEventListener("keydown", function (ev) { if (ev.key === "Escape") fermer(); });
+})();
+</script>
+</body>
+</html>
