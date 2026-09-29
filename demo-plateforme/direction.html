@@ -8,7 +8,7 @@
   <link rel="icon" href="/favicon.png" sizes="32x32">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/demo-plateforme/demo.css">
 </head>
 <body>
@@ -16,10 +16,10 @@
   <!-- Écran 1 : les trois chiffres, puis les familles à relancer -->
   <section data-vue="tableau" aria-labelledby="t1">
     <span class="pastille">Maquette · données fictives</span>
-    <div class="entete">
+    <div class="entete"><div>
       <h1 id="t1">Tableau de bord</h1>
       <p id="mois"></p>
-    </div>
+    </div></div>
     <div class="chiffres">
       <div class="carte chiffre chiffre--familles"><div class="chiffre__val" id="c-familles"></div><div class="chiffre__lib">familles à jour</div></div>
       <div class="carte chiffre chiffre--argent"><div class="chiffre__val" id="c-argent"></div><div class="chiffre__lib" id="c-argent-lib"></div></div>
@@ -36,10 +36,10 @@
   <!-- Écran 2 : toutes les familles pas à jour -->
   <section data-vue="tout" aria-labelledby="t2" hidden>
     <span class="pastille">Maquette · données fictives</span>
-    <div class="entete">
+    <div class="entete"><div>
       <h1 id="t2">À relancer</h1>
       <p id="tout-sous"></p>
-    </div>
+    </div></div>
     <div class="carte"><ul class="liste" id="relances-tout"></ul></div>
   </section>
 </main>

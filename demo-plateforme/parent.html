@@ -8,7 +8,7 @@
   <link rel="icon" href="/favicon.png" sizes="32x32">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/demo-plateforme/demo.css">
 </head>
 <body>
@@ -16,7 +16,7 @@
   <!-- Écran unique : l'enfant choisi -->
   <section data-vue="enfant" aria-labelledby="t1">
     <span class="pastille">Maquette · données fictives</span>
-    <div class="entete"><h1 id="t1">Bonjour Mme Diallo</h1></div>
+    <div class="entete"><div><h1 id="t1">Bonjour Mme Diallo</h1><p>Octobre · ce qu'il faut savoir aujourd'hui</p></div></div>
     <div class="enfants" id="enfants" role="group" aria-label="Enfant"></div>
 
     <div class="grille-parent">
@@ -47,7 +47,7 @@
   var famille = S.parents.filter(function (p) { return p.id === D.FAMILLE_DEMO; })[0];
   U.coquille({
     espace: "Parent",
-    liens: [{ href: "#enfant", ico: "parent", txt: "Mon enfant", defaut: true }],
+    liens: [{ href: "#enfant", ico: "parent", txt: "Accueil", defaut: true }],
     qui: { nom: famille.nom, role: "Parent (fictif)" }
   });
   // Mamadou (CM1) d'abord, Aïssatou (CI) ensuite.

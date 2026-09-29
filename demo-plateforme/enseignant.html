@@ -8,7 +8,7 @@
   <link rel="icon" href="/favicon.png" sizes="32x32">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/demo-plateforme/demo.css">
 </head>
 <body>
@@ -17,18 +17,20 @@
   <section data-vue="jour" aria-labelledby="t1">
     <span class="pastille">Maquette · données fictives</span>
     <div class="entete">
-      <h1 id="t1">Bonjour Mme Sow</h1>
-      <p id="sous"></p>
+      <div>
+        <h1 id="t1">Bonjour Mme Sow</h1>
+        <p id="sous"></p>
+      </div>
+      <a class="btn" href="#publier"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>Publier l'exercice du jour</a>
     </div>
-    <a class="action action--plein" href="#publier"><span class="action__ico"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg></span><span class="action__txt">Publier l'exercice du jour</span><span class="action__fleche"><svg class="ico" aria-hidden="true"><use href="#i-fleche"/></svg></span></a>
-    <div class="section-titre"><h2>Publiés aujourd'hui</h2></div>
+    <div class="section-titre" style="margin-top:0"><h2>Publiés aujourd'hui</h2></div>
     <div class="pile" id="jour-liste"></div>
   </section>
 
   <!-- Écran 2 : le formulaire, sur une seule page -->
   <section data-vue="publier" aria-labelledby="t2" hidden>
     <span class="pastille">Maquette · données fictives</span>
-    <div class="entete"><h1 id="t2">Exercice du jour</h1></div>
+    <div class="entete"><div><h1 id="t2">Exercice du jour</h1><p>Classe, matière, titre, texte&nbsp;: c'est tout.</p></div></div>
     <form class="carte" id="f-exo" novalidate>
       <div class="champs">
         <div class="champs champs--2">
@@ -78,7 +80,7 @@
   var moi = U.prof("p3");
   U.coquille({
     espace: "Enseignant",
-    liens: [{ href: "#jour", ico: "jour", txt: "Aujourd'hui", defaut: true }, { href: "#publier", ico: "plus", txt: "Publier" }],
+    liens: [{ href: "#jour", ico: "jour", txt: "Aujourd'hui", defaut: true }, { href: "#publier", ico: "plus", txt: "Publier un exercice" }],
     qui: { nom: moi.nom, role: "Classe de " + moi.classe }
   });
   $("sous").textContent = "Classe de " + moi.classe + " · " + U.dateFr(D.DATE_DEMO);

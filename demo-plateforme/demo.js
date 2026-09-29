@@ -74,43 +74,81 @@
     retour: '<path d="m15 6-6 6 6 6"/>',
     menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
     fermer: '<path d="M6 6l12 12M18 6 6 18"/>',
-    sortie: '<path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M10 16l-4-4 4-4M6 12h10"/>'
+    sortie: '<path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M10 16l-4-4 4-4M6 12h10"/>',
+    chevron: '<path d="m9 6 6 6-6 6"/>',
+    etincelle: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.3 6.3l2.2 2.2M15.5 15.5l2.2 2.2M6.3 17.7l2.2-2.2M15.5 8.5l2.2-2.2"/>',
+    soleil: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    lune: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>'
   };
   function monterIcones() {
     var s = '<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false"><defs>';
-    for (var k in ICONES) s += '<symbol id="i-' + k + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' + ICONES[k] + "</symbol>";
+    for (var k in ICONES) s += '<symbol id="i-' + k + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + ICONES[k] + "</symbol>";
     document.body.insertAdjacentHTML("afterbegin", s + "</defs></svg>");
   }
   function ico(nom, cls) { return '<svg class="ico' + (cls ? " " + cls : "") + '" aria-hidden="true" focusable="false"><use href="#i-' + nom + '"/></svg>'; }
 
-  // ---------- Coquille : barre latérale / tiroir ----------
-  // o = { espace, liens: [{ href, ico, txt }], qui: { nom, role } }
+  // ---------- Thème : sombre par défaut, clair au choix (mémorisé sur ce téléphone) ----------
+  function themeClair() { return document.documentElement.getAttribute("data-theme") === "clair"; }
+  function poserTheme(clair) {
+    if (clair) document.documentElement.setAttribute("data-theme", "clair");
+    else document.documentElement.removeAttribute("data-theme");
+    try { localStorage.setItem("cocon-theme", clair ? "clair" : "sombre"); } catch (e) { /* sans mémoire, le choix vaut pour la page */ }
+  }
+  try { if (localStorage.getItem("cocon-theme") === "clair") document.documentElement.setAttribute("data-theme", "clair"); } catch (e) {}
+
+  // ---------- Coquille SamaPass : barre latérale, barre du haut, tiroir ----------
+  // o = { espace, liens: [{ href, ico, txt, defaut }], qui: { nom, role } }
   function coquille(o) {
-    var initiales = o.qui.nom.replace(/^(Mme|M\.)\s+/, "").split(" ").map(function (m) { return m[0]; }).join("").slice(0, 2);
-    var liens = o.liens.map(function (l) { return '<a class="nav-lien" href="' + l.href + '"' + (l.defaut ? " data-defaut" : "") + ">" + ico(l.ico) + "<span>" + esc(l.txt) + "</span></a>"; }).join("");
-    var logo = '<img src="/images/logo-cocon-262.webp" width="262" height="125" alt="Au Cocon Du Bonheur">';
+    var initiales = o.qui.nom.replace(/^(Mme|M\.)\s+/, "").split(" ").map(function (m) { return m[0]; }).join("").slice(0, 2).toUpperCase();
+    var liens = o.liens.map(function (l) {
+      return '<a class="nav-lien" href="' + l.href + '"' + (l.defaut ? " data-defaut" : "") + '><span class="nav-lien__ico">' + ico(l.ico) + "</span>" + esc(l.txt) + "</a>";
+    }).join("");
+    var main = document.querySelector("main");
+
     document.body.insertAdjacentHTML("afterbegin",
-      '<header class="tete">' +
-        '<a class="tete__logo" href="/demo-plateforme/">' + logo + "</a>" +
-        '<span class="tete__espace">' + esc(o.espace) + "</span>" +
-        '<button type="button" class="rond" id="menu" aria-expanded="false" aria-controls="lateral" aria-label="Ouvrir le menu">' + ico("menu") + "</button>" +
-      "</header>" +
-      '<div class="voile" id="voile" hidden></div>' +
       '<aside class="lateral" id="lateral" aria-label="Menu ' + esc(o.espace) + '">' +
         '<div class="lateral__haut">' +
-          '<a class="lateral__logo" href="/demo-plateforme/">' + logo + "</a>" +
+          '<a class="tuile-logo" href="/demo-plateforme/"><img src="/images/logo-cocon-262.webp" width="262" height="125" alt="Au Cocon Du Bonheur"></a>' +
           '<button type="button" class="rond lateral__fermer" id="fermer" aria-label="Fermer le menu">' + ico("fermer") + "</button>" +
         "</div>" +
-        '<p class="lateral__espace">' + esc(o.espace) + "</p>" +
-        '<nav class="nav" aria-label="Rubriques">' + liens + "</nav>" +
+        '<nav class="nav" aria-label="Rubriques ' + esc(o.espace) + '">' + liens + "</nav>" +
         '<div class="lateral__bas">' +
-          '<div class="qui"><span class="qui__rond" aria-hidden="true">' + esc(initiales) + '</span><span class="qui__txt"><b>' + esc(o.qui.nom) + "</b><span>" + esc(o.qui.role) + "</span></span></div>" +
-          '<a class="nav-lien" href="/demo-plateforme/">' + ico("sortie") + "<span>Changer d'espace</span></a>" +
+          '<div class="qui"><span class="qui__rond" aria-hidden="true">' + esc(initiales) + "</span>" +
+            '<span class="qui__txt"><span class="qui__nom">' + esc(o.qui.nom) + '</span><span class="qui__role">' + esc(o.qui.role) + "</span></span>" + ico("chevron") + "</div>" +
+          '<a class="changer" href="/demo-plateforme/">' + ico("sortie") + "Changer d'espace</a>" +
         "</div>" +
-      "</aside>");
+      "</aside>" +
+      '<div class="voile" id="voile" hidden></div>');
+
+    // Colonne de droite : barre du haut + contenu existant.
+    var page = document.createElement("div");
+    page.className = "page";
+    main.parentNode.insertBefore(page, main);
+    page.insertAdjacentHTML("afterbegin",
+      '<header class="haut">' +
+        '<div class="haut__gauche">' +
+          '<button type="button" class="rond menu" id="menu" aria-expanded="false" aria-controls="lateral" aria-label="Ouvrir le menu">' + ico("menu") + "</button>" +
+          '<nav class="ariane" aria-label="Fil d’Ariane"><a class="ariane__racine" href="/demo-plateforme/">Au Cocon</a><span class="ariane__sep" aria-hidden="true">/</span><span class="ariane__page" id="ariane-page" data-espace="' + esc(o.espace) + '" aria-current="page">' + esc(o.espace) + "</span></nav>" +
+        "</div>" +
+        '<div class="haut__droite">' +
+          '<a class="pilule-site" href="/" target="_blank" rel="noopener">' + ico("etincelle") + "Voir le site</a>" +
+          '<button type="button" class="rond" id="cloche" aria-label="Notifications">' + ico("cloche") + '<span class="rond__point" aria-hidden="true"></span></button>' +
+          '<button type="button" class="rond" id="theme"></button>' +
+        "</div>" +
+      "</header>");
+    page.appendChild(main);
+
+    var theme = document.getElementById("theme");
+    function majTheme() {
+      var clair = themeClair();
+      theme.innerHTML = ico(clair ? "lune" : "soleil");
+      theme.setAttribute("aria-label", clair ? "Passer au thème sombre" : "Passer au thème clair");
+    }
+    theme.addEventListener("click", function () { poserTheme(!themeClair()); majTheme(); });
+    majTheme();
+    document.getElementById("cloche").addEventListener("click", function () { toast("Maquette : aucune notification pour l'instant"); });
 
     var lat = document.getElementById("lateral"), voile = document.getElementById("voile"), btn = document.getElementById("menu");
-    var main = document.querySelector("main");
     var mobile = window.matchMedia("(max-width: 1023px)");
     var ouvert = false;
     // Fermé sur téléphone = inerte : infocusable tout de suite, sans dépendre
@@ -121,7 +159,7 @@
       ouvert = true; majInert();
       document.body.classList.add("tiroir-ouvert");
       voile.hidden = false; btn.setAttribute("aria-expanded", "true");
-      if (main) main.inert = true;
+      page.inert = true;
       document.getElementById("fermer").focus();
     }
     function fermer(rendreFocus) {
@@ -129,7 +167,7 @@
       ouvert = false; majInert();
       document.body.classList.remove("tiroir-ouvert");
       voile.hidden = true; btn.setAttribute("aria-expanded", "false");
-      if (main) main.inert = false;
+      page.inert = false;
       if (rendreFocus !== false) btn.focus();
     }
     btn.addEventListener("click", ouvrir);
@@ -163,6 +201,9 @@
         var actif = a.getAttribute("href") === "#" + cible || (!ok && a.hasAttribute("data-defaut") && opts.defaut !== false);
         if (actif) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
       });
+      // Fil d'Ariane : le lien actif de la barre latérale, sinon le nom de l'espace.
+      var ap = document.getElementById("ariane-page"), actif = document.querySelector('.nav-lien[aria-current="page"]');
+      if (ap) ap.textContent = actif ? actif.textContent : ap.getAttribute("data-espace");
       if (!premier) window.scrollTo(0, 0);
       if (opts.change) opts.change(cible);
     }
